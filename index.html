@@ -118,7 +118,7 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .rm-card{background:var(--bg0);border:.5px solid var(--b3);border-radius:var(--r16);margin-bottom:12px;overflow:hidden;transition:all .18s}
 .rm-card:hover{border-color:var(--acc-m);box-shadow:0 2px 12px rgba(91,76,245,.08)}
 .rm-card-hd{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;cursor:pointer;user-select:none}
-.rm-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.rm-icon{width:22px;height:22px;border-radius:6px;flex-shrink:0;margin-top:1px;background:var(--acc-l);display:flex;align-items:center;justify-content:center}
 .rm-name{font-weight:700;font-size:16px;flex:1;min-width:0;line-height:1.35}
 .rm-badges{display:flex;gap:5px;align-items:center;flex-shrink:0}
 .cnt{font-size:10px;padding:1px 6px;border-radius:6px;color:var(--t3)}
@@ -251,6 +251,9 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
     <div style="margin-top:18px;padding-top:18px;border-top:.5px solid var(--b3)">
       <div style="font-size:11px;color:var(--t3);margin-bottom:10px">Nie masz jeszcze hasła?</div>
       <button onclick="showSetPassword()" style="font-size:12px;color:var(--acc);background:none;border:none;cursor:pointer;font-family:var(--font)">Ustaw nowe hasło</button>
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:.5px solid var(--b3)">
+      <button onclick="emergencyReset()" style="font-size:11px;color:var(--t3);background:none;border:none;cursor:pointer;font-family:var(--font)">Nie pamiętam hasła — resetuj dostęp</button>
     </div>
   </div>
 </div>
@@ -529,7 +532,11 @@ function renderProjectsView(c){
             <button class="btn xs danger" onclick="event.stopPropagation();deleteProject('${p.id}')">✕ Usuń</button>
           </div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">${p.name}</div>
-          <div style="font-size:12px;color:var(--t3);margin-bottom:12px">${pitems.length} tasków · ${pt} zadań</div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:8px">${pitems.length} tasków · ${pt} zadań</div>
+          ${p.engage!=null?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <div style="flex:1;height:4px;background:var(--b3);border-radius:2px"><div style="height:100%;background:${p.color};border-radius:2px;width:${p.engage}%"></div></div>
+            <span style="font-size:11px;font-weight:600;color:${p.color};flex-shrink:0">${p.engage}% zaangażowania</span>
+          </div>`:''}
           <div style="background:var(--b3);border-radius:4px;height:5px;overflow:hidden"><div style="height:100%;background:${p.color};border-radius:4px;width:${pt?Math.round(pd/pt*100):0}%"></div></div>
           <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--t3)"><span>${pd}/${pt} zadań</span><span onclick="event.stopPropagation();S.curProj='${p.id}';goView('roadmap')" style="color:var(--acc);cursor:pointer">→ Roadmapa</span></div>
         </div>`;}).join('')}
@@ -575,28 +582,73 @@ function togGlobalTask(tid,iid){const item=S.items.find(x=>x.id===iid);if(!item)
 
 // ───────────────────────── NOTES VIEW ─────────────────────────
 function renderNotes(c){
-  const groups={};S.allNotes.forEach(n=>{if(!groups[n.date])groups[n.date]=[];groups[n.date].push(n);});
-  const days=Object.keys(groups).sort((a,b)=>new Date(b)-new Date(a));
-  c.innerHTML=`<div class="view-header"><div class="view-title">Notatki</div><button class="btn pri xs" onclick="openAddNote()">+ Notatka</button></div>
-    <div class="timeline">
-      ${days.map(day=>`<div class="tl-day">
-        <div class="tl-day-label">${day}</div>
-        ${groups[day].map(n=>{
-          const meet=n.meetingId?S.meetings.find(m=>m.id===n.meetingId):null;
-          const item=n.itemId?S.items.find(i=>i.id===n.itemId):null;
-          return`<div class="tl-note" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })">
-            <div class="tl-note-title">${n.title}</div>
-            <div class="tl-note-body">${n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,"").slice(0,200):n.body}</div>
-            <div class="tl-note-foot">
-              ${meet?`<span class="tl-badge tl-meeting">◷ ${meet.title}</span>`:''}
-              ${item?`<span class="tl-badge tl-roadmap">→ ${item.name}</span>`:''}
-              ${!meet&&!item?`<span class="tl-badge tl-free">◻ Luźna notatka</span>`:''}
-              ${n.atts&&n.atts.length?`<span style="font-size:10px;color:var(--t3)">📎 ${n.atts.length}</span>`:''}
-            </div>
-          </div>`;}).join('')}
-      </div>`).join('')}
-      ${!days.length?`<div class="empty">Brak notatek. Dodaj pierwszą!</div>`:''}
+  function dateToQ(dateStr){
+    const months={'stycznia':1,'lutego':2,'marca':3,'kwietnia':4,'maja':5,'czerwca':6,'lipca':7,'sierpnia':8,'wrzesnia':9,'pazdziernika':10,'listopada':11,'grudnia':12,'kwi':4,'mar':3,'lut':2,'sty':1,'maj':5,'cze':6,'lip':7,'sie':8,'wrz':9,'paz':10,'lis':11,'gru':12};
+    const parts=dateStr.split(' ');if(parts.length<3)return'Inne';
+    const rawM=parts[1]?parts[1].toLowerCase().replace(/\u0105/g,'a').replace(/\u0119/g,'e').replace(/\u017a/g,'z').replace(/\u017c/g,'z').replace(/\u00f3/g,'o').replace(/\u0107/g,'c').replace(/\u0142/g,'l').replace(/\u015b/g,'s').replace(/\u0144/g,'n'):'';
+    const m=months[rawM]||null;
+    const y=parseInt(parts[2]);
+    if(!m||!y)return'Inne';
+    return'Q'+Math.ceil(m/3)+' '+y;
+  }
+  function noteCard(n){
+    const meet=n.meetingId?S.meetings.find(m=>m.id===n.meetingId):null;
+    const item=n.itemId?S.items.find(i=>i.id===n.itemId):null;
+    return`<div class="tl-note" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })">
+      <div class="tl-note-title">${n.title}</div>
+      <div class="tl-note-body">${n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,'').slice(0,200):n.body}</div>
+      <div class="tl-note-foot">
+        <span style="font-size:10px;color:var(--t3)">${n.date}</span>
+        ${meet?`<span class="tl-badge tl-meeting">&#9656; ${meet.title}</span>`:''}
+        ${item?`<span class="tl-badge tl-roadmap">&#8594; ${item.name}</span>`:''}
+        ${!meet&&!item?`<span class="tl-badge tl-free">&#9633; Luźna notatka</span>`:''}
+        ${n.imgs&&n.imgs.length?`<span style="font-size:10px;color:var(--t3)">&#128247; ${n.imgs.length}</span>`:''}
+      </div>
     </div>`;
+  }
+  const qGroups={};
+  S.allNotes.forEach(n=>{const q=dateToQ(n.date);if(!qGroups[q])qGroups[q]=[];qGroups[q].push(n);});
+  const qKeys=Object.keys(qGroups).filter(k=>k!=='Inne').sort((a,b)=>{
+    const pa=a.split(' ');const pb=b.split(' ');
+    const va=parseInt(pa[1])*10+parseInt(pa[0].slice(1));
+    const vb=parseInt(pb[1])*10+parseInt(pb[0].slice(1));
+    return vb-va;
+  });
+  if(qGroups['Inne'])qKeys.push('Inne');
+  c.innerHTML=`<div class="view-header"><div class="view-title">Notatki</div><button class="btn pri xs" onclick="openAddNote()">+ Notatka</button></div>
+    ${qKeys.map(q=>{
+      const notes=qGroups[q];
+      const qLabel=q==='Inne'?'?':q.split(' ')[0];
+      const byDate={};
+      notes.forEach(n=>{
+        const parts=n.date.split(' ');
+        const mk=parts.length>=3?parts[1]+' '+parts[2]:n.date;
+        if(!byDate[mk])byDate[mk]=[];byDate[mk].push(n);
+      });
+      const dateKeys=Object.keys(byDate);
+      return`<div style="margin-bottom:32px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:.5px solid var(--b3)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:34px;height:34px;border-radius:9px;background:var(--acc-l);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--acc)">${qLabel}</div>
+            <div>
+              <div style="font-weight:700;font-size:15px">${q}</div>
+              <div style="font-size:11px;color:var(--t3)">${notes.length} notat${notes.length===1?'ka':notes.length<5?'ki':'ek'}</div>
+            </div>
+          </div>
+          <button class="btn xs" onclick="openAddNote()">+ Notatka</button>
+        </div>
+        <div style="padding-left:16px;border-left:1px solid var(--b3)">
+          ${dateKeys.map(mk=>`<div style="margin-bottom:16px;position:relative">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              <div style="width:10px;height:10px;border-radius:50%;background:var(--acc);border:2px solid var(--bg0);position:absolute;left:-21px;top:3px"></div>
+              <span style="font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em">${mk}</span>
+            </div>
+            ${byDate[mk].map(n=>noteCard(n)).join('')}
+          </div>`).join('')}
+        </div>
+      </div>`;
+    }).join('')}
+    ${!qKeys.length?`<div class="empty">Brak notatek. Dodaj pierwszą!</div>`:''}`;
 }
 
 function renderNoteDetail(c,id){
@@ -733,7 +785,8 @@ function deleteMeeting(id){if(!confirm('Usunąć spotkanie?'))return;S.meetings=
 function renderRoadmap(c){
   updateBadges();
   const proj=S.projects;
-  const tabsHTML=`<div class="proj-tabs">
+  const curProjObj=S.projects.find(x=>x.id===S.curProj)||S.projects[0];
+const tabsHTML=`<div class="proj-tabs">
     ${proj.map(p=>`<div class="ptab ${S.curProj===p.id?'act':''}" onclick="switchProj('${p.id}')">
       <div class="ptab-dot" style="background:${p.color}"></div>${p.name}
       <div class="ptab-del" onclick="event.stopPropagation();deleteProjectRm('${p.id}')">✕</div>
@@ -742,6 +795,8 @@ function renderRoadmap(c){
   </div>`;
   const p=proj.find(x=>x.id===S.curProj)||proj[0];
   if(!p){c.innerHTML=tabsHTML+`<div class="empty">Brak projektów. Dodaj pierwszy!</div>`;return;}
+  const engageBar=p.engage!=null?`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--bg1);border-radius:var(--r8);border:.5px solid var(--b3)"><div style="font-size:12px;color:var(--t2)">Moje zaangażowanie w tym kwartale:</div><div style="flex:1;height:5px;background:var(--b3);border-radius:3px;overflow:hidden"><div style="height:100%;background:${p.color};border-radius:3px;width:${p.engage}%"></div></div><div style="font-size:13px;font-weight:700;color:${p.color};flex-shrink:0">${p.engage}%</div></div>`:"";
+  const qHTMLHeader=engageBar;
   const items=S.items.filter(i=>i.pid===p.id);
   const qs=[...new Set(items.map(i=>i.q))].sort();
   const qHTML=qs.length?qs.map(q=>{
@@ -753,7 +808,7 @@ function renderRoadmap(c){
       ${qItems.map(item=>rmCardHTML(item,p.color)).join('')}
     </div>`;}).join('')
     :`<div style="text-align:center;padding:48px 0;color:var(--t3)">Brak tasków w tym projekcie.<br><br><button class="btn pri xs" onclick="openAddItem()">+ Dodaj task</button></div>`;
-  c.innerHTML=tabsHTML+qHTML;
+  c.innerHTML=tabsHTML+qHTMLHeader+qHTML;
 }
 function deleteProjectRm(pid){if(!confirm('Usunąć projekt i wszystkie jego taski?'))return;S.projects=S.projects.filter(p=>p.id!==pid);S.items=S.items.filter(i=>i.pid!==pid);if(S.curProj===pid)S.curProj=S.projects[0]?.id||'';persist();renderRoadmap($('content'));}
 function switchProj(pid){S.curProj=pid;persist();renderRoadmap($('content'));}
@@ -763,7 +818,7 @@ function rmCardHTML(item,projColor){
   const open=!!S.expanded[item.id];
   return`<div class="rm-card" id="rmc-${item.id}">
     <div class="rm-card-hd" onclick="toggleRM('${item.id}')">
-      <div class="rm-dot" style="background:${projColor}"></div>
+      <div class="rm-icon" style="background:${projColor}22"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="${projColor}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg></div>
       <span class="rm-name">${item.name}</span>
       <div class="rm-badges">
         <span class="pill ${SC[item.status]}">${SL[item.status]}</span>
@@ -803,6 +858,12 @@ function openEditItem(id){
     <div class="fg"><label class="fl">Nazwa taska</label><input class="fi" id="mo-name" value="${item.name.replace(/"/g,'&quot;')}"></div>
     <div class="fg"><label class="fl">Kwartał</label><select class="fs" id="mo-q">${quarterOptions}</select></div>
     <div class="fg"><label class="fl">Status</label><select class="fs" id="mo-s">${statusOptions}</select></div>
+    <div class="fg"><label class="fl">Deadline (opcjonalnie)</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select class="fs" id="mo-dl-day" style="width:100px"><option value="">Dzień</option>${Array.from({length:31},(_,i)=>`<option value="${i+1}" ${item.deadlineDay==i+1?'selected':''}>${i+1}</option>`).join('')}</select>
+        <select class="fs" id="mo-dl-month" style="flex:1"><option value="">Miesiąc</option>${['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'].map((m,i)=>`<option value="${i+1}" ${item.deadlineMonth==i+1?'selected':''}>${m}</option>`).join('')}</select>
+      </div>
+    </div>
     <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3">${item.poDesc||''}</textarea></div>
     <div class="fg"><label class="fl">Mój opis (opcjonalnie)</label><textarea class="ta" id="mo-my" rows="3">${item.myDesc||''}</textarea></div>`,'item-edit',{id});
 }
@@ -1099,7 +1160,13 @@ function openAddProject(){
   openMo('Nowy projekt',`<div class="fg"><label class="fl">Nazwa projektu</label><input class="fi" id="mo-pname" placeholder="np. Platform Redesign"></div>
     <div class="fg"><label class="fl">Kolor</label><div style="display:flex;gap:8px;flex-wrap:wrap" id="cp">
       ${['#5B4CF5','#EF9F27','#1D9E75','#D4537E','#378ADD','#EF4444','#888780'].map(c=>`<div onclick="selColor('${c}')" id="cp${c.slice(1)}" style="width:26px;height:26px;border-radius:50%;background:${c};cursor:pointer;border:2px solid transparent;transition:border-color .15s"></div>`).join('')}
-    </div></div>`,'proj');
+    </div></div>
+    <div class="fg"><label class="fl">Moje zaangażowanie w tym kwartale</label>
+      <div style="display:flex;align-items:center;gap:12px">
+        <input type="range" id="mo-engage" min="0" max="100" step="5" value="50" style="flex:1" oninput="$('mo-engage-val').textContent=this.value+'%'">
+        <span id="mo-engage-val" style="font-size:14px;font-weight:700;color:var(--acc);min-width:40px">50%</span>
+      </div>
+    </div>`,'proj');
   window._sc='#5B4CF5';setTimeout(()=>{const el=$('cp5B4CF5');if(el)el.style.borderColor='var(--t1)';},50);
 }
 function selColor(c){window._sc=c;document.querySelectorAll('#cp div').forEach(d=>d.style.borderColor='transparent');const el=$('cp'+c.slice(1));if(el)el.style.borderColor='var(--t1)';}
@@ -1113,13 +1180,19 @@ function openAddItem(){
   // Auto-select the currently active project
   const currentProjId = S.curProj || (S.projects[0]?.id || '');
   const projectOptions = S.projects.map(p=>`<option value="${p.id}" ${p.id===currentProjId?'selected':''}>${p.name}</option>`).join('');
-  const quarterOptions = QUARTERS.map(q=>`<option value="${q}" ${q==='Q2 2025'?'selected':''}>${q}</option>`).join('');
+  const quarterOptions = QUARTERS.map(q=>`<option value="${q}" ${q==='Q2 2026'?'selected':''}>${q}</option>`).join('');
 
   openMo('Nowy task z roadmapy',`
     <div class="fg"><label class="fl">Projekt</label><select class="fs" id="mo-pid">${projectOptions}</select></div>
     <div class="fg"><label class="fl">Nazwa taska</label><input class="fi" id="mo-name" placeholder="np. Redesign ustawień"></div>
     <div class="fg"><label class="fl">Kwartał</label><select class="fs" id="mo-q">${quarterOptions}</select></div>
     <div class="fg"><label class="fl">Status</label><select class="fs" id="mo-s">${statusOptionsHTML('planning')}</select></div>
+    <div class="fg"><label class="fl">Deadline (opcjonalnie)</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select class="fs" id="mo-dl-day" style="width:100px"><option value="">Dzień</option>${Array.from({length:31},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('')}</select>
+        <select class="fs" id="mo-dl-month" style="flex:1"><option value="">Miesiąc</option>${['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'].map((m,i)=>`<option value="${i+1}">${m}</option>`).join('')}</select>
+      </div>
+    </div>
     <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3" placeholder="Cel, kontekst biznesowy..."></textarea></div>
     <div class="fg"><label class="fl">Mój opis (opcjonalnie)</label><textarea class="ta" id="mo-my" rows="3" placeholder="Twoje notatki, przemyślenia..."></textarea></div>`,'item');
 }
@@ -1194,13 +1267,16 @@ function openEditNote(id){enterNoteEdit(id);}"></div>
 function saveMo(){
   if(moMode==='proj'){
     const name=$('mo-pname')?.value.trim();if(!name)return;
-    const id=uid();S.projects.push({id,name,color:window._sc||'#5B4CF5'});S.curProj=id;persist();closeMo();
+    const engage=parseInt($('mo-engage')?.value)||50;
+    const id=uid();S.projects.push({id,name,color:window._sc||'#5B4CF5',engage});S.curProj=id;persist();closeMo();
     if(S.curView==='roadmap')renderRoadmap($('content'));else goView('projects');
   }
   else if(moMode==='item'){
     const name=$('mo-name')?.value.trim();if(!name)return;
     const id=uid();
+    const dlDay=parseInt($('mo-dl-day')?.value)||null;const dlMonth=parseInt($('mo-dl-month')?.value)||null;
     S.items.push({id,pid:$('mo-pid')?.value,q:$('mo-q')?.value,name,status:$('mo-s')?.value||'planning',
+      deadlineDay:dlDay,deadlineMonth:dlMonth,
       poDesc:$('mo-po')?.value.trim()||'',myDesc:$('mo-my')?.value.trim()||'',kpis:[],tasks:[],notes:[],atts:[]});
     S.curProj=$('mo-pid')?.value;
     const item=S.items[S.items.length-1];
@@ -1216,6 +1292,8 @@ function saveMo(){
     item.name=name;
     item.q=$('mo-q')?.value||item.q;
     item.status=$('mo-s')?.value||item.status;
+    item.deadlineDay=parseInt($('mo-dl-day')?.value)||null;
+    item.deadlineMonth=parseInt($('mo-dl-month')?.value)||null;
     item.poDesc=$('mo-po')?.value.trim()||'';
     item.myDesc=$('mo-my')?.value.trim()||'';
     S.curProj=item.pid;
@@ -1330,7 +1408,9 @@ function initLock(){
   const stored = localStorage.getItem(PW_KEY);
   const session = sessionStorage.getItem(SESSION_KEY);
   if(!stored){
-    showSetPassword(true);
+    // No password set yet — go straight to app with prompt to set password
+    document.getElementById('lock-screen').style.display = 'none';
+    unlock();
     return;
   }
   if(session === stored){
@@ -1359,6 +1439,15 @@ function tryUnlock(){
 function unlock(){
   document.getElementById('main-app').style.display = 'flex';
   if(typeof startApp==='function')startApp();
+}
+
+function emergencyReset(){
+  if(!confirm('Czy na pewno chcesz zresetować hasło? Twoje dane w aplikacji NIE zostaną usunięte — tylko hasło.'))return;
+  localStorage.removeItem('designos-pw');
+  sessionStorage.removeItem('designos-session');
+  document.getElementById('lock-err').textContent = '';
+  document.getElementById('lock-input').value = '';
+  showSetPassword(true);
 }
 
 function showSetPassword(firstTime){
