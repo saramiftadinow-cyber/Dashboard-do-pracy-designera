@@ -72,6 +72,29 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .fi-sm{flex:1;padding:6px 9px;border:.5px solid var(--b2);border-radius:var(--r8);background:var(--bg1);color:var(--t1);font-size:12px;font-family:var(--font)}
 .fi-due{width:80px;padding:6px 9px;border:.5px solid var(--b2);border-radius:var(--r8);background:var(--bg1);color:var(--t1);font-size:12px;font-family:var(--font)}
 .ta{resize:vertical}
+.re-wrap{border:.5px solid var(--b2);border-radius:var(--r8);background:var(--bg1);overflow:hidden}
+.re-wrap:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px rgba(91,76,245,.12)}
+.re-toolbar{display:flex;align-items:center;gap:1px;padding:5px 8px;border-bottom:.5px solid var(--b3);background:var(--bg0);flex-wrap:wrap}
+.re-btn{min-width:28px;height:26px;border:none;background:transparent;border-radius:5px;cursor:pointer;font-size:12px;color:var(--t2);display:flex;align-items:center;justify-content:center;padding:0 4px;font-family:var(--font);transition:background .1s;flex-shrink:0}
+.re-btn:hover{background:var(--bg1);color:var(--t1)}
+.re-sep{width:.5px;height:18px;background:var(--b3);margin:0 4px;flex-shrink:0}
+.re-body{min-height:180px;padding:12px 14px;outline:none;font-size:13px;color:var(--t1);line-height:1.7;font-family:var(--font)}
+.re-body:empty::before{content:attr(data-ph);color:var(--t3);pointer-events:none}
+.re-body h1{font-size:20px;font-weight:700;margin:8px 0 4px}
+.re-body h2{font-size:16px;font-weight:700;margin:6px 0 3px}
+.re-body h3{font-size:14px;font-weight:600;margin:4px 0 2px}
+.re-body ul,.re-body ol{padding-left:20px;margin:4px 0}
+.re-body li{margin:2px 0}
+.re-body blockquote{border-left:3px solid var(--acc-m);margin:6px 0;padding:4px 12px;color:var(--t2);background:var(--acc-l);border-radius:0 4px 4px 0}
+.re-body code{background:var(--bg2);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:12px}
+.re-body a{color:var(--acc)}
+.re-img-grid{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.re-img-card{position:relative;border-radius:var(--r8);overflow:hidden;border:.5px solid var(--b3);display:inline-block}
+.re-img-card img{display:block;max-width:280px;max-height:200px;object-fit:cover;cursor:zoom-in}
+.re-img-del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .15s}
+.re-img-card:hover .re-img-del{opacity:1}
+.re-img-full{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:200;cursor:zoom-out}
+.re-img-full img{max-width:90vw;max-height:90vh;border-radius:var(--r12)}
 .fg{margin-bottom:10px}
 .fl{font-size:11px;color:var(--t2);margin-bottom:4px;display:block;font-weight:500}
 .fi:focus,.fi-sm:focus,.fi-due:focus,.ta:focus,.fs:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(91,76,245,.12)}
@@ -91,12 +114,12 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 /* QUARTER / ROADMAP */
 .q-section{margin-bottom:26px}
 .q-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:7px;border-bottom:.5px solid var(--b3)}
-.q-title{font-weight:700;font-size:13px;color:var(--t1)}
-.rm-card{background:var(--bg0);border:.5px solid var(--b3);border-radius:var(--r12);margin-bottom:8px;overflow:hidden;transition:border-color .15s}
-.rm-card:hover{border-color:var(--b2)}
-.rm-card-hd{display:flex;align-items:center;gap:9px;padding:13px 15px;cursor:pointer;user-select:none}
-.rm-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.rm-name{font-weight:600;font-size:14px;flex:1;min-width:0}
+.q-title{font-weight:700;font-size:14px;color:var(--t1);letter-spacing:.02em}
+.rm-card{background:var(--bg0);border:.5px solid var(--b3);border-radius:var(--r16);margin-bottom:12px;overflow:hidden;transition:all .18s}
+.rm-card:hover{border-color:var(--acc-m);box-shadow:0 2px 12px rgba(91,76,245,.08)}
+.rm-card-hd{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;cursor:pointer;user-select:none}
+.rm-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.rm-name{font-weight:700;font-size:16px;flex:1;min-width:0;line-height:1.35}
 .rm-badges{display:flex;gap:5px;align-items:center;flex-shrink:0}
 .cnt{font-size:10px;padding:1px 6px;border-radius:6px;color:var(--t3)}
 .cnt.has{background:var(--acc-l);color:var(--acc)}
@@ -155,7 +178,7 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 /* MODAL */
 .mo-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);align-items:flex-start;justify-content:center;padding:60px 20px;z-index:100;backdrop-filter:blur(2px)}
 .mo-overlay.open{display:flex}
-.mo-box{background:var(--bg0);border-radius:var(--r16);border:.5px solid var(--b2);padding:26px;width:520px;max-width:100%;max-height:82vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.mo-box{background:var(--bg0);border-radius:var(--r16);border:.5px solid var(--b2);padding:26px;width:700px;max-width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
 .mo-title{font-weight:700;font-size:17px;margin-bottom:18px}
 .mo-acts{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:.5px solid var(--b3)}
 
@@ -386,7 +409,7 @@ function loadState(){try{const s=localStorage.getItem('dos2');if(s)return JSON.p
 function persist(){try{localStorage.setItem('dos2',JSON.stringify({projects:S.projects,items:S.items,meetings:S.meetings,allNotes:S.allNotes,curProj:S.curProj}));}catch(e){}}
 
 const saved=loadState();
-const S={...(saved||defState()),expanded:{},curView:'roadmap',moMode:'',kpiPendingLinks:{},taskFilter:'all'};
+const S={...(saved||defState()),expanded:{},curView:'roadmap',moMode:'',kpiPendingLinks:{},taskFilter:'all',noteEditMode:null};
 if(!saved){S.curProj='p1';}
 
 // ───────────────────────── UTILS ─────────────────────────
@@ -426,7 +449,7 @@ function setBc(parts){
 function viewTitle(v){return{roadmap:'Roadmapa',dashboard:'Dashboard',tasks:'Zadania',notes:'Notatki',meetings:'Spotkania',projects:'Projekty'}[v]||'DesignOS'}
 function setTbActions(v){
   const el=$('tb-actions');
-  if(v==='roadmap')el.innerHTML=`<button class="btn xs" onclick="openAddProject()">+ Projekt</button>&nbsp;<button class="btn xs pri" onclick="openAddItem()">+ Podprojekt</button>`;
+  if(v==='roadmap')el.innerHTML=`<button class="btn xs" onclick="openAddProject()">+ Projekt</button>&nbsp;<button class="btn xs pri" onclick="openAddItem()">+ Task</button>`;
   else if(v==='tasks')el.innerHTML=`<button class="btn xs pri" onclick="openAddGlobalTask()">+ Zadanie</button>`;
   else if(v==='notes')el.innerHTML=`<button class="btn xs pri" onclick="openAddNote()">+ Notatka</button>`;
   else if(v==='meetings')el.innerHTML=`<button class="btn xs pri" onclick="openAddMeeting()">+ Spotkanie</button>`;
@@ -470,7 +493,7 @@ function renderDashboard(c){
           </div>`;}).join('')}
       </div>
       <div>
-        <div class="td-sec-title" style="margin-bottom:10px">Ostatnie podprojekty z roadmapy</div>
+        <div class="td-sec-title" style="margin-bottom:10px">Ostatnie taski z roadmapy</div>
         ${recentItems.map(item=>{
           const proj=S.projects.find(p=>p.id===item.pid);
           return`<div style="background:var(--bg0);border:.5px solid var(--b3);border-radius:var(--r8);padding:10px 13px;margin-bottom:6px;cursor:pointer" onclick="goDetail('task-detail',{id:'${item.id}',name:'${item.name.replace(/'/g,"\\'")}' })">
@@ -506,14 +529,14 @@ function renderProjectsView(c){
             <button class="btn xs danger" onclick="event.stopPropagation();deleteProject('${p.id}')">✕ Usuń</button>
           </div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">${p.name}</div>
-          <div style="font-size:12px;color:var(--t3);margin-bottom:12px">${pitems.length} podprojektów · ${pt} zadań</div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:12px">${pitems.length} tasków · ${pt} zadań</div>
           <div style="background:var(--b3);border-radius:4px;height:5px;overflow:hidden"><div style="height:100%;background:${p.color};border-radius:4px;width:${pt?Math.round(pd/pt*100):0}%"></div></div>
           <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--t3)"><span>${pd}/${pt} zadań</span><span onclick="event.stopPropagation();S.curProj='${p.id}';goView('roadmap')" style="color:var(--acc);cursor:pointer">→ Roadmapa</span></div>
         </div>`;}).join('')}
     </div>`;
 }
 function deleteProject(pid){
-  if(!confirm('Usunąć projekt i wszystkie jego podprojekty?'))return;
+  if(!confirm('Usunąć projekt i wszystkie jego taski?'))return;
   S.projects=S.projects.filter(p=>p.id!==pid);
   S.items=S.items.filter(i=>i.pid!==pid);
   if(S.curProj===pid)S.curProj=S.projects[0]?.id||'';
@@ -563,7 +586,7 @@ function renderNotes(c){
           const item=n.itemId?S.items.find(i=>i.id===n.itemId):null;
           return`<div class="tl-note" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })">
             <div class="tl-note-title">${n.title}</div>
-            <div class="tl-note-body">${n.body}</div>
+            <div class="tl-note-body">${n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,"").slice(0,200):n.body}</div>
             <div class="tl-note-foot">
               ${meet?`<span class="tl-badge tl-meeting">◷ ${meet.title}</span>`:''}
               ${item?`<span class="tl-badge tl-roadmap">→ ${item.name}</span>`:''}
@@ -580,25 +603,69 @@ function renderNoteDetail(c,id){
   const n=S.allNotes.find(x=>x.id===id);if(!n){c.innerHTML='<div class="empty">Nie znaleziono.</div>';return;}
   const meet=n.meetingId?S.meetings.find(m=>m.id===n.meetingId):null;
   const item=n.itemId?S.items.find(i=>i.id===n.itemId):null;
-  c.innerHTML=`<div style="max-width:680px">
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-      ${meet?`<span class="tl-badge tl-meeting" style="padding:3px 10px;border-radius:7px">◷ ${meet.title}</span>`:''}
-      ${item?`<span class="tl-badge tl-roadmap" style="padding:3px 10px;border-radius:7px">→ ${item.name}</span>`:''}
-      ${!meet&&!item?`<span class="tl-badge tl-free" style="padding:3px 10px;border-radius:7px">◻ Luźna notatka</span>`:''}
+  const imgs=n.imgs||[];
+  const bodyHtml=n.bodyHtml||'';
+  const isEditing=S.noteEditMode===id;
+  c.innerHTML=`<div style="max-width:760px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${meet?`<span class="tl-badge tl-meeting" style="padding:3px 10px;border-radius:7px">&#9656; ${meet.title}</span>`:''}
+        ${item?`<span class="tl-badge tl-roadmap" style="padding:3px 10px;border-radius:7px">&#8594; ${item.name}</span>`:''}
+        ${!meet&&!item?`<span class="tl-badge tl-free" style="padding:3px 10px;border-radius:7px">&#9633; Luzna notatka</span>`:''}
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        ${!isEditing?`<button class="btn xs" onclick="enterNoteEdit('${id}')">Edytuj</button>`:''}
+        <button class="btn xs danger" onclick="deleteNote('${id}')">Usun</button>
+      </div>
     </div>
-    <div style="font-weight:700;font-size:22px;margin-bottom:6px;line-height:1.3">${n.title}</div>
-    <div style="font-size:12px;color:var(--t3);margin-bottom:20px">${n.date}</div>
-    <div style="font-size:14px;color:var(--t2);line-height:1.8;white-space:pre-wrap">${n.body}</div>
-    ${n.atts&&n.atts.length?`<div class="sep"></div><div class="td-sec-title">Załączniki</div><div class="att-grid">${n.atts.map(a=>attChipHTML(a,null)).join('')}</div>`:''}
-    <div class="sep"></div>
-    <div style="display:flex;gap:8px">
-      <button class="btn xs" onclick="editNoteInline('${n.id}')">Edytuj</button>
-      <button class="btn xs danger" onclick="deleteNote('${n.id}')">Usuń</button>
-    </div>
+    ${!isEditing?`
+      <div style="font-weight:700;font-size:22px;margin-bottom:6px;line-height:1.3">${n.title}</div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:20px">${n.date}</div>
+      <div style="font-size:14px;color:var(--t2);line-height:1.8">${bodyHtml||'<div style="white-space:pre-wrap">'+n.body+'</div>'}</div>
+      ${imgs.length?`<div style="margin-top:16px"><div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">SCREENSHOTY</div><div class="re-img-grid">${imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}" onclick="viewImg('${img.dataUrl}')"></div>`).join('')}</div></div>`:''}
+    `:`
+      <div class="fg"><label class="fl">Tytul</label><input class="fi" id="nd-t-${id}" value="${n.title.replace(/"/g,'&quot;')}" style="font-size:16px;font-weight:700"></div>
+      <div class="fg">
+        <div class="re-wrap">
+          ${richToolbarHTML('re-ed-'+id)}
+          <div class="re-body" id="re-ed-${id}" contenteditable="true" data-ph="Tresc notatki..." onpaste="handleEditorPaste(event,'${id}')">${bodyHtml||n.body}</div>
+        </div>
+      </div>
+      <div class="fg">
+        <div style="font-size:11px;font-weight:500;color:var(--t2);margin-bottom:8px">Screenshoty i zdjecia</div>
+        <div class="re-img-grid" id="nd-imgs-${id}">${imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}"><div class="re-img-del" onclick="delNImg('${id}',${i})">x</div></div>`).join('')}</div>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <label class="att-btn" style="cursor:pointer">+ Screenshot / zdjecie<input type="file" accept="image/*" multiple style="display:none" onchange="addNImgs('${id}',this)"></label>
+          <div class="att-btn" style="cursor:pointer" onclick="pasteNClip('${id}')">Wklej ze schowka (Ctrl+V)</div>
+        </div>
+        <div style="font-size:11px;color:var(--t3);margin-top:5px">Lub wklej Ctrl+V bezposrednio w edytorze powyzej / przeciagnij plik</div>
+      </div>
+      <div style="display:flex;gap:8px;padding-top:14px;border-top:.5px solid var(--b3)">
+        <button class="btn xs pri" onclick="saveNEdit('${id}')">Zapisz</button>
+        <button class="btn xs" onclick="cancelNEdit('${id}')">Anuluj</button>
+      </div>
+    `}
   </div>`;
+  if(isEditing){setTimeout(()=>initRE('re-ed-'+id),40);}
 }
-function deleteNote(id){if(!confirm('Usunąć notatkę?'))return;S.allNotes=S.allNotes.filter(n=>n.id!==id);persist();goView('notes');}
-function editNoteInline(id){openEditNote(id);}
+function enterNoteEdit(id){S.noteEditMode=id;renderNoteDetail($('content'),id);}
+function cancelNEdit(id){S.noteEditMode=null;renderNoteDetail($('content'),id);}
+function saveNEdit(id){
+  const n=S.allNotes.find(x=>x.id===id);if(!n)return;
+  const title=$('nd-t-'+id)?.value.trim()||n.title;
+  const ed=$('re-ed-'+id);
+  const bodyHtml=ed?ed.innerHTML:'';const body=ed?ed.innerText:'';
+  n.title=title;n.bodyHtml=bodyHtml;n.body=body;
+  if(n.itemId){const it=S.items.find(x=>x.id===n.itemId);if(it){const inn=it.notes.find(x=>x.id===n.id);if(inn){inn.title=title;inn.bodyHtml=bodyHtml;inn.body=body;}}}
+  persist();S.noteEditMode=null;renderNoteDetail($('content'),id);
+}
+function deleteNote(id){if(!confirm('Usunac notatke?'))return;S.allNotes=S.allNotes.filter(n=>n.id!==id);persist();goView('notes');}
+function editNoteInline(id){enterNoteEdit(id);}
+function delNImg(id,idx){const n=S.allNotes.find(x=>x.id===id);if(!n||!n.imgs)return;n.imgs.splice(idx,1);persist();const g=$('nd-imgs-'+id);if(g)g.innerHTML=n.imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}"><div class="re-img-del" onclick="delNImg('${id}',${i})">x</div></div>`).join('');}
+function addNImgs(id,input){const n=S.allNotes.find(x=>x.id===id);if(!n)return;n.imgs=n.imgs||[];const files=Array.from(input.files);let p=files.length;files.forEach(f=>{const r=new FileReader();r.onload=e=>{n.imgs.push({name:f.name,dataUrl:e.target.result});persist();if(--p===0){const g=$('nd-imgs-'+id);if(g)g.innerHTML=n.imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}"><div class="re-img-del" onclick="delNImg('${id}',${i})">x</div></div>`).join('');}};r.readAsDataURL(f);});input.value='';}
+async function pasteNClip(id){try{const items=await navigator.clipboard.read();for(const ci of items){for(const type of ci.types){if(type.startsWith('image/')){const blob=await ci.getType(type);const r=new FileReader();r.onload=e=>{const n=S.allNotes.find(x=>x.id===id);if(!n)return;n.imgs=n.imgs||[];n.imgs.push({name:'screenshot.png',dataUrl:e.target.result});persist();const g=$('nd-imgs-'+id);if(g)g.innerHTML=n.imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}"><div class="re-img-del" onclick="delNImg('${id}',${i})">x</div></div>`).join('');};r.readAsDataURL(blob);return;}}}alert('Brak obrazu w schowku.');}catch(e){alert('Sprobuj Ctrl+V w edytorze.');}}
+function handleEditorPaste(e,id){const items=e.clipboardData?.items||[];for(const item of items){if(item.type.startsWith('image/')){e.preventDefault();const blob=item.getAsFile();const r=new FileReader();r.onload=ev=>{const n=S.allNotes.find(x=>x.id===id);if(!n)return;n.imgs=n.imgs||[];n.imgs.push({name:'screenshot.png',dataUrl:ev.target.result});persist();const g=$('nd-imgs-'+id);if(g)g.innerHTML=n.imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}"><div class="re-img-del" onclick="delNImg('${id}',${i})">x</div></div>`).join('');};r.readAsDataURL(blob);return;}}}
+function viewImg(src){const ov=document.createElement('div');ov.className='re-img-full';ov.onclick=()=>ov.remove();const img=document.createElement('img');img.src=src;ov.appendChild(img);document.body.appendChild(ov);}
 
 // ───────────────────────── MEETINGS ─────────────────────────
 function renderMeetings(c){
@@ -653,7 +720,7 @@ function renderMeetingDetail(c,id){
       </div>
       ${notes.map(n=>`<div class="tl-note" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })">
         <div class="tl-note-title">${n.title}</div>
-        <div class="tl-note-body">${n.body}</div>
+        <div class="tl-note-body">${n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,"").slice(0,200):n.body}</div>
         <div style="font-size:11px;color:var(--t3);margin-top:5px">${n.date}</div>
       </div>`).join('')}
       ${!notes.length?`<div class="empty" style="padding:16px 0">Brak notatek. Dodaj pierwszą!</div>`:''}
@@ -682,13 +749,13 @@ function renderRoadmap(c){
     const tot=qItems.reduce((a,i)=>a+i.tasks.length,0);
     const dn=qItems.reduce((a,i)=>a+i.tasks.filter(t=>t.done).length,0);
     return`<div class="q-section">
-      <div class="q-hd"><span class="q-title">${q}</span><span style="font-size:11px;color:var(--t3)">${qItems.length} podprojektów · ${dn}/${tot} zadań</span></div>
+      <div class="q-hd"><span class="q-title">${q}</span><span style="font-size:11px;color:var(--t3)">${qItems.length} tasków · ${dn}/${tot} zadań</span></div>
       ${qItems.map(item=>rmCardHTML(item,p.color)).join('')}
     </div>`;}).join('')
-    :`<div style="text-align:center;padding:48px 0;color:var(--t3)">Brak podprojektów w tym projekcie.<br><br><button class="btn pri xs" onclick="openAddItem()">+ Dodaj podprojekt</button></div>`;
+    :`<div style="text-align:center;padding:48px 0;color:var(--t3)">Brak tasków w tym projekcie.<br><br><button class="btn pri xs" onclick="openAddItem()">+ Dodaj task</button></div>`;
   c.innerHTML=tabsHTML+qHTML;
 }
-function deleteProjectRm(pid){if(!confirm('Usunąć projekt i wszystkie jego podprojekty?'))return;S.projects=S.projects.filter(p=>p.id!==pid);S.items=S.items.filter(i=>i.pid!==pid);if(S.curProj===pid)S.curProj=S.projects[0]?.id||'';persist();renderRoadmap($('content'));}
+function deleteProjectRm(pid){if(!confirm('Usunąć projekt i wszystkie jego taski?'))return;S.projects=S.projects.filter(p=>p.id!==pid);S.items=S.items.filter(i=>i.pid!==pid);if(S.curProj===pid)S.curProj=S.projects[0]?.id||'';persist();renderRoadmap($('content'));}
 function switchProj(pid){S.curProj=pid;persist();renderRoadmap($('content'));}
 
 function rmCardHTML(item,projColor){
@@ -718,7 +785,7 @@ function rmCardHTML(item,projColor){
 // DELETE ITEM with confirmation
 function deleteItem(id){
   const item=S.items.find(x=>x.id===id);if(!item)return;
-  if(!confirm(`Czy na pewno chcesz usunąć podprojekt "${item.name}"? Tej operacji nie można cofnąć.`))return;
+  if(!confirm(`Czy na pewno chcesz usunąć task "${item.name}"? Tej operacji nie można cofnąć.`))return;
   S.items=S.items.filter(x=>x.id!==id);
   // also clean allNotes linked to this item
   S.allNotes=S.allNotes.map(n=>n.itemId===id?{...n,itemId:''}:n);
@@ -731,9 +798,9 @@ function openEditItem(id){
   const statusOptions=Object.entries(SL).map(([val,lbl])=>`<option value="${val}" ${item.status===val?'selected':''}>${lbl}</option>`).join('');
   const quarterOptions=QUARTERS.map(q=>`<option value="${q}" ${item.q===q?'selected':''}>${q}</option>`).join('');
   const projectOptions=S.projects.map(p=>`<option value="${p.id}" ${item.pid===p.id?'selected':''}>${p.name}</option>`).join('');
-  openMo('Edytuj podprojekt',`
+  openMo('Edytuj task',`
     <div class="fg"><label class="fl">Projekt</label><select class="fs" id="mo-pid">${projectOptions}</select></div>
-    <div class="fg"><label class="fl">Nazwa podprojektu</label><input class="fi" id="mo-name" value="${item.name.replace(/"/g,'&quot;')}"></div>
+    <div class="fg"><label class="fl">Nazwa taska</label><input class="fi" id="mo-name" value="${item.name.replace(/"/g,'&quot;')}"></div>
     <div class="fg"><label class="fl">Kwartał</label><select class="fs" id="mo-q">${quarterOptions}</select></div>
     <div class="fg"><label class="fl">Status</label><select class="fs" id="mo-s">${statusOptions}</select></div>
     <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3">${item.poDesc||''}</textarea></div>
@@ -991,7 +1058,7 @@ function renderTaskDetail(c,id){
 
 function deleteItemFromDetail(id){
   const item=S.items.find(x=>x.id===id);if(!item)return;
-  if(!confirm(`Czy na pewno chcesz usunąć podprojekt "${item.name}"? Tej operacji nie można cofnąć.`))return;
+  if(!confirm(`Czy na pewno chcesz usunąć task "${item.name}"? Tej operacji nie można cofnąć.`))return;
   S.items=S.items.filter(x=>x.id!==id);
   S.allNotes=S.allNotes.map(n=>n.itemId===id?{...n,itemId:''}:n);
   persist();goView('roadmap');
@@ -1048,9 +1115,9 @@ function openAddItem(){
   const projectOptions = S.projects.map(p=>`<option value="${p.id}" ${p.id===currentProjId?'selected':''}>${p.name}</option>`).join('');
   const quarterOptions = QUARTERS.map(q=>`<option value="${q}" ${q==='Q2 2025'?'selected':''}>${q}</option>`).join('');
 
-  openMo('Nowy podprojekt z roadmapy',`
+  openMo('Nowy task z roadmapy',`
     <div class="fg"><label class="fl">Projekt</label><select class="fs" id="mo-pid">${projectOptions}</select></div>
-    <div class="fg"><label class="fl">Nazwa podprojektu</label><input class="fi" id="mo-name" placeholder="np. Redesign ustawień"></div>
+    <div class="fg"><label class="fl">Nazwa taska</label><input class="fi" id="mo-name" placeholder="np. Redesign ustawień"></div>
     <div class="fg"><label class="fl">Kwartał</label><select class="fs" id="mo-q">${quarterOptions}</select></div>
     <div class="fg"><label class="fl">Status</label><select class="fs" id="mo-s">${statusOptionsHTML('planning')}</select></div>
     <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3" placeholder="Cel, kontekst biznesowy..."></textarea></div>
@@ -1060,11 +1127,21 @@ function openAddItem(){
 function openAddNote(itemId,meetingId){
   const iid=itemId||'';const mid=meetingId||'';
   openMo('Nowa notatka',`
-    <div class="fg"><label class="fl">Tytuł</label><input class="fi" id="mo-ntitle" placeholder="Tytuł notatki..."></div>
-    <div class="fg"><label class="fl">Treść</label><textarea class="ta" id="mo-nbody" rows="5" placeholder="Treść notatki..."></textarea></div>
-    <div class="fg"><label class="fl">Powiązanie</label>
+    <div class="fg"><label class="fl">Tytul</label><input class="fi" id="mo-ntitle" placeholder="Tytul notatki..."></div>
+    <div class="fg"><label class="fl">Tresc</label>
+      <div class="re-wrap">${richToolbarHTML('mo-re-body')}<div class="re-body" id="mo-re-body" contenteditable="true" data-ph="Tresc notatki..." onpaste="handleModalPaste(event)"></div></div>
+    </div>
+    <div class="fg"><label class="fl">Screenshoty</label>
+      <div class="re-img-grid" id="mo-note-imgs" style="margin-bottom:6px"></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <label class="att-btn" style="cursor:pointer">+ Dodaj screenshot<input type="file" accept="image/*" multiple style="display:none" onchange="handleNoteModalFiles(this)"></label>
+        <div class="att-btn" style="cursor:pointer" onclick="pasteModalClipboard()">Wklej ze schowka</div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);margin-top:4px">Lub wklej Ctrl+V w edytorze powyzej</div>
+    </div>
+    <div class="fg"><label class="fl">Powiazanie</label>
       <select class="fs" id="mo-ntype" onchange="toggleNoteLinks()">
-        <option value="free">Luźna notatka</option>
+        <option value="free">Luzna notatka</option>
         <option value="meeting" ${mid?'selected':''}>Spotkanie</option>
         <option value="roadmap" ${iid?'selected':''}>Element roadmapy</option>
       </select>
@@ -1076,19 +1153,16 @@ function openAddNote(itemId,meetingId){
     <div id="mo-item-sel" style="display:${iid?'block':'none'};margin-bottom:10px">
       <label class="fl">Element roadmapy</label>
       <select class="fs" id="mo-niid">${S.items.map(i=>`<option value="${i.id}" ${i.id===iid?'selected':''}>${i.name}</option>`).join('')}</select>
-    </div>
-    <div class="fg"><label class="fl">Linki</label>
-      <div id="mo-note-links" class="att-grid" style="margin-bottom:8px"></div>
-      <div class="link-row"><input class="fi-sm" id="mo-nln" placeholder="Nazwa"><input class="fi-sm" id="mo-nlu" placeholder="https://..."><button class="btn xs" onclick="addNoteModalLink()">+ Link</button></div>
-    </div>
-    <div class="fg"><label class="fl">Zdjęcia / pliki</label>
-      <input type="file" id="mo-nfi" style="display:none" multiple accept="image/*" onchange="handleNoteModalFiles(this)">
-      <div id="mo-note-imgs" class="att-grid" style="margin-bottom:8px"></div>
-      <button class="att-btn" onclick="$('mo-nfi').click()">🖼 Dodaj zdjęcia</button>
     </div>`,'note',{itemId:iid,meetingId:mid});
-  window._notePendingLinks=[];window._notePendingImgs=[];
+  window._notePendingImgs=[];
+  setTimeout(()=>initRE('mo-re-body'),60);
 }
 function toggleNoteLinks(){const v=$('mo-ntype')?.value;$('mo-meeting-sel').style.display=v==='meeting'?'block':'none';$('mo-item-sel').style.display=v==='roadmap'?'block':'none';}
+
+function refreshMI(){const el=$('mo-note-imgs');if(!el)return;el.innerHTML=(window._notePendingImgs||[]).map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" style="max-width:100px;max-height:70px"><div class="re-img-del" onclick="delMI(${i})">x</div></div>`).join('');}
+function delMI(i){window._notePendingImgs.splice(i,1);refreshMI();}
+function handleModalPaste(e){const items=e.clipboardData?.items||[];for(const item of items){if(item.type.startsWith('image/')){e.preventDefault();const r=new FileReader();const blob=item.getAsFile();r.onload=ev=>{window._notePendingImgs=window._notePendingImgs||[];window._notePendingImgs.push({name:'screenshot.png',dataUrl:ev.target.result});refreshMI();};r.readAsDataURL(blob);return;}}}
+async function pasteModalClipboard(){try{const items=await navigator.clipboard.read();for(const ci of items){for(const type of ci.types){if(type.startsWith('image/')){const blob=await ci.getType(type);const r=new FileReader();r.onload=e=>{window._notePendingImgs=window._notePendingImgs||[];window._notePendingImgs.push({name:'screenshot.png',dataUrl:e.target.result});refreshMI();};r.readAsDataURL(blob);return;}}}alert('Brak obrazu.');}catch(e){alert('Sprobuj Ctrl+V w edytorze.');}}
 function addNoteModalLink(){const name=$('mo-nln')?.value.trim(),url=$('mo-nlu')?.value.trim();if(!url)return;window._notePendingLinks=window._notePendingLinks||[];window._notePendingLinks.push({id:uid(),type:'link',name:name||url,url,dataUrl:''});$('mo-nln').value='';$('mo-nlu').value='';$('mo-note-links').innerHTML=(window._notePendingLinks||[]).map(l=>attChipHTML(l,null)).join('');}
 function handleNoteModalFiles(input){const files=Array.from(input.files);let p=files.length;window._notePendingImgs=window._notePendingImgs||[];files.forEach(f=>{const att={id:uid(),type:'img',name:f.name,dataUrl:'',url:''};const r=new FileReader();r.onload=e=>{att.dataUrl=e.target.result;window._notePendingImgs.push(att);if(--p===0)$('mo-note-imgs').innerHTML=(window._notePendingImgs||[]).map(a=>attChipHTML(a,null)).join('');};r.readAsDataURL(f);});input.value='';}
 
@@ -1108,15 +1182,12 @@ function openAddGlobalTask(){
   openMo('Nowe zadanie',`
     <div class="fg"><label class="fl">Treść zadania</label><input class="fi" id="mo-ttxt" placeholder="Co trzeba zrobić?"></div>
     <div class="two-col">
-      <div class="fg"><label class="fl">Projekt / Podprojekt</label><select class="fs" id="mo-tiid">${S.items.map(i=>`<option value="${i.id}">${i.name}</option>`).join('')}</select></div>
+      <div class="fg"><label class="fl">Projekt / Task</label><select class="fs" id="mo-tiid">${S.items.map(i=>`<option value="${i.id}">${i.name}</option>`).join('')}</select></div>
       <div class="fg"><label class="fl">Termin</label><input class="fi" id="mo-tdue" placeholder="np. 20 kwi"></div>
     </div>`,'task');
 }
 
-function openEditNote(id){
-  const n=S.allNotes.find(x=>x.id===id);if(!n)return;
-  openMo('Edytuj notatkę',`
-    <div class="fg"><label class="fl">Tytuł</label><input class="fi" id="mo-ntitle" value="${n.title.replace(/"/g,'&quot;')}"></div>
+function openEditNote(id){enterNoteEdit(id);}"></div>
     <div class="fg"><label class="fl">Treść</label><textarea class="ta" id="mo-nbody" rows="6">${n.body}</textarea></div>`,'note-edit',{id});
 }
 
@@ -1155,23 +1226,23 @@ function saveMo(){
     else{renderTaskDetail($('content'),id);}
   }
   else if(moMode==='note'){
-    const title=$('mo-ntitle')?.value.trim(),body=$('mo-nbody')?.value.trim();if(!title)return;
+    const title=$('mo-ntitle')?.value.trim();if(!title)return;
+    const ed=$('mo-re-body');
+    const bodyHtml=ed?ed.innerHTML:'';
+    const body=ed?ed.innerText:'';
     const type=$('mo-ntype')?.value||'free';
     const meetingId=type==='meeting'?($('mo-nmid')?.value||''):'';
     const itemId=type==='roadmap'?($('mo-niid')?.value||''):'';
     const now=new Date().toLocaleDateString('pl',{day:'numeric',month:'long',year:'numeric'});
-    const atts=[...(window._notePendingLinks||[]),...(window._notePendingImgs||[])];
+    const imgs=[...(window._notePendingImgs||[])];
     const nid=uid();
-    const note={id:nid,title,body:body||'',date:now,type,meetingId,itemId,atts};
+    const note={id:nid,title,body,bodyHtml,date:now,type,meetingId,itemId,atts:[],imgs};
     S.allNotes.unshift(note);
-    if(itemId){const item=S.items.find(x=>x.id===itemId);if(item)item.notes.unshift({id:nid,title,body:body||'',date:now,type,meetingId,atts});}
-    window._notePendingLinks=[];window._notePendingImgs=[];
+    if(itemId){const it=S.items.find(x=>x.id===itemId);if(it)it.notes.unshift({id:nid,title,body,bodyHtml,date:now,type,meetingId,atts:[],imgs:[]});}
+    window._notePendingImgs=[];
     persist();closeMo();goView('notes');
   }
-  else if(moMode==='note-edit'){
-    const n=S.allNotes.find(x=>x.id===moExtra.id);if(!n)return;
-    n.title=$('mo-ntitle')?.value.trim()||n.title;n.body=$('mo-nbody')?.value.trim()||'';
-    if(n.itemId){const item=S.items.find(x=>x.id===n.itemId);if(item){const in2=item.notes.find(x=>x.id===n.id);if(in2){in2.title=n.title;in2.body=n.body;}}}
+  else if(moMode==='note-edit'){}}}
     persist();closeMo();goDetail('note-detail',{id:n.id,title:n.title});
   }
   else if(moMode==='meeting'){
@@ -1186,6 +1257,37 @@ function saveMo(){
     persist();updateBadges();closeMo();renderTasks($('content'));
   }
 }
+
+
+// ─── RICH EDITOR HELPERS ───
+function richToolbarHTML(tid){
+  const b=(cmd,lbl,tt)=>`<button class="re-btn" title="${tt}" onmousedown="event.preventDefault();execRE('${cmd}','${tid}')">${lbl}</button>`;
+  const hb=(tag,lbl)=>`<button class="re-btn" title="${tag}" onmousedown="event.preventDefault();execREBlock('${tag}','${tid}')">${lbl}</button>`;
+  return`<div class="re-toolbar">
+    ${hb('h1','H1')}${hb('h2','H2')}${hb('h3','H3')}
+    <div class="re-sep"></div>
+    ${b('bold','<b>B</b>','Pogrubienie')}
+    ${b('italic','<i>I</i>','Kursywa')}
+    ${b('underline','<u>U</u>','Podkreslenie')}
+    ${b('strikeThrough','<s>S</s>','Przekreslenie')}
+    <div class="re-sep"></div>
+    ${b('insertUnorderedList','&#8226; Lista','Lista punktowana')}
+    ${b('insertOrderedList','1. Lista','Lista numerowana')}
+    <button class="re-btn" title="Cytat" onmousedown="event.preventDefault();execREBlock('blockquote','${tid}')">&ldquo;&rdquo;</button>
+    <button class="re-btn" title="Kod" onmousedown="event.preventDefault();wrapCode('${tid}')">{ }</button>
+    <div class="re-sep"></div>
+    <button class="re-btn" title="Link" onmousedown="event.preventDefault();insertLink('${tid}')">&#128279;</button>
+    <button class="re-btn" title="Linia" onmousedown="event.preventDefault();document.execCommand('insertHorizontalRule')">&#8212;</button>
+    <div class="re-sep"></div>
+    <button class="re-btn" title="Cofnij" onmousedown="event.preventDefault();document.execCommand('undo')">&#8617;</button>
+    <button class="re-btn" title="Ponow" onmousedown="event.preventDefault();document.execCommand('redo')">&#8618;</button>
+  </div>`;
+}
+function initRE(id){const el=document.getElementById(id);if(!el)return;el.addEventListener('keydown',function(e){if(e.key==='Tab'){e.preventDefault();document.execCommand('insertHTML',false,'&nbsp;&nbsp;&nbsp;&nbsp;');}});}
+function execRE(cmd,tid){const el=document.getElementById(tid);if(!el)return;el.focus();document.execCommand(cmd,false,null);}
+function execREBlock(tag,tid){const el=document.getElementById(tid);if(!el)return;el.focus();document.execCommand('formatBlock',false,tag);}
+function wrapCode(tid){const el=document.getElementById(tid);if(!el)return;el.focus();const sel=window.getSelection();if(sel&&sel.toString()){document.execCommand('insertHTML',false,`<code>${sel.toString()}</code>`);}else{document.execCommand('insertHTML',false,'<code>kod</code>');}}
+function insertLink(tid){const el=document.getElementById(tid);if(!el)return;const url=prompt('URL linku:');if(!url)return;const label=window.getSelection()?.toString()||url;el.focus();document.execCommand('insertHTML',false,`<a href="${url}" target="_blank">${label}</a>`);}
 
 // ───────────────────────── EXPORT / IMPORT ─────────────────────────
 function exportData(){
