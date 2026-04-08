@@ -208,7 +208,45 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 </style>
 </head>
 <body>
-<div class="app">
+
+<!-- LOCK SCREEN -->
+<div id="lock-screen" style="display:none;position:fixed;inset:0;z-index:999;background:var(--bg0);display:flex;align-items:center;justify-content:center;flex-direction:column">
+  <div style="width:360px;padding:36px;background:var(--bg1);border-radius:20px;border:.5px solid var(--b2);box-shadow:0 24px 80px rgba(0,0,0,.12);text-align:center">
+    <div style="width:48px;height:48px;border-radius:14px;background:var(--acc);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:20px;font-weight:700;color:#fff">D</div>
+    <div style="font-weight:700;font-size:20px;margin-bottom:6px">DesignOS</div>
+    <div style="font-size:13px;color:var(--t3);margin-bottom:24px">Wprowadź hasło aby kontynuować</div>
+    <input id="lock-input" type="password" placeholder="Hasło..." style="width:100%;padding:11px 14px;border:.5px solid var(--b2);border-radius:10px;background:var(--bg0);color:var(--t1);font-size:15px;font-family:var(--font);text-align:center;letter-spacing:4px;margin-bottom:10px" onkeydown="if(event.key==='Enter')tryUnlock()">
+    <div id="lock-err" style="font-size:12px;color:#A32D2D;min-height:18px;margin-bottom:10px"></div>
+    <button onclick="tryUnlock()" style="width:100%;padding:11px;background:var(--acc);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font)">Wejdź →</button>
+    <div style="margin-top:18px;padding-top:18px;border-top:.5px solid var(--b3)">
+      <div style="font-size:11px;color:var(--t3);margin-bottom:10px">Nie masz jeszcze hasła?</div>
+      <button onclick="showSetPassword()" style="font-size:12px;color:var(--acc);background:none;border:none;cursor:pointer;font-family:var(--font)">Ustaw nowe hasło</button>
+    </div>
+  </div>
+</div>
+
+<!-- SET PASSWORD MODAL -->
+<div id="setpw-screen" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);align-items:center;justify-content:center;backdrop-filter:blur(3px)">
+  <div style="width:360px;padding:32px;background:var(--bg0);border-radius:20px;border:.5px solid var(--b2);box-shadow:0 24px 80px rgba(0,0,0,.2)">
+    <div style="font-weight:700;font-size:17px;margin-bottom:6px">Ustaw hasło</div>
+    <div style="font-size:12px;color:var(--t3);margin-bottom:20px">Hasło będzie zapisane w Twojej przeglądarce.</div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:11px;font-weight:500;color:var(--t2);display:block;margin-bottom:5px">Nowe hasło</label>
+      <input id="pw-new" type="password" placeholder="Wpisz hasło..." style="width:100%;padding:10px 12px;border:.5px solid var(--b2);border-radius:9px;background:var(--bg1);color:var(--t1);font-size:14px;font-family:var(--font)">
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:11px;font-weight:500;color:var(--t2);display:block;margin-bottom:5px">Powtórz hasło</label>
+      <input id="pw-rep" type="password" placeholder="Powtórz hasło..." style="width:100%;padding:10px 12px;border:.5px solid var(--b2);border-radius:9px;background:var(--bg1);color:var(--t1);font-size:14px;font-family:var(--font)" onkeydown="if(event.key==='Enter')savePassword()">
+    </div>
+    <div id="pw-err" style="font-size:12px;color:#A32D2D;min-height:18px;margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px">
+      <button onclick="closeSetPassword()" style="flex:1;padding:10px;background:none;border:.5px solid var(--b2);border-radius:9px;font-size:13px;cursor:pointer;font-family:var(--font);color:var(--t1)">Anuluj</button>
+      <button onclick="savePassword()" style="flex:1;padding:10px;background:var(--acc);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font)">Zapisz hasło</button>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="main-app" style="display:none">
   <div class="sb">
     <div class="sb-logo"><span class="ldot">D</span>DesignOS</div>
     <span class="ns">Workspace</span>
@@ -220,6 +258,11 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
     <div class="ni" id="nav-meetings" onclick="goView('meetings')"><span class="nic">◷</span>Spotkania</div>
     <span class="ns">Wiedza</span>
     <div class="ni" id="nav-notes" onclick="goView('notes')"><span class="nic">◻</span>Notatki</div>
+    <div style="flex:1"></div>
+    <div style="padding:10px 12px;border-top:.5px solid var(--b3);display:flex;flex-direction:column;gap:5px">
+      <button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px;margin-bottom:3px" onclick="showChangePassword()">🔒 Zmień hasło</button><button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px;margin-bottom:3px" onclick="lockApp()">🚪 Zablokuj</button><button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px" onclick="exportData()">⬇ Eksportuj dane</button>
+      <label class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px;cursor:pointer;margin:0">⬆ Importuj dane<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
+    </div>
   </div>
   <div class="main">
     <div class="tb">
@@ -1059,9 +1102,139 @@ function saveMo(){
   }
 }
 
+// ───────────────────────── EXPORT / IMPORT ─────────────────────────
+function exportData(){
+  const data={projects:S.projects,items:S.items,meetings:S.meetings,allNotes:S.allNotes,curProj:S.curProj,exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='designos-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(a.href);
+}
+function importData(input){
+  const file=input.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.projects||!data.items){alert('Nieprawidlowy plik.');return;}
+      if(!confirm('Importowac dane? Zastapi to obecne dane.'))return;
+      S.projects=data.projects||[];S.items=data.items||[];
+      S.meetings=data.meetings||[];S.allNotes=data.allNotes||[];
+      S.curProj=data.curProj||S.projects[0]?.id||'';
+      S.items.forEach(item=>{window['delItemAtt_'+item.id]=function(aid){item.atts=item.atts.filter(a=>a.id!==aid);persist();S.expanded[item.id]=true;renderRoadmap($('content'));};});
+      persist();updateBadges();goView('roadmap');
+      alert('Dane zaimportowane!');
+    }catch(err){alert('Blad: '+err.message);}
+  };
+  r.readAsText(file);input.value='';
+}
+
+// ───────────────────────── PASSWORD / LOCK ─────────────────────────
+const PW_KEY = 'designos-pw';
+const SESSION_KEY = 'designos-session';
+
+function hashPin(str){
+  // simple hash for storage - not cryptographic but prevents plain text
+  let h = 0;
+  for(let i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}
+  return h.toString(36);
+}
+
+function initLock(){
+  const stored = localStorage.getItem(PW_KEY);
+  const session = sessionStorage.getItem(SESSION_KEY);
+  if(!stored){
+    // No password set — show set password screen first time
+    showSetPassword(true);
+    return;
+  }
+  if(session === stored){
+    // Already unlocked this session
+    unlock();
+    return;
+  }
+  // Show lock screen
+  document.getElementById('lock-screen').style.display = 'flex';
+  setTimeout(()=>document.getElementById('lock-input')?.focus(), 100);
+}
+
+function tryUnlock(){
+  const stored = localStorage.getItem(PW_KEY);
+  const input = document.getElementById('lock-input')?.value || '';
+  if(!input){document.getElementById('lock-err').textContent='Wpisz hasło.';return;}
+  if(hashPin(input) === stored){
+    sessionStorage.setItem(SESSION_KEY, stored);
+    document.getElementById('lock-screen').style.display = 'none';
+    unlock();
+  } else {
+    document.getElementById('lock-err').textContent = 'Nieprawidłowe hasło. Spróbuj jeszcze raz.';
+    document.getElementById('lock-input').value = '';
+    document.getElementById('lock-input').focus();
+  }
+}
+
+function unlock(){
+  document.getElementById('main-app').style.display = 'flex';
+  if(typeof startApp==='function')startApp();
+}
+
+function showSetPassword(firstTime){
+  document.getElementById('setpw-screen').style.display = 'flex';
+  document.getElementById('pw-err').textContent = '';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-rep').value = '';
+  setTimeout(()=>document.getElementById('pw-new')?.focus(), 100);
+  if(firstTime){
+    document.querySelector('#setpw-screen [onclick="closeSetPassword()"]').style.display = 'none';
+  } else {
+    document.querySelector('#setpw-screen [onclick="closeSetPassword()"]').style.display = 'block';
+  }
+}
+
+function closeSetPassword(){
+  document.getElementById('setpw-screen').style.display = 'none';
+}
+
+function savePassword(){
+  const pw = document.getElementById('pw-new')?.value || '';
+  const rep = document.getElementById('pw-rep')?.value || '';
+  const err = document.getElementById('pw-err');
+  if(pw.length < 4){err.textContent = 'Hasło musi mieć minimum 4 znaki.';return;}
+  if(pw !== rep){err.textContent = 'Hasła nie są identyczne.';return;}
+  const hashed = hashPin(pw);
+  localStorage.setItem(PW_KEY, hashed);
+  sessionStorage.setItem(SESSION_KEY, hashed);
+  document.getElementById('setpw-screen').style.display = 'none';
+  document.getElementById('lock-screen').style.display = 'none';
+  unlock();
+  alert('✓ Hasło zostało zapisane!');
+}
+
+function showChangePassword(){
+  // Verify current password first
+  const stored = localStorage.getItem(PW_KEY);
+  if(stored){
+    const cur = prompt('Podaj obecne hasło:');
+    if(cur === null) return;
+    if(hashPin(cur) !== stored){alert('Nieprawidłowe hasło.');return;}
+  }
+  showSetPassword(false);
+}
+
+function lockApp(){
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('lock-screen').style.display = 'flex';
+  document.getElementById('lock-input').value = '';
+  document.getElementById('lock-err').textContent = '';
+  setTimeout(()=>document.getElementById('lock-input')?.focus(), 100);
+}
+
 // ───────────────────────── INIT ─────────────────────────
 updateBadges();
-goView('roadmap');
+// goView called after unlock
+function startApp(){goView('roadmap');}
+initLock();
 </script>
 </body>
 </html>
