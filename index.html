@@ -302,7 +302,7 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
     <div class="ni" id="nav-projects" onclick="goView('projects')"><span class="nic">◫</span>Projekty</div>
     <div class="ni" id="nav-tasks" onclick="goView('tasks')"><span class="nic">✓</span>Zadania<span class="bdg" id="b-t">0</span></div>
     <span class="ns">Planowanie</span>
-    <div class="ni act" id="nav-roadmap" onclick="goView('roadmap')"><span class="nic">→</span>Roadmapa</div>
+    <div class="ni" id="nav-roadmap" onclick="goView('roadmap')"><span class="nic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="11" width="12" height="4" rx="1"/><rect x="3" y="18" width="7" height="4" rx="1"/></svg></span>Roadmapa</div>
     <div class="ni" id="nav-meetings" onclick="goView('meetings')"><span class="nic">◷</span>Spotkania</div>
     <span class="ns">Wiedza</span>
     <div class="ni" id="nav-notes" onclick="goView('notes')"><span class="nic">◻</span>Notatki</div>
@@ -1510,6 +1510,12 @@ function initTheme(){
   if(saved==='dark'){document.body.classList.add('dark');}
   else{document.body.classList.remove('dark');}
   updateThemeUI();
+}
+function toggleSettings(){
+  const p=document.getElementById('settings-panel');
+  if(!p)return;
+  p.style.display=p.style.display==='none'?'flex':'none';
+  if(p.style.display==='flex')p.style.flexDirection='column';
 }
 function toggleTheme(){
   const isDark=document.body.classList.toggle('dark');
