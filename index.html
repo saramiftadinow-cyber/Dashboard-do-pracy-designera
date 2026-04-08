@@ -36,12 +36,12 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .app{display:flex;height:100vh;overflow:hidden}
 .sb{width:196px;border-right:.5px solid var(--b3);padding:12px 0;display:flex;flex-direction:column;gap:1px;background:var(--bg1);flex-shrink:0;overflow-y:auto}
 .main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
-.tb{border-bottom:.5px solid var(--b3);padding:10px 18px;display:flex;align-items:center;gap:9px;background:var(--bg0);flex-shrink:0}
-.content{flex:1;padding:24px 32px;overflow-y:auto}
+.tb{border-bottom:.5px solid var(--b3);padding:0 28px;height:48px;display:flex;align-items:center;gap:9px;background:var(--bg0);flex-shrink:0}
+.content{flex:1;padding:0;overflow-y:auto}
 .content-inner{max-width:760px;margin:0 auto;padding:32px 40px}
 
 /* SIDEBAR */
-.sb-logo{padding:0 14px 12px;font-weight:700;font-size:15px;border-bottom:.5px solid var(--b3);margin-bottom:6px;display:flex;align-items:center;gap:9px}
+.sb-logo{padding:0 16px 12px;font-weight:700;font-size:15px;border-bottom:.5px solid var(--b3);margin-bottom:6px;display:flex;align-items:center;gap:9px}
 .ldot{width:22px;height:22px;border-radius:7px;background:var(--acc);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700}
 .ns{padding:0 10px;font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.08em;margin:10px 0 2px;text-transform:uppercase}
 .ni{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;border-radius:var(--r8);margin:0 6px;color:var(--t2);font-size:13px;transition:background .12s;user-select:none}
@@ -52,7 +52,7 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 
 /* TOPBAR */
 .tb-left{flex:1;display:flex;align-items:center;gap:6px;min-width:0}
-.tb-title{font-weight:700;font-size:15px;white-space:nowrap}
+.tb-title{font-weight:600;font-size:14px;white-space:nowrap;color:var(--t2)}
 .bc-sep{color:var(--t3);font-size:12px}
 .bc-link{font-size:12px;color:var(--acc);cursor:pointer}
 .bc-link:hover{text-decoration:underline}
@@ -108,7 +108,7 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 /* PROJECT TABS */
-.proj-tabs{display:flex;border-bottom:.5px solid var(--b3);margin-bottom:20px;overflow-x:auto;flex-shrink:0;position:relative}
+.proj-tabs{display:flex;border-bottom:.5px solid var(--b3);overflow-x:auto;flex-shrink:0;padding:0 40px}
 .ptab{padding:9px 16px;cursor:pointer;font-size:13px;color:var(--t2);border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:7px;position:relative}
 .ptab:hover{color:var(--t1)}
 .ptab.act{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}
@@ -190,11 +190,11 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .mo-acts{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:.5px solid var(--b3)}
 
 /* DASHBOARD */
-.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:22px}
-.stat-card{background:var(--bg1);border-radius:var(--r12);padding:16px;cursor:pointer;border:1px solid transparent;transition:border-color .15s}
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:var(--bg1);border-radius:var(--r12);padding:20px;cursor:pointer;border:1px solid transparent;transition:border-color .15s}
 .stat-card:hover{border-color:var(--acc-m)}
 .stat-label{font-size:11px;color:var(--t3);margin-bottom:5px}
-.stat-val{font-size:26px;font-weight:700}
+.stat-val{font-size:28px;font-weight:700;margin-top:4px}
 .stat-sub{font-size:11px;color:var(--acc);margin-top:5px}
 
 /* TASKS VIEW */
@@ -240,9 +240,9 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 /* MISC */
 .empty{font-size:13px;color:var(--t3);padding:30px 0;text-align:center}
 .sep{height:.5px;background:var(--b3);margin:16px 0}
-.view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.page-wrap{max-width:860px;margin:0 auto;padding:0 8px}
-.detail-wrap{max-width:780px;margin:0 auto;padding:32px 8px 48px}
+.view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-wrap{max-width:900px;margin:0 auto;padding:28px 40px}
+.detail-wrap{max-width:740px;margin:0 auto;padding:36px 40px 56px}
 .detail-title{font-size:28px;font-weight:700;line-height:1.25;margin-bottom:6px;color:var(--t1)}
 .detail-meta{font-size:12px;color:var(--t3);margin-bottom:28px;display:flex;align-items:center;gap:10px}
 .detail-actions{display:flex;gap:8px;margin-bottom:24px}
@@ -252,7 +252,7 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .detail-action-btn.danger:hover{background:#fee2e2;border-color:#fca5a5}
 .detail-action-btn.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
 .detail-action-btn.pri:hover{background:#4a3dd4}
-.view-title{font-size:18px;font-weight:700}
+.view-title{font-size:22px;font-weight:700}
 </style>
 </head>
 <body>
@@ -487,7 +487,7 @@ function renderDashboard(c){
   const inProgress=S.items.filter(i=>i.status==='progress').length;
   const totalNotes=S.allNotes.length;
   const recentItems=[...S.items].reverse().slice(0,3);
-  c.innerHTML=`
+  c.innerHTML=`<div class="page-wrap">
     <div class="view-header"><div class="view-title">Dzień dobry 👋</div><span style="font-size:12px;color:var(--t3)">${new Date().toLocaleDateString('pl',{weekday:'long',day:'numeric',month:'long'})}</span></div>
     <div class="stats-grid">
       <div class="stat-card" onclick="goView('tasks')"><div class="stat-label">Otwarte zadania</div><div class="stat-val">${openTasks}</div><div class="stat-sub">→ Do zadań</div></div>
@@ -533,13 +533,13 @@ function renderDashboard(c){
           <div style="flex:1"><div style="font-size:13px;font-weight:500">${m.title}</div></div>
         </div>`).join('')}
       </div>
-    </div>`;
+    </div>` + '</div>';
 }
 
 // ───────────────────────── PROJECTS VIEW ─────────────────────────
 function renderProjectsView(c){
   c.innerHTML=`<div class="page-wrap"><div class="view-header"><div class="view-title">Projekty</div><button class="btn pri xs" onclick="openAddProject()">+ Projekt</button></div>
-    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
       ${S.projects.map(p=>{
         const pitems=S.items.filter(i=>i.pid===p.id);
         const pt=pitems.reduce((a,i)=>a+i.tasks.length,0);
@@ -911,6 +911,433 @@ function insertImgsFromFiles(input){
   input.value='';
 }
 
+
+
+// ───────────────────────── MEETINGS ─────────────────────────
+function renderMeetings(c){
+  const groups={};S.meetings.forEach(m=>{if(!groups[m.date])groups[m.date]=[];groups[m.date].push(m);});
+  const days=Object.keys(groups).sort();
+  const typeMap={team:'mt-team',client:'mt-client',design:'mt-design'};
+  const typeLbl={team:'Zespół',client:'Klient',design:'Design review'};
+  c.innerHTML=`<div class="page-wrap"><div class="view-header"><div class="view-title">Spotkania</div><button class="btn pri xs" onclick="openAddMeeting()">+ Spotkanie</button></div>
+    ${days.map(day=>`<div style="margin-bottom:20px">
+      <div class="td-sec-title" style="margin-bottom:10px">${day}</div>
+      ${groups[day].map(m=>`<div class="meeting-card" onclick="goDetail('meeting-detail',{id:'${m.id}',title:'${m.title.replace(/'/g,"\\'")}' })">
+        <div class="meeting-hd">
+          <span class="meeting-time">${m.time}</span>
+          <span class="meeting-title">${m.title}</span>
+          <span class="meeting-type ${typeMap[m.type]||'mt-team'}">${typeLbl[m.type]||m.type}</span>
+        </div>
+        ${m.attendees?`<div style="font-size:11px;color:var(--t3);margin-bottom:4px">👥 ${m.attendees}</div>`:''}
+        ${m.notes?`<div class="meeting-notes">${m.notes.slice(0,120)}${m.notes.length>120?'…':''}</div>`:''}
+        <div style="margin-top:8px;font-size:11px;color:var(--acc)">${S.allNotes.filter(n=>n.meetingId===m.id).length} notatek ze spotkania →</div>
+      </div>`).join('')}
+    </div>`).join('')}
+    ${!S.meetings.length?`<div class="empty">Brak spotkań.</div>`:''}` + '</div>';
+}
+function renderMeetingDetail(c,id){
+  const m=S.meetings.find(x=>x.id===id);if(!m){c.innerHTML='<div class="empty">Nie znaleziono.</div>';return;}
+  const notes=S.allNotes.filter(n=>n.meetingId===id);
+  const typeMap={team:'mt-team',client:'mt-client',design:'mt-design'};
+  const typeLbl={team:'Zespół',client:'Klient',design:'Design review'};
+  c.innerHTML=`<div class="detail-wrap">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;padding-bottom:16px;border-bottom:.5px solid var(--b3)">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="font-weight:700;font-size:24px">${m.title}</div>
+          <span class="meeting-type ${typeMap[m.type]||'mt-team'}">${typeLbl[m.type]||m.type}</span>
+        </div>
+        <div style="font-size:12px;color:var(--t3)">${m.date} · ${m.time}</div>
+        ${m.attendees?`<div style="font-size:12px;color:var(--t2);margin-top:4px">👥 ${m.attendees}</div>`:''}
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="detail-action-btn pri" onclick="openAddNote(null,'${id}')">+ Notatka</button>
+        <button class="detail-action-btn danger" onclick="deleteMeeting('${id}')">🗑 Usuń</button>
+      </div>
+    </div>
+    ${m.notes?`<div class="td-section"><div class="td-sec-title">Opis / Agenda</div><div style="background:var(--bg1);border-radius:var(--r8);padding:12px;font-size:13px;line-height:1.7;color:var(--t2)">${m.notes}</div></div>`:''}
+    <div class="td-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="td-sec-title">Notatki (${notes.length})</div>
+        <button class="btn xs" onclick="openAddNote(null,'${id}')">+ Dodaj</button>
+      </div>
+      ${notes.map(n=>`<div class="tl-note" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })">
+        <div class="tl-note-title">${n.title}</div>
+        <div class="tl-note-body">${n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,'').slice(0,150):n.body}</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:5px">${n.date}</div>
+      </div>`).join('')}
+      ${!notes.length?`<div class="empty" style="padding:16px 0">Brak notatek.</div>`:''}
+    </div>
+  </div>`;
+}
+function deleteMeeting(id){if(!confirm('Usunąć spotkanie?'))return;S.meetings=S.meetings.filter(m=>m.id!==id);persist();goView('meetings');}
+
+// ───────────────────────── ROADMAP ─────────────────────────
+function renderRoadmap(c){
+  updateBadges();
+  const proj=S.projects;
+  const tabsHTML=`<div class="proj-tabs">
+    ${proj.map(p=>`<div class="ptab ${S.curProj===p.id?'act':''}" onclick="switchProj('${p.id}')">
+      <div class="ptab-dot" style="background:${p.color}"></div>${p.name}
+      <div class="ptab-del" onclick="event.stopPropagation();deleteProjectRm('${p.id}')">✕</div>
+    </div>`).join('')}
+    <div class="ptab-add" onclick="openAddProject()">+ Projekt</div>
+  </div>`;
+  const curProjObj=S.projects.find(x=>x.id===S.curProj)||S.projects[0];
+  const p=proj.find(x=>x.id===S.curProj)||proj[0];
+  if(!p){c.innerHTML=tabsHTML+`<div class="page-wrap"><div class="empty">Brak projektów. Dodaj pierwszy!</div></div>`;return;}
+  const engageBar=p.engage!=null?`<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding:12px 16px;background:var(--bg1);border-radius:var(--r8);border:.5px solid var(--b3)"><div style="font-size:12px;color:var(--t2)">Moje zaangażowanie:</div><div style="flex:1;height:5px;background:var(--b3);border-radius:3px;overflow:hidden"><div style="height:100%;background:${p.color};border-radius:3px;width:${p.engage}%"></div></div><div style="font-size:13px;font-weight:700;color:${p.color};flex-shrink:0">${p.engage}%</div></div>`:"";
+  const items=S.items.filter(i=>i.pid===p.id);
+  const qs=[...new Set(items.map(i=>i.q))].sort();
+  const qHTML=qs.length?qs.map(q=>{
+    const qItems=items.filter(i=>i.q===q);
+    const tot=qItems.reduce((a,i)=>a+i.tasks.length,0);
+    const dn=qItems.reduce((a,i)=>a+i.tasks.filter(t=>t.done).length,0);
+    return`<div class="q-section">
+      <div class="q-hd"><span class="q-title">${q}</span><span style="font-size:11px;color:var(--t3)">${qItems.length} tasków · ${dn}/${tot} zadań</span></div>
+      ${qItems.map(item=>rmCardHTML(item,p.color)).join('')}
+    </div>`;}).join('')
+    :`<div style="text-align:center;padding:48px 0;color:var(--t3)">Brak tasków w tym projekcie.<br><br><button class="btn pri xs" onclick="openAddItem()">+ Dodaj task</button></div>`;
+  c.innerHTML=tabsHTML+`<div class="page-wrap">`+engageBar+qHTML+`</div>`;
+}
+function deleteProjectRm(pid){if(!confirm('Usunąć projekt i wszystkie jego taski?'))return;S.projects=S.projects.filter(p=>p.id!==pid);S.items=S.items.filter(i=>i.pid!==pid);if(S.curProj===pid)S.curProj=S.projects[0]?.id||'';persist();renderRoadmap($('content'));}
+function switchProj(pid){S.curProj=pid;persist();renderRoadmap($('content'));}
+
+function rmCardHTML(item,projColor){
+  const dn=item.tasks.filter(t=>t.done).length;
+  const open=!!S.expanded[item.id];
+  const prog=item.tasks.length?Math.round(dn/item.tasks.length*100):null;
+  return`<div class="rm-card" id="rmc-${item.id}">
+    <div class="rm-card-hd" onclick="toggleRM('${item.id}')">
+      <div class="rm-icon" style="background:${projColor}22"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="${projColor}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+          <span class="rm-name" style="flex:1;min-width:180px">${item.name}</span>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <span class="pill ${SC[item.status]}">${SL[item.status]}</span>
+            ${item.poDesc?`<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:#E1F5EE;color:#0F6E56;font-weight:700">PO</span>`:''}
+            ${item.myDesc?`<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:#EEEDfe;color:#534AB7;font-weight:700">Mój</span>`:''}
+            ${item.kpis&&item.kpis.length?`<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:#FAEEDA;color:#854F0B;font-weight:700">KPI ${item.kpis.length}</span>`:''}
+            <span class="rm-open-btn" onclick="event.stopPropagation();goDetail('task-detail',{id:'${item.id}',name:'${item.name.replace(/'/g,"\\'")}'})" title="Szczegóły">↗</span>
+            <span class="rm-edit-btn" onclick="event.stopPropagation();openEditItem('${item.id}')" title="Edytuj">✎</span>
+            <span class="rm-del-btn" onclick="event.stopPropagation();deleteItem('${item.id}')" title="Usuń">✕</span>
+            <span class="rm-chev ${open?'open':''}" id="chev-${item.id}">▶</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          ${item.tasks.length?`<div style="display:flex;align-items:center;gap:8px;flex:1;min-width:120px;max-width:280px">
+            <div style="flex:1;height:5px;background:var(--b3);border-radius:3px;overflow:hidden">
+              <div style="height:100%;background:${projColor};border-radius:3px;width:${prog}%;transition:width .4s"></div>
+            </div>
+            <span style="font-size:11px;color:var(--t3);flex-shrink:0;font-family:var(--mono)">${dn}/${item.tasks.length} zadań</span>
+          </div>`:`<span style="font-size:11px;color:var(--t3)">Brak zadań</span>`}
+          ${item.notes.length?`<span style="font-size:11px;color:var(--t3)">◻ ${item.notes.length} notat${item.notes.length===1?'ka':item.notes.length<5?'ki':'ek'}</span>`:''}
+          ${item.deadlineDay&&item.deadlineMonth?`<span style="font-size:11px;color:#A32D2D;font-weight:600;background:#FCEBEB;padding:1px 7px;border-radius:5px;margin-left:auto">⚑ ${item.deadlineDay} ${['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paz','lis','gru'][item.deadlineMonth-1]}</span>`:`<span style="font-size:11px;color:var(--t3);margin-left:auto">${item.q}</span>`}
+        </div>
+        ${item.poDesc?`<div style="font-size:12px;color:var(--t2);margin-top:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden">${item.poDesc}</div>`:''}
+      </div>
+    </div>
+    ${open?rmBodyHTML(item,projColor):''}
+  </div>`;
+}
+function deleteItem(id){
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  if(!confirm(`Czy na pewno chcesz usunąć task "${item.name}"?`))return;
+  S.items=S.items.filter(x=>x.id!==id);
+  S.allNotes=S.allNotes.map(n=>n.itemId===id?{...n,itemId:''}:n);
+  persist();renderRoadmap($('content'));
+}
+function openEditItem(id){
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  const statusOptions=Object.entries(SL).map(([val,lbl])=>`<option value="${val}" ${item.status===val?'selected':''}>${lbl}</option>`).join('');
+  const quarterOptions=QUARTERS.map(q=>`<option value="${q}" ${item.q===q?'selected':''}>${q}</option>`).join('');
+  const projectOptions=S.projects.map(p=>`<option value="${p.id}" ${item.pid===p.id?'selected':''}>${p.name}</option>`).join('');
+  openMo('Edytuj task',`
+    <div class="fg"><label class="fl">Projekt</label><select class="fs" id="mo-pid">${projectOptions}</select></div>
+    <div class="fg"><label class="fl">Nazwa taska</label><input class="fi" id="mo-name" value="${item.name.replace(/"/g,'&quot;')}"></div>
+    <div class="fg"><label class="fl">Kwartał</label><select class="fs" id="mo-q">${quarterOptions}</select></div>
+    <div class="fg"><label class="fl">Status</label><select class="fs" id="mo-s">${statusOptions}</select></div>
+    <div class="fg"><label class="fl">Deadline (opcjonalnie)</label>
+      <div style="display:flex;gap:8px">
+        <select class="fs" id="mo-dl-day" style="width:100px"><option value="">Dzień</option>${Array.from({length:31},(_,i)=>`<option value="${i+1}" ${item.deadlineDay==i+1?'selected':''}>${i+1}</option>`).join('')}</select>
+        <select class="fs" id="mo-dl-month" style="flex:1"><option value="">Miesiąc</option>${['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'].map((m,i)=>`<option value="${i+1}" ${item.deadlineMonth==i+1?'selected':''}>${m}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3">${item.poDesc||''}</textarea></div>
+    <div class="fg"><label class="fl">Mój opis (opcjonalnie)</label><textarea class="ta" id="mo-my" rows="3">${item.myDesc||''}</textarea></div>`,'item-edit',{id});
+}
+function rmBodyHTML(item,projColor){
+  const tasks=item.tasks,notes=item.notes,atts=item.atts||[];
+  return`<div class="rm-body">
+    ${item.poDesc?`<div class="rm-sec"><div class="rm-sec-hd"><span class="rm-sec-label" style="color:#0F6E56">Opis PO</span></div><div style="font-size:12px;color:var(--t2);line-height:1.65">${item.poDesc}</div></div>`:''}
+    ${item.myDesc?`<div class="rm-sec"><div class="rm-sec-hd"><span class="rm-sec-label" style="color:#534AB7">Mój opis</span></div><div style="font-size:12px;color:var(--t2);line-height:1.65">${item.myDesc}</div></div>`:''}
+    ${item.kpis&&item.kpis.length?`<div class="rm-sec"><div class="rm-sec-hd"><span class="rm-sec-label" style="color:#854F0B">Wskaźniki</span></div>
+      ${item.kpis.map(k=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:.5px solid var(--b3)">
+        <span style="font-size:12px;font-weight:600">${k.name}</span>
+        <span style="font-size:11px;color:#1D9E75;font-weight:600">${k.current} <span style="color:var(--t3)">/ ${k.target}</span></span>
+      </div>`).join('')}
+    </div>`:''}
+    <div class="rm-sec">
+      <div class="rm-sec-hd"><span class="rm-sec-label">Zadania (${tasks.length})</span><button class="btn xs" onclick="showInlineTaskForm('${item.id}')">+ Dodaj</button></div>
+      <div id="tl-${item.id}">${tasks.map(t=>taskRowHTML(t,item.id)).join('')||`<div style="font-size:12px;color:var(--t3);padding:4px 0">Brak zadań.</div>`}</div>
+      <div id="tf-${item.id}" style="display:none;padding-top:8px">
+        <div style="display:flex;gap:6px;align-items:center">
+          <input class="fi-sm" id="ti-${item.id}" placeholder="Nowe zadanie..." onkeydown="if(event.key==='Enter')saveInlineTask('${item.id}')">
+          <input class="fi-due" id="td-${item.id}" placeholder="Termin">
+          <button class="btn xs pri" onclick="saveInlineTask('${item.id}')">OK</button>
+          <button class="btn xs" onclick="$('tf-${item.id}').style.display='none'">✕</button>
+        </div>
+      </div>
+    </div>
+    <div class="rm-sec">
+      <div class="rm-sec-hd"><span class="rm-sec-label">Notatki (${notes.length})</span><button class="btn xs" onclick="showInlineNoteForm('${item.id}')">+ Dodaj</button></div>
+      <div id="nl-${item.id}">${notes.map(n=>noteChipHTML(n,item.id)).join('')||`<div style="font-size:12px;color:var(--t3);padding:4px 0">Brak notatek.</div>`}</div>
+      <div id="nf-${item.id}" style="display:none"><div class="inline-area" style="margin-top:6px">
+        <div class="fg"><input class="fi" id="nti-${item.id}" placeholder="Tytuł notatki..."></div>
+        <div class="fg"><textarea class="ta" id="nta-${item.id}" placeholder="Treść..." rows="3"></textarea></div>
+        <div style="display:flex;gap:6px;justify-content:flex-end">
+          <button class="btn xs" onclick="hideNoteForm('${item.id}')">Anuluj</button>
+          <button class="btn xs pri" onclick="saveInlineNote('${item.id}')">Zapisz</button>
+        </div>
+      </div></div>
+    </div>
+    <div class="rm-sec">
+      <div class="rm-sec-hd"><span class="rm-sec-label">Załączniki (${atts.length})</span></div>
+      ${attToolbar(item.id,'rm')}
+      <div id="att-lf-${item.id}-rm" style="display:none" class="link-row">
+        <input class="fi-sm" id="att-ln-${item.id}-rm" placeholder="Nazwa"><input class="fi-sm" id="att-lu-${item.id}-rm" placeholder="https://...">
+        <button class="btn xs pri" onclick="saveLinkToItem('${item.id}')">Dodaj</button>
+        <button class="btn xs" onclick="$('att-lf-${item.id}-rm').style.display='none'">✕</button>
+      </div>
+      <input type="file" id="att-fi-${item.id}-rm" style="display:none" multiple onchange="handleItemFiles('${item.id}',this)">
+      <input type="file" id="att-img-${item.id}-rm" style="display:none" accept="image/*" multiple onchange="handleItemFiles('${item.id}',this)">
+      <div class="att-grid" id="att-grid-${item.id}-rm">${atts.map(a=>attChipHTML(a,`delItemAtt_${item.id}`)).join('')}</div>
+    </div>
+  </div>`;
+}
+function taskRowHTML(t,iid){return`<div class="task-row"><div class="cb ${t.done?'dn':''}" onclick="togTask('${t.id}','${iid}')">${t.done?'✓':''}</div><span style="flex:1;font-size:13px;line-height:1.4;${t.done?'text-decoration:line-through;color:var(--t3)':''}">${t.text}</span><span style="font-size:11px;color:var(--t3)">${t.due||''}</span></div>`;}
+function noteChipHTML(n,iid){return`<div class="note-chip" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })"><div class="note-chip-title">${n.title}</div><div class="note-chip-body">${n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,'').slice(0,100):n.body}</div><div style="font-size:10px;color:var(--t3);margin-top:3px">${n.date}</div></div>`;}
+function attChipHTML(a,onDelFn){
+  const typeMap={img:'ai-img',png:'ai-img',jpg:'ai-img',pdf:'ai-pdf',fig:'ai-fig',figma:'ai-fig',link:'ai-link',file:'ai-file'};
+  const labelMap={img:'IMG',png:'IMG',jpg:'IMG',pdf:'PDF',fig:'FIG',figma:'FIG',link:'↗',file:'DOC'};
+  const ic=typeMap[a.type]||'ai-file',lb=labelMap[a.type]||'DOC';
+  const del=onDelFn?`<span class="att-del" onclick="event.stopPropagation();${onDelFn}('${a.id}')">✕</span>`:'';
+  if(a.dataUrl&&a.dataUrl.startsWith('data:image'))return`<div class="att-chip"><img src="${a.dataUrl}" style="width:22px;height:22px;border-radius:3px;object-fit:cover;flex-shrink:0"><span class="att-name">${a.name}</span>${del}</div>`;
+  return`<div class="att-chip" ${a.url?`onclick="window.open('${a.url}','_blank')"`:''}>  <div class="att-icon ${ic}">${lb}</div><span class="att-name">${a.name}</span>${del}</div>`;
+}
+function attToolbar(id,ctx){return`<div class="att-toolbar"><button class="att-btn" onclick="$('att-fi-${id}-${ctx}').click()">📎 Plik</button><button class="att-btn" onclick="$('att-img-${id}-${ctx}').click()">🖼 Obraz</button><button class="att-btn" onclick="$('att-lf-${id}-${ctx}').style.display='flex'">🔗 Link</button></div>`;}
+function toggleRM(id){S.expanded[id]=!S.expanded[id];renderRoadmap($('content'));}
+function showInlineTaskForm(id){const f=$(`tf-${id}`);if(f){f.style.display='block';$(`ti-${id}`)?.focus();}}
+function saveInlineTask(id){const txt=$(`ti-${id}`)?.value.trim(),due=$(`td-${id}`)?.value.trim();if(!txt)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.tasks.push({id:uid(),text:txt,done:false,due:due||''});persist();updateBadges();S.expanded[id]=true;renderRoadmap($('content'));}
+function togTask(tid,iid){const item=S.items.find(x=>x.id===iid);if(!item)return;const t=item.tasks.find(x=>x.id===tid);if(t)t.done=!t.done;persist();updateBadges();const list=$(`tl-${iid}`);if(list)list.innerHTML=item.tasks.map(t=>taskRowHTML(t,iid)).join('')||`<div style="font-size:12px;color:var(--t3);padding:4px 0">Brak zadań.</div>`;}
+function showInlineNoteForm(id){const f=$(`nf-${id}`);if(f){f.style.display='block';$(`nti-${id}`)?.focus();}}
+function hideNoteForm(id){const f=$(`nf-${id}`);if(f)f.style.display='none';}
+function saveInlineNote(id){
+  const title=$(`nti-${id}`)?.value.trim(),body=$(`nta-${id}`)?.value.trim();if(!title)return;
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  const nid=uid();const now=new Date().toLocaleDateString('pl',{day:'numeric',month:'long',year:'numeric'});
+  const note={id:nid,title,body:body||'',date:now,type:'roadmap',meetingId:'',atts:[]};
+  item.notes.unshift(note);S.allNotes.unshift({...note,itemId:id});
+  persist();S.expanded[id]=true;renderRoadmap($('content'));
+}
+function saveLinkToItem(id){const name=$(`att-ln-${id}-rm`)?.value.trim(),url=$(`att-lu-${id}-rm`)?.value.trim();if(!url)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.atts.push({id:uid(),type:'link',name:name||url,url,dataUrl:''});$(`att-lf-${id}-rm`).style.display='none';persist();S.expanded[id]=true;renderRoadmap($('content'));}
+function handleItemFiles(id,input){const item=S.items.find(x=>x.id===id);if(!item)return;const files=Array.from(input.files);let p=files.length;files.forEach(f=>{const isImg=f.type.startsWith('image/');const att={id:uid(),type:isImg?'img':'file',name:f.name,dataUrl:'',url:''};if(isImg){const r=new FileReader();r.onload=e=>{att.dataUrl=e.target.result;item.atts.push(att);persist();if(--p===0){S.expanded[id]=true;renderRoadmap($('content'));}}; r.readAsDataURL(f);}else{item.atts.push(att);persist();if(--p===0){S.expanded[id]=true;renderRoadmap($('content'));}}});input.value='';}
+S.items.forEach(item=>{window[`delItemAtt_${item.id}`]=function(aid){item.atts=item.atts.filter(a=>a.id!==aid);persist();S.expanded[item.id]=true;renderRoadmap($('content'));};});
+
+// ───────────────────────── TASK DETAIL ─────────────────────────
+function renderTaskDetail(c,id){
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  const proj=S.projects.find(p=>p.id===item.pid);
+  window[`delDetAtt_${id}`]=function(aid){item.atts=item.atts.filter(a=>a.id!==aid);persist();renderTaskDetail($('content'),id);};
+  const dn=item.tasks.filter(t=>t.done).length;
+  c.innerHTML=`<div class="detail-wrap">
+    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:24px;padding-bottom:20px;border-bottom:.5px solid var(--b3)">
+      <div style="width:40px;height:40px;border-radius:var(--r8);background:${proj?proj.color+'20':'var(--bg1)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <div style="width:13px;height:13px;border-radius:50%;background:${proj?proj.color:'var(--acc)'}"></div>
+      </div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+          <div class="detail-title" style="margin:0">${item.name}</div>
+          <span class="pill ${SC[item.status]}">${SL[item.status]}</span>
+        </div>
+        <div style="font-size:12px;color:var(--t3)">${proj?proj.name:''} · ${item.q}${item.deadlineDay&&item.deadlineMonth?' · ⚑ '+item.deadlineDay+' '+['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paz','lis','gru'][item.deadlineMonth-1]:''}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="detail-action-btn pri" onclick="openEditItem('${id}')">✎ Edytuj</button>
+        <button class="detail-action-btn danger" onclick="deleteItemFromDetail('${id}')">🗑 Usuń</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:28px">
+      ${[['Zadania',`${dn}/${item.tasks.length}`],['Notatki',item.notes.length],['KPI',(item.kpis||[]).length],['Załączniki',(item.atts||[]).length]].map(([l,v])=>`
+        <div style="background:var(--bg1);border-radius:var(--r8);padding:14px">
+          <div style="font-size:11px;color:var(--t3);margin-bottom:3px">${l}</div>
+          <div style="font-size:22px;font-weight:700">${v}</div>
+        </div>`).join('')}
+    </div>
+    <div class="td-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="td-sec-title" style="color:#0F6E56">Opis Product Ownera</div>
+        <button class="btn xs" onclick="editDesc('${id}','po')">Edytuj</button>
+      </div>
+      <div id="po-view-${id}" style="background:var(--bg1);border-radius:var(--r8);padding:12px 14px;font-size:13px;color:var(--t2);line-height:1.65;border-left:3px solid #1D9E75">
+        ${item.poDesc||`<span style="color:var(--t3);font-style:italic">Brak opisu PO.</span>`}
+      </div>
+      <div id="po-edit-${id}" style="display:none;margin-top:8px">
+        <textarea class="ta" id="po-ta-${id}" rows="5" style="margin-bottom:8px">${item.poDesc||''}</textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn xs" onclick="cancelDesc('${id}','po')">Anuluj</button>
+          <button class="btn xs pri" onclick="saveDesc('${id}','po')">Zapisz</button>
+        </div>
+      </div>
+    </div>
+    <div class="td-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="td-sec-title" style="color:#534AB7">Mój opis</div>
+        <button class="btn xs" onclick="editDesc('${id}','my')">Edytuj</button>
+      </div>
+      <div id="my-view-${id}" style="background:#EEEDfe;border-radius:var(--r8);padding:12px 14px;font-size:13px;color:var(--t2);line-height:1.65;border-left:3px solid #534AB7">
+        ${item.myDesc||`<span style="color:var(--t3);font-style:italic">Twoje notatki i przemyślenia.</span>`}
+      </div>
+      <div id="my-edit-${id}" style="display:none;margin-top:8px">
+        <textarea class="ta" id="my-ta-${id}" rows="5" style="margin-bottom:8px">${item.myDesc||''}</textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn xs" onclick="cancelDesc('${id}','my')">Anuluj</button>
+          <button class="btn xs pri" onclick="saveDesc('${id}','my')">Zapisz</button>
+        </div>
+      </div>
+    </div>
+    <div class="td-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="td-sec-title" style="color:#854F0B">Wskaźniki sukcesu</div>
+        <button class="btn xs" onclick="showKPIForm('${id}')">+ KPI</button>
+      </div>
+      <div id="kpi-list-${id}">${(item.kpis||[]).length?kpiListHTML(item):`<div style="font-size:12px;color:var(--t3)">Brak wskaźników.</div>`}</div>
+      <div id="kpi-form-${id}" style="display:none"><div class="inline-area">
+        <div class="two-col"><div class="fg"><label class="fl">Nazwa wskaźnika</label><input class="fi" id="kn-${id}" placeholder="np. Czas onboardingu"></div>
+          <div class="fg"><label class="fl">Cel</label><input class="fi" id="kt-${id}" placeholder="np. < 3 min"></div></div>
+        <div class="fg"><label class="fl">Obecna wartość</label><input class="fi" id="kc-${id}" placeholder="np. 7 min" style="width:50%"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn xs" onclick="$('kpi-form-${id}').style.display='none'">Anuluj</button>
+          <button class="btn xs pri" onclick="saveKPI('${id}')">Zapisz wskaźnik</button>
+        </div>
+      </div></div>
+    </div>
+    <div class="td-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="td-sec-title">Zadania (${item.tasks.length})</div>
+        <button class="btn xs" onclick="showDetTaskForm('${id}')">+ Dodaj</button>
+      </div>
+      <div style="background:var(--bg0);border:.5px solid var(--b3);border-radius:var(--r12);padding:2px 14px" id="dtl-${id}">
+        ${item.tasks.map(t=>detTaskRowHTML(t,id)).join('')||`<div style="font-size:12px;color:var(--t3);padding:12px 0">Brak zadań.</div>`}
+      </div>
+      <div id="dtf-${id}" style="display:none;margin-top:8px">
+        <div style="display:flex;gap:6px;align-items:center">
+          <input class="fi-sm" id="dti-${id}" placeholder="Nowe zadanie..." onkeydown="if(event.key==='Enter')saveDetTask('${id}')">
+          <input class="fi-due" id="dtd-${id}" placeholder="Termin">
+          <button class="btn xs pri" onclick="saveDetTask('${id}')">OK</button>
+          <button class="btn xs" onclick="$('dtf-${id}').style.display='none'">✕</button>
+        </div>
+      </div>
+    </div>
+    <div class="td-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="td-sec-title">Notatki (${item.notes.length})</div>
+        <button class="btn xs" onclick="openAddNote('${id}')">+ Dodaj</button>
+      </div>
+      ${item.notes.map(n=>{const gn=S.allNotes.find(x=>x.id===n.id);const meet=gn?.meetingId?S.meetings.find(m=>m.id===gn.meetingId):null;
+        return`<div style="background:var(--bg0);border:.5px solid var(--b3);border-left:3px solid ${proj?proj.color:'var(--acc)'};border-radius:var(--r12);padding:12px 15px;margin-bottom:8px;cursor:pointer" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })">
+          <div style="font-weight:600;font-size:13px;margin-bottom:3px">${n.title}</div>
+          <div style="font-size:12px;color:var(--t2);line-height:1.5">${(n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,''):n.body).slice(0,120)}</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:4px">${n.date}</div>
+        </div>`;}).join('')}
+      ${!item.notes.length?`<div style="font-size:12px;color:var(--t3)">Brak notatek.</div>`:''}
+    </div>
+    <div class="td-section">
+      <div class="td-sec-title" style="margin-bottom:10px">Załączniki</div>
+      ${attToolbar(id,'det')}
+      <div id="att-lf-${id}-det" style="display:none" class="link-row">
+        <input class="fi-sm" id="att-ln-${id}-det" placeholder="Nazwa"><input class="fi-sm" id="att-lu-${id}-det" placeholder="https://...">
+        <button class="btn xs pri" onclick="saveLinkDet('${id}')">Dodaj</button>
+        <button class="btn xs" onclick="$('att-lf-${id}-det').style.display='none'">✕</button>
+      </div>
+      <input type="file" id="att-fi-${id}-det" style="display:none" multiple onchange="handleDetFiles('${id}',this)">
+      <input type="file" id="att-img-${id}-det" style="display:none" accept="image/*" multiple onchange="handleDetFiles('${id}',this)">
+      <div class="att-grid" id="att-grid-${id}-det">${(item.atts||[]).map(a=>attChipHTML(a,`delDetAtt_${id}`)).join('')}</div>
+    </div>
+  </div>`;
+}
+function deleteItemFromDetail(id){const item=S.items.find(x=>x.id===id);if(!item)return;if(!confirm(`Usunąć task "${item.name}"?`))return;S.items=S.items.filter(x=>x.id!==id);S.allNotes=S.allNotes.map(n=>n.itemId===id?{...n,itemId:''}:n);persist();goView('roadmap');}
+function editDesc(id,type){$(`${type}-view-${id}`).style.display='none';$(`${type}-edit-${id}`).style.display='block';}
+function cancelDesc(id,type){$(`${type}-view-${id}`).style.display='block';$(`${type}-edit-${id}`).style.display='none';}
+function saveDesc(id,type){const item=S.items.find(x=>x.id===id);if(!item)return;const val=$(`${type}-ta-${id}`)?.value.trim()||'';if(type==='po')item.poDesc=val;else item.myDesc=val;persist();renderTaskDetail($('content'),id);}
+function kpiListHTML(item){return`<div style="background:var(--bg0);border:.5px solid var(--b3);border-radius:var(--r12);padding:2px 14px">${item.kpis.map(k=>`<div class="kpi-row"><div style="flex:1"><div style="font-size:13px;font-weight:600">${k.name}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:11px;color:var(--t3)">cel: <strong>${k.target}</strong></div><div style="font-size:14px;font-weight:700;color:#1D9E75">${k.current}</div></div></div>`).join('')}</div>`;}
+function showKPIForm(id){const f=$(`kpi-form-${id}`);if(f){f.style.display='block';$(`kn-${id}`)?.focus();}S.kpiPendingLinks[id]=[];}
+function saveKPI(id){const name=$(`kn-${id}`)?.value.trim(),target=$(`kt-${id}`)?.value.trim(),current=$(`kc-${id}`)?.value.trim();if(!name)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.kpis=item.kpis||[];item.kpis.push({id:uid(),name,target:target||'—',current:current||'—',links:[]});persist();renderTaskDetail($('content'),id);}
+function detTaskRowHTML(t,iid){return`<div style="display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:.5px solid var(--b3)"><div class="cb ${t.done?'dn':''}" onclick="togDetTask('${t.id}','${iid}')">${t.done?'✓':''}</div><span style="flex:1;font-size:13px;${t.done?'text-decoration:line-through;color:var(--t3)':''}">${t.text}</span><span style="font-size:11px;color:var(--t3)">${t.due||''}</span></div>`;}
+function togDetTask(tid,iid){const item=S.items.find(x=>x.id===iid);if(!item)return;const t=item.tasks.find(x=>x.id===tid);if(t)t.done=!t.done;persist();updateBadges();const list=$(`dtl-${iid}`);if(list)list.innerHTML=item.tasks.map(t=>detTaskRowHTML(t,iid)).join('')||`<div style="font-size:12px;color:var(--t3);padding:12px 0">Brak zadań.</div>`;}
+function showDetTaskForm(id){const f=$(`dtf-${id}`);if(f){f.style.display='block';$(`dti-${id}`)?.focus();}}
+function saveDetTask(id){const txt=$(`dti-${id}`)?.value.trim(),due=$(`dtd-${id}`)?.value.trim();if(!txt)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.tasks.push({id:uid(),text:txt,done:false,due:due||''});persist();updateBadges();renderTaskDetail($('content'),id);}
+function saveLinkDet(id){const name=$(`att-ln-${id}-det`)?.value.trim(),url=$(`att-lu-${id}-det`)?.value.trim();if(!url)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.atts.push({id:uid(),type:'link',name:name||url,url,dataUrl:''});$(`att-lf-${id}-det`).style.display='none';persist();renderTaskDetail($('content'),id);}
+function handleDetFiles(id,input){const item=S.items.find(x=>x.id===id);if(!item)return;const files=Array.from(input.files);let p=files.length;files.forEach(f=>{const isImg=f.type.startsWith('image/');const att={id:uid(),type:isImg?'img':'file',name:f.name,dataUrl:'',url:''};if(isImg){const r=new FileReader();r.onload=e=>{att.dataUrl=e.target.result;item.atts.push(att);persist();if(--p===0)renderTaskDetail($('content'),id);};r.readAsDataURL(f);}else{item.atts.push(att);persist();if(--p===0)renderTaskDetail($('content'),id);}});input.value='';}
+
+// ───────────────────────── MODALS ─────────────────────────
+let moMode='',moExtra={};
+function openMo(title,body,mode,extra){moMode=mode;moExtra=extra||{};$('mo-title').textContent=title;$('mo-body').innerHTML=body;$('mo').classList.add('open');}
+function closeMo(){$('mo').classList.remove('open');}
+document.addEventListener('DOMContentLoaded',()=>{const mo=$('mo');if(mo)mo.addEventListener('click',function(e){if(e.target===this)closeMo();});});
+function openAddProject(){
+  openMo('Nowy projekt',`<div class="fg"><label class="fl">Nazwa projektu</label><input class="fi" id="mo-pname" placeholder="np. Platform Redesign"></div>
+    <div class="fg"><label class="fl">Kolor</label><div style="display:flex;gap:8px;flex-wrap:wrap" id="cp">
+      ${['#5B4CF5','#EF9F27','#1D9E75','#D4537E','#378ADD','#EF4444','#888780'].map(c=>`<div onclick="selColor('${c}')" id="cp${c.slice(1)}" style="width:26px;height:26px;border-radius:50%;background:${c};cursor:pointer;border:2px solid transparent;transition:border-color .15s"></div>`).join('')}
+    </div></div>
+    <div class="fg"><label class="fl">Moje zaangażowanie w tym kwartale</label>
+      <div style="display:flex;align-items:center;gap:12px">
+        <input type="range" id="mo-engage" min="0" max="100" step="5" value="50" style="flex:1" oninput="$('mo-engage-val').textContent=this.value+'%'">
+        <span id="mo-engage-val" style="font-size:14px;font-weight:700;color:var(--acc);min-width:40px">50%</span>
+      </div>
+    </div>`,'proj');
+  window._sc='#5B4CF5';setTimeout(()=>{const el=$('cp5B4CF5');if(el)el.style.borderColor='var(--t1)';},50);
+}
+function selColor(c){window._sc=c;document.querySelectorAll('#cp div').forEach(d=>d.style.borderColor='transparent');const el=$('cp'+c.slice(1));if(el)el.style.borderColor='var(--t1)';}
+function statusOptionsHTML(selected){return Object.entries(SL).map(([val,lbl])=>`<option value="${val}" ${selected===val?'selected':''}>${lbl}</option>`).join('');}
+function openAddItem(){
+  const currentProjId=S.curProj||(S.projects[0]?.id||'');
+  const projectOptions=S.projects.map(p=>`<option value="${p.id}" ${p.id===currentProjId?'selected':''}>${p.name}</option>`).join('');
+  const quarterOptions=QUARTERS.map(q=>`<option value="${q}" ${q==='Q2 2026'?'selected':''}>${q}</option>`).join('');
+  openMo('Nowy task z roadmapy',`
+    <div class="fg"><label class="fl">Projekt</label><select class="fs" id="mo-pid">${projectOptions}</select></div>
+    <div class="fg"><label class="fl">Nazwa taska</label><input class="fi" id="mo-name" placeholder="np. Redesign ustawień"></div>
+    <div class="fg"><label class="fl">Kwartał</label><select class="fs" id="mo-q">${quarterOptions}</select></div>
+    <div class="fg"><label class="fl">Status</label><select class="fs" id="mo-s">${statusOptionsHTML('planning')}</select></div>
+    <div class="fg"><label class="fl">Deadline (opcjonalnie)</label>
+      <div style="display:flex;gap:8px">
+        <select class="fs" id="mo-dl-day" style="width:100px"><option value="">Dzień</option>${Array.from({length:31},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('')}</select>
+        <select class="fs" id="mo-dl-month" style="flex:1"><option value="">Miesiąc</option>${['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'].map((m,i)=>`<option value="${i+1}">${m}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3" placeholder="Cel, kontekst biznesowy..."></textarea></div>
+    <div class="fg"><label class="fl">Mój opis (opcjonalnie)</label><textarea class="ta" id="mo-my" rows="3" placeholder="Twoje notatki, przemyślenia..."></textarea></div>`,'item');
+}
+function openAddMeeting(){
+  openMo('Nowe spotkanie',`
+    <div class="fg"><label class="fl">Tytuł</label><input class="fi" id="mo-mtitle" placeholder="np. Design System weekly"></div>
+    <div class="two-col">
+      <div class="fg"><label class="fl">Data</label><input class="fi" id="mo-mdate" placeholder="np. 15 kwi 2025"></div>
+      <div class="fg"><label class="fl">Godzina</label><input class="fi" id="mo-mtime" placeholder="10:00"></div>
+    </div>
+    <div class="fg"><label class="fl">Typ</label><select class="fs" id="mo-mtype"><option value="team">Zespół</option><option value="client">Klient</option><option value="design">Design review</option></select></div>
+    <div class="fg"><label class="fl">Uczestnicy</label><input class="fi" id="mo-matt" placeholder="np. Kasia, Tomek, Anna"></div>
+    <div class="fg"><label class="fl">Opis / Agenda</label><textarea class="ta" id="mo-mnotes" rows="3" placeholder="Tematy, agenda..."></textarea></div>`,'meeting');
+}
+function openAddGlobalTask(){
+  openMo('Nowe zadanie',`
+    <div class="fg"><label class="fl">Treść zadania</label><input class="fi" id="mo-ttxt" placeholder="Co trzeba zrobić?"></div>
+    <div class="two-col">
+      <div class="fg"><label class="fl">Projekt / Task</label><select class="fs" id="mo-tiid">${S.items.map(i=>`<option value="${i.id}">${i.name}</option>`).join('')}</select></div>
+      <div class="fg"><label class="fl">Termin</label><input class="fi" id="mo-tdue" placeholder="np. 20 kwi"></div>
+    </div>`,'task');
+}
+function openEditNote(id){enterNoteEdit(id);}
 
 // ─── RICH EDITOR HELPERS ───
 function richToolbarHTML(tid){
