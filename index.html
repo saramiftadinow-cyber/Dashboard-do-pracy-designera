@@ -64,6 +64,8 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .sr{background:#FAEEDA;color:#854F0B}
 .sd{background:#EAF3DE;color:#3B6D11}
 .sl{background:#E6F1FB;color:#185FA5}
+.sg{background:#F3E8FF;color:#7C3AED}
+.sdt{background:#FEF9C3;color:#854D0E}
 
 /* FORMS */
 .fi,.fs,.ta{width:100%;padding:7px 10px;border:.5px solid var(--b2);border-radius:var(--r8);background:var(--bg1);color:var(--t1);font-size:13px;font-family:var(--font)}
@@ -100,6 +102,11 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .cnt.has{background:var(--acc-l);color:var(--acc)}
 .rm-open-btn{font-size:12px;color:var(--acc);cursor:pointer;flex-shrink:0;padding:3px 7px;border-radius:5px;transition:background .1s;border:.5px solid transparent}
 .rm-open-btn:hover{background:var(--acc-l);border-color:var(--acc)}
+.rm-edit-btn{font-size:11px;color:var(--t3);cursor:pointer;flex-shrink:0;padding:3px 7px;border-radius:5px;transition:all .1s;border:.5px solid transparent}
+.rm-edit-btn:hover{background:var(--bg1);border-color:var(--b2);color:var(--t1)}
+.rm-del-btn{font-size:11px;color:#A32D2D;cursor:pointer;flex-shrink:0;padding:3px 7px;border-radius:5px;transition:all .1s;border:.5px solid transparent;opacity:0}
+.rm-card:hover .rm-del-btn{opacity:1}
+.rm-del-btn:hover{background:#fee2e2;border-color:#fca5a5}
 .rm-chev{font-size:10px;color:var(--t3);transition:transform .2s;flex-shrink:0}
 .rm-chev.open{transform:rotate(90deg)}
 
@@ -260,7 +267,9 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
     <div class="ni" id="nav-notes" onclick="goView('notes')"><span class="nic">◻</span>Notatki</div>
     <div style="flex:1"></div>
     <div style="padding:10px 12px;border-top:.5px solid var(--b3);display:flex;flex-direction:column;gap:5px">
-      <button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px;margin-bottom:3px" onclick="showChangePassword()">🔒 Zmień hasło</button><button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px;margin-bottom:3px" onclick="lockApp()">🚪 Zablokuj</button><button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px" onclick="exportData()">⬇ Eksportuj dane</button>
+      <button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px;margin-bottom:3px" onclick="showChangePassword()">🔒 Zmień hasło</button>
+      <button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px;margin-bottom:3px" onclick="lockApp()">🚪 Zablokuj</button>
+      <button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px" onclick="exportData()">⬇ Eksportuj dane</button>
       <label class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px;cursor:pointer;margin:0">⬆ Importuj dane<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
     </div>
   </div>
@@ -286,10 +295,28 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 </div>
 
 <script>
-// ───────────────────────── STATE ─────────────────────────
-const SL={progress:'W toku',review:'Review',planning:'Planowanie',done:'Ukończony'};
-const SC={progress:'sp',review:'sr',planning:'sl',done:'sd'};
-const QUARTERS=['Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026'];
+// ───────────────────────── STATUS CONFIG ─────────────────────────
+// STATUS label map — key: internal value, val: display label
+const SL={
+  progress:'W toku',
+  review:'Review',
+  planning:'Planowanie',
+  done:'Ukończony',
+  designs:'Gotowe designy',
+  discuss:'Do przegadania z zespołem'
+};
+// STATUS css class map
+const SC={
+  progress:'sp',
+  review:'sr',
+  planning:'sl',
+  done:'sd',
+  designs:'sg',
+  discuss:'sdt'
+};
+
+// All available quarters
+const QUARTERS=['Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026','Q2 2026','Q3 2026','Q4 2026'];
 
 function defState(){return{
   projects:[
@@ -399,7 +426,7 @@ function setBc(parts){
 function viewTitle(v){return{roadmap:'Roadmapa',dashboard:'Dashboard',tasks:'Zadania',notes:'Notatki',meetings:'Spotkania',projects:'Projekty'}[v]||'DesignOS'}
 function setTbActions(v){
   const el=$('tb-actions');
-  if(v==='roadmap')el.innerHTML=`<button class="btn xs" onclick="openAddProject()">+ Projekt</button>&nbsp;<button class="btn xs pri" onclick="openAddItem()">+ Element</button>`;
+  if(v==='roadmap')el.innerHTML=`<button class="btn xs" onclick="openAddProject()">+ Projekt</button>&nbsp;<button class="btn xs pri" onclick="openAddItem()">+ Podprojekt</button>`;
   else if(v==='tasks')el.innerHTML=`<button class="btn xs pri" onclick="openAddGlobalTask()">+ Zadanie</button>`;
   else if(v==='notes')el.innerHTML=`<button class="btn xs pri" onclick="openAddNote()">+ Notatka</button>`;
   else if(v==='meetings')el.innerHTML=`<button class="btn xs pri" onclick="openAddMeeting()">+ Spotkanie</button>`;
@@ -413,7 +440,6 @@ function renderDashboard(c){
   const openTasks=totalTasks-doneTasks;
   const inProgress=S.items.filter(i=>i.status==='progress').length;
   const totalNotes=S.allNotes.length;
-  // recent activity
   const recentItems=[...S.items].reverse().slice(0,3);
   c.innerHTML=`
     <div class="view-header"><div class="view-title">Dzień dobry 👋</div><span style="font-size:12px;color:var(--t3)">${new Date().toLocaleDateString('pl',{weekday:'long',day:'numeric',month:'long'})}</span></div>
@@ -444,10 +470,10 @@ function renderDashboard(c){
           </div>`;}).join('')}
       </div>
       <div>
-        <div class="td-sec-title" style="margin-bottom:10px">Ostatnie elementy roadmapy</div>
+        <div class="td-sec-title" style="margin-bottom:10px">Ostatnie podprojekty z roadmapy</div>
         ${recentItems.map(item=>{
           const proj=S.projects.find(p=>p.id===item.pid);
-          return`<div style="background:var(--bg0);border:.5px solid var(--b3);border-radius:var(--r8);padding:10px 13px;margin-bottom:6px;cursor:pointer" onclick="goDetail('task-detail',{id:'${item.id}',name:'${item.name.replace(/'/g,"\\'")}})">
+          return`<div style="background:var(--bg0);border:.5px solid var(--b3);border-radius:var(--r8);padding:10px 13px;margin-bottom:6px;cursor:pointer" onclick="goDetail('task-detail',{id:'${item.id}',name:'${item.name.replace(/'/g,"\\'")}' })">
             <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">
               <div style="width:7px;height:7px;border-radius:50%;background:${proj?proj.color:'var(--acc)'}"></div>
               <span style="font-weight:600;font-size:13px;flex:1">${item.name}</span>
@@ -480,14 +506,14 @@ function renderProjectsView(c){
             <button class="btn xs danger" onclick="event.stopPropagation();deleteProject('${p.id}')">✕ Usuń</button>
           </div>
           <div style="font-weight:700;font-size:15px;margin-bottom:4px">${p.name}</div>
-          <div style="font-size:12px;color:var(--t3);margin-bottom:12px">${pitems.length} elementów · ${pt} zadań</div>
+          <div style="font-size:12px;color:var(--t3);margin-bottom:12px">${pitems.length} podprojektów · ${pt} zadań</div>
           <div style="background:var(--b3);border-radius:4px;height:5px;overflow:hidden"><div style="height:100%;background:${p.color};border-radius:4px;width:${pt?Math.round(pd/pt*100):0}%"></div></div>
           <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--t3)"><span>${pd}/${pt} zadań</span><span onclick="event.stopPropagation();S.curProj='${p.id}';goView('roadmap')" style="color:var(--acc);cursor:pointer">→ Roadmapa</span></div>
         </div>`;}).join('')}
     </div>`;
 }
 function deleteProject(pid){
-  if(!confirm('Usunąć projekt i wszystkie jego elementy?'))return;
+  if(!confirm('Usunąć projekt i wszystkie jego podprojekty?'))return;
   S.projects=S.projects.filter(p=>p.id!==pid);
   S.items=S.items.filter(i=>i.pid!==pid);
   if(S.curProj===pid)S.curProj=S.projects[0]?.id||'';
@@ -500,7 +526,6 @@ function renderTasks(c){
   const all=S.items.flatMap(item=>item.tasks.map(t=>({...t,item,proj:S.projects.find(p=>p.id===item.pid)})));
   const filters=[['all','Wszystkie'],['open','Otwarte'],['done','Ukończone']];
   const filtered=all.filter(t=>S.taskFilter==='all'?true:S.taskFilter==='open'?!t.done:t.done);
-  // group by project
   const groups={};filtered.forEach(t=>{const k=t.proj?.id||'other';if(!groups[k])groups[k]=[];groups[k].push(t);});
   c.innerHTML=`<div class="view-header"><div class="view-title">Zadania</div><button class="btn pri xs" onclick="openAddGlobalTask()">+ Zadanie</button></div>
     <div class="task-filter">
@@ -527,7 +552,6 @@ function togGlobalTask(tid,iid){const item=S.items.find(x=>x.id===iid);if(!item)
 
 // ───────────────────────── NOTES VIEW ─────────────────────────
 function renderNotes(c){
-  // group by date
   const groups={};S.allNotes.forEach(n=>{if(!groups[n.date])groups[n.date]=[];groups[n.date].push(n);});
   const days=Object.keys(groups).sort((a,b)=>new Date(b)-new Date(a));
   c.innerHTML=`<div class="view-header"><div class="view-title">Notatki</div><button class="btn pri xs" onclick="openAddNote()">+ Notatka</button></div>
@@ -556,7 +580,6 @@ function renderNoteDetail(c,id){
   const n=S.allNotes.find(x=>x.id===id);if(!n){c.innerHTML='<div class="empty">Nie znaleziono.</div>';return;}
   const meet=n.meetingId?S.meetings.find(m=>m.id===n.meetingId):null;
   const item=n.itemId?S.items.find(i=>i.id===n.itemId):null;
-  const proj=item?S.projects.find(p=>p.id===item.pid):null;
   c.innerHTML=`<div style="max-width:680px">
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
       ${meet?`<span class="tl-badge tl-meeting" style="padding:3px 10px;border-radius:7px">◷ ${meet.title}</span>`:''}
@@ -579,7 +602,6 @@ function editNoteInline(id){openEditNote(id);}
 
 // ───────────────────────── MEETINGS ─────────────────────────
 function renderMeetings(c){
-  // group by date
   const groups={};S.meetings.forEach(m=>{if(!groups[m.date])groups[m.date]=[];groups[m.date].push(m);});
   const days=Object.keys(groups).sort();
   const typeMap={team:'mt-team',client:'mt-client',design:'mt-design'};
@@ -660,13 +682,13 @@ function renderRoadmap(c){
     const tot=qItems.reduce((a,i)=>a+i.tasks.length,0);
     const dn=qItems.reduce((a,i)=>a+i.tasks.filter(t=>t.done).length,0);
     return`<div class="q-section">
-      <div class="q-hd"><span class="q-title">${q}</span><span style="font-size:11px;color:var(--t3)">${qItems.length} elementów · ${dn}/${tot} zadań</span></div>
+      <div class="q-hd"><span class="q-title">${q}</span><span style="font-size:11px;color:var(--t3)">${qItems.length} podprojektów · ${dn}/${tot} zadań</span></div>
       ${qItems.map(item=>rmCardHTML(item,p.color)).join('')}
     </div>`;}).join('')
-    :`<div style="text-align:center;padding:48px 0;color:var(--t3)">Brak elementów w tym projekcie.<br><br><button class="btn pri xs" onclick="openAddItem()">+ Dodaj element</button></div>`;
+    :`<div style="text-align:center;padding:48px 0;color:var(--t3)">Brak podprojektów w tym projekcie.<br><br><button class="btn pri xs" onclick="openAddItem()">+ Dodaj podprojekt</button></div>`;
   c.innerHTML=tabsHTML+qHTML;
 }
-function deleteProjectRm(pid){if(!confirm('Usunąć projekt i wszystkie jego elementy?'))return;S.projects=S.projects.filter(p=>p.id!==pid);S.items=S.items.filter(i=>i.pid!==pid);if(S.curProj===pid)S.curProj=S.projects[0]?.id||'';persist();renderRoadmap($('content'));}
+function deleteProjectRm(pid){if(!confirm('Usunąć projekt i wszystkie jego podprojekty?'))return;S.projects=S.projects.filter(p=>p.id!==pid);S.items=S.items.filter(i=>i.pid!==pid);if(S.curProj===pid)S.curProj=S.projects[0]?.id||'';persist();renderRoadmap($('content'));}
 function switchProj(pid){S.curProj=pid;persist();renderRoadmap($('content'));}
 
 function rmCardHTML(item,projColor){
@@ -684,11 +706,38 @@ function rmCardHTML(item,projColor){
         ${item.tasks.length?`<span class="cnt ${dn===item.tasks.length&&item.tasks.length?'has':''}">✓ ${dn}/${item.tasks.length}</span>`:''}
         ${item.notes.length?`<span class="cnt has">◻ ${item.notes.length}</span>`:''}
         <span class="rm-open-btn" onclick="event.stopPropagation();goDetail('task-detail',{id:'${item.id}',name:'${item.name.replace(/'/g,"\\'")}'})" title="Szczegóły">↗</span>
+        <span class="rm-edit-btn" onclick="event.stopPropagation();openEditItem('${item.id}')" title="Edytuj">✎</span>
+        <span class="rm-del-btn" onclick="event.stopPropagation();deleteItem('${item.id}')" title="Usuń">✕</span>
       </div>
       <span class="rm-chev ${open?'open':''}" id="chev-${item.id}">▶</span>
     </div>
     ${open?rmBodyHTML(item,projColor):''}
   </div>`;
+}
+
+// DELETE ITEM with confirmation
+function deleteItem(id){
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  if(!confirm(`Czy na pewno chcesz usunąć podprojekt "${item.name}"? Tej operacji nie można cofnąć.`))return;
+  S.items=S.items.filter(x=>x.id!==id);
+  // also clean allNotes linked to this item
+  S.allNotes=S.allNotes.map(n=>n.itemId===id?{...n,itemId:''}:n);
+  persist();renderRoadmap($('content'));
+}
+
+// EDIT ITEM
+function openEditItem(id){
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  const statusOptions=Object.entries(SL).map(([val,lbl])=>`<option value="${val}" ${item.status===val?'selected':''}>${lbl}</option>`).join('');
+  const quarterOptions=QUARTERS.map(q=>`<option value="${q}" ${item.q===q?'selected':''}>${q}</option>`).join('');
+  const projectOptions=S.projects.map(p=>`<option value="${p.id}" ${item.pid===p.id?'selected':''}>${p.name}</option>`).join('');
+  openMo('Edytuj podprojekt',`
+    <div class="fg"><label class="fl">Projekt</label><select class="fs" id="mo-pid">${projectOptions}</select></div>
+    <div class="fg"><label class="fl">Nazwa podprojektu</label><input class="fi" id="mo-name" value="${item.name.replace(/"/g,'&quot;')}"></div>
+    <div class="fg"><label class="fl">Kwartał</label><select class="fs" id="mo-q">${quarterOptions}</select></div>
+    <div class="fg"><label class="fl">Status</label><select class="fs" id="mo-s">${statusOptions}</select></div>
+    <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3">${item.poDesc||''}</textarea></div>
+    <div class="fg"><label class="fl">Mój opis (opcjonalnie)</label><textarea class="ta" id="mo-my" rows="3">${item.myDesc||''}</textarea></div>`,'item-edit',{id});
 }
 
 function rmBodyHTML(item,projColor){
@@ -777,10 +826,9 @@ function hideNoteForm(id){const f=$(`nf-${id}`);if(f)f.style.display='none';}
 function saveInlineNote(id){
   const title=$(`nti-${id}`)?.value.trim(),body=$(`nta-${id}`)?.value.trim();if(!title)return;
   const item=S.items.find(x=>x.id===id);if(!item)return;
-  const nid=uid();const now=new Date().toLocaleDateString('pl',{day:'numeric',month:'krótki',year:'numeric'});
+  const nid=uid();const now=new Date().toLocaleDateString('pl',{day:'numeric',month:'long',year:'numeric'});
   const note={id:nid,title,body:body||'',date:now,type:'roadmap',meetingId:'',atts:[]};
   item.notes.unshift(note);
-  // Also add to allNotes
   S.allNotes.unshift({...note,itemId:id});
   persist();S.expanded[id]=true;renderRoadmap($('content'));
 }
@@ -797,7 +845,6 @@ function handleItemFiles(id,input){
     if(isImg){const r=new FileReader();r.onload=e=>{att.dataUrl=e.target.result;item.atts.push(att);persist();if(--p===0){S.expanded[id]=true;renderRoadmap($('content'));}}; r.readAsDataURL(f);}
     else{item.atts.push(att);persist();if(--p===0){S.expanded[id]=true;renderRoadmap($('content'));}}});input.value='';
 }
-// del fns
 S.items.forEach(item=>{window[`delItemAtt_${item.id}`]=function(aid){item.atts=item.atts.filter(a=>a.id!==aid);persist();S.expanded[item.id]=true;renderRoadmap($('content'));};});
 
 // ───────────────────────── TASK DETAIL ─────────────────────────
@@ -817,6 +864,10 @@ function renderTaskDetail(c,id){
           <span class="pill ${SC[item.status]}">${SL[item.status]}</span>
         </div>
         <div style="font-size:12px;color:var(--t3)">${proj?proj.name:''} · ${item.q}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0">
+        <button class="btn xs" onclick="openEditItem('${id}')">✎ Edytuj</button>
+        <button class="btn xs danger" onclick="deleteItemFromDetail('${id}')">✕ Usuń</button>
       </div>
     </div>
 
@@ -938,6 +989,14 @@ function renderTaskDetail(c,id){
   </div>`;
 }
 
+function deleteItemFromDetail(id){
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  if(!confirm(`Czy na pewno chcesz usunąć podprojekt "${item.name}"? Tej operacji nie można cofnąć.`))return;
+  S.items=S.items.filter(x=>x.id!==id);
+  S.allNotes=S.allNotes.map(n=>n.itemId===id?{...n,itemId:''}:n);
+  persist();goView('roadmap');
+}
+
 function editDesc(id,type){$(`${type}-view-${id}`).style.display='none';$(`${type}-edit-${id}`).style.display='block';}
 function cancelDesc(id,type){$(`${type}-view-${id}`).style.display='block';$(`${type}-edit-${id}`).style.display='none';}
 function saveDesc(id,type){
@@ -978,12 +1037,22 @@ function openAddProject(){
 }
 function selColor(c){window._sc=c;document.querySelectorAll('#cp div').forEach(d=>d.style.borderColor='transparent');const el=$('cp'+c.slice(1));if(el)el.style.borderColor='var(--t1)';}
 
+// Build status options HTML helper
+function statusOptionsHTML(selected){
+  return Object.entries(SL).map(([val,lbl])=>`<option value="${val}" ${selected===val?'selected':''}>${lbl}</option>`).join('');
+}
+
 function openAddItem(){
-  openMo('Nowy element roadmapy',`
-    <div class="fg"><label class="fl">Projekt</label><select class="fs" id="mo-pid">${S.projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">Nazwa</label><input class="fi" id="mo-name" placeholder="np. Redesign ustawień"></div>
-    <div class="fg"><label class="fl">Kwartał</label><select class="fs" id="mo-q">${QUARTERS.map(q=>`<option${q==='Q2 2025'?' selected':''}>${q}</option>`).join('')}</select></div>
-    <div class="fg"><label class="fl">Status</label><select class="fs" id="mo-s"><option value="planning">Planowanie</option><option value="progress">W toku</option><option value="review">Review</option><option value="done">Ukończony</option></select></div>
+  // Auto-select the currently active project
+  const currentProjId = S.curProj || (S.projects[0]?.id || '');
+  const projectOptions = S.projects.map(p=>`<option value="${p.id}" ${p.id===currentProjId?'selected':''}>${p.name}</option>`).join('');
+  const quarterOptions = QUARTERS.map(q=>`<option value="${q}" ${q==='Q2 2025'?'selected':''}>${q}</option>`).join('');
+
+  openMo('Nowy podprojekt z roadmapy',`
+    <div class="fg"><label class="fl">Projekt</label><select class="fs" id="mo-pid">${projectOptions}</select></div>
+    <div class="fg"><label class="fl">Nazwa podprojektu</label><input class="fi" id="mo-name" placeholder="np. Redesign ustawień"></div>
+    <div class="fg"><label class="fl">Kwartał</label><select class="fs" id="mo-q">${quarterOptions}</select></div>
+    <div class="fg"><label class="fl">Status</label><select class="fs" id="mo-s">${statusOptionsHTML('planning')}</select></div>
     <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3" placeholder="Cel, kontekst biznesowy..."></textarea></div>
     <div class="fg"><label class="fl">Mój opis (opcjonalnie)</label><textarea class="ta" id="mo-my" rows="3" placeholder="Twoje notatki, przemyślenia..."></textarea></div>`,'item');
 }
@@ -1039,7 +1108,7 @@ function openAddGlobalTask(){
   openMo('Nowe zadanie',`
     <div class="fg"><label class="fl">Treść zadania</label><input class="fi" id="mo-ttxt" placeholder="Co trzeba zrobić?"></div>
     <div class="two-col">
-      <div class="fg"><label class="fl">Projekt / Element</label><select class="fs" id="mo-tiid">${S.items.map(i=>`<option value="${i.id}">${i.name}</option>`).join('')}</select></div>
+      <div class="fg"><label class="fl">Projekt / Podprojekt</label><select class="fs" id="mo-tiid">${S.items.map(i=>`<option value="${i.id}">${i.name}</option>`).join('')}</select></div>
       <div class="fg"><label class="fl">Termin</label><input class="fi" id="mo-tdue" placeholder="np. 20 kwi"></div>
     </div>`,'task');
 }
@@ -1063,9 +1132,27 @@ function saveMo(){
     S.items.push({id,pid:$('mo-pid')?.value,q:$('mo-q')?.value,name,status:$('mo-s')?.value||'planning',
       poDesc:$('mo-po')?.value.trim()||'',myDesc:$('mo-my')?.value.trim()||'',kpis:[],tasks:[],notes:[],atts:[]});
     S.curProj=$('mo-pid')?.value;
-    // register del fn
-    const item=S.items[S.items.length-1];window[`delItemAtt_${id}`]=function(aid){item.atts=item.atts.filter(a=>a.id!==aid);persist();S.expanded[id]=true;renderRoadmap($('content'));};
+    const item=S.items[S.items.length-1];
+    window[`delItemAtt_${id}`]=function(aid){item.atts=item.atts.filter(a=>a.id!==aid);persist();S.expanded[id]=true;renderRoadmap($('content'));};
     persist();closeMo();renderRoadmap($('content'));
+  }
+  else if(moMode==='item-edit'){
+    const id=moExtra.id;
+    const item=S.items.find(x=>x.id===id);if(!item)return;
+    const name=$('mo-name')?.value.trim();if(!name)return;
+    const prevExpanded=S.expanded[id];
+    item.pid=$('mo-pid')?.value||item.pid;
+    item.name=name;
+    item.q=$('mo-q')?.value||item.q;
+    item.status=$('mo-s')?.value||item.status;
+    item.poDesc=$('mo-po')?.value.trim()||'';
+    item.myDesc=$('mo-my')?.value.trim()||'';
+    S.curProj=item.pid;
+    S.expanded[id]=prevExpanded;
+    persist();closeMo();
+    // If we're in detail view, re-render it; otherwise go to roadmap
+    if(S.curView==='roadmap'||!S.curView){renderRoadmap($('content'));}
+    else{renderTaskDetail($('content'),id);}
   }
   else if(moMode==='note'){
     const title=$('mo-ntitle')?.value.trim(),body=$('mo-nbody')?.value.trim();if(!title)return;
@@ -1077,7 +1164,6 @@ function saveMo(){
     const nid=uid();
     const note={id:nid,title,body:body||'',date:now,type,meetingId,itemId,atts};
     S.allNotes.unshift(note);
-    // also add to item notes if linked
     if(itemId){const item=S.items.find(x=>x.id===itemId);if(item)item.notes.unshift({id:nid,title,body:body||'',date:now,type,meetingId,atts});}
     window._notePendingLinks=[];window._notePendingImgs=[];
     persist();closeMo();goView('notes');
@@ -1085,7 +1171,6 @@ function saveMo(){
   else if(moMode==='note-edit'){
     const n=S.allNotes.find(x=>x.id===moExtra.id);if(!n)return;
     n.title=$('mo-ntitle')?.value.trim()||n.title;n.body=$('mo-nbody')?.value.trim()||'';
-    // sync item note
     if(n.itemId){const item=S.items.find(x=>x.id===n.itemId);if(item){const in2=item.notes.find(x=>x.id===n.id);if(in2){in2.title=n.title;in2.body=n.body;}}}
     persist();closeMo();goDetail('note-detail',{id:n.id,title:n.title});
   }
@@ -1134,7 +1219,6 @@ const PW_KEY = 'designos-pw';
 const SESSION_KEY = 'designos-session';
 
 function hashPin(str){
-  // simple hash for storage - not cryptographic but prevents plain text
   let h = 0;
   for(let i=0;i<str.length;i++){h=((h<<5)-h)+str.charCodeAt(i);h|=0;}
   return h.toString(36);
@@ -1144,16 +1228,13 @@ function initLock(){
   const stored = localStorage.getItem(PW_KEY);
   const session = sessionStorage.getItem(SESSION_KEY);
   if(!stored){
-    // No password set — show set password screen first time
     showSetPassword(true);
     return;
   }
   if(session === stored){
-    // Already unlocked this session
     unlock();
     return;
   }
-  // Show lock screen
   document.getElementById('lock-screen').style.display = 'flex';
   setTimeout(()=>document.getElementById('lock-input')?.focus(), 100);
 }
@@ -1211,7 +1292,6 @@ function savePassword(){
 }
 
 function showChangePassword(){
-  // Verify current password first
   const stored = localStorage.getItem(PW_KEY);
   if(stored){
     const cur = prompt('Podaj obecne hasło:');
@@ -1232,7 +1312,6 @@ function lockApp(){
 
 // ───────────────────────── INIT ─────────────────────────
 updateBadges();
-// goView called after unlock
 function startApp(){goView('roadmap');}
 initLock();
 </script>
