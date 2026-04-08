@@ -97,13 +97,11 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .re-body blockquote{border-left:3px solid var(--acc-m);margin:6px 0;padding:4px 12px;color:var(--t2);background:var(--acc-l);border-radius:0 4px 4px 0}
 .re-body code{background:var(--bg2);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:12px}
 .re-body a{color:var(--acc)}
-.re-img-grid{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
-.re-img-card{position:relative;border-radius:var(--r8);overflow:hidden;border:.5px solid var(--b3);display:inline-block}
-.re-img-card img{display:block;max-width:280px;max-height:200px;object-fit:cover;cursor:zoom-in}
-.re-img-del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .15s}
-.re-img-card:hover .re-img-del{opacity:1}
 .re-img-full{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:200;cursor:zoom-out}
 .re-img-full img{max-width:90vw;max-height:90vh;border-radius:var(--r12)}
+/* Inline images inside the editor */
+.re-body img{max-width:100%;border-radius:var(--r8);display:block;margin:6px 0;cursor:zoom-in;border:.5px solid var(--b3)}
+.re-body img:hover{border-color:var(--acc)}
 .fg{margin-bottom:10px}
 .fl{font-size:11px;color:var(--t2);margin-bottom:4px;display:block;font-weight:500}
 .fi:focus,.fi-sm:focus,.fi-due:focus,.ta:focus,.fs:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(91,76,245,.12)}
@@ -696,7 +694,7 @@ function renderNoteDetail(c,id){
         <button class="detail-action-btn danger" onclick="deleteNote('${id}')">🗑 Usuń</button>
       </div>
       <div style="font-size:15px;color:var(--t2);line-height:1.8;border-top:.5px solid var(--b3);padding-top:20px">${bodyHtml||'<div style="white-space:pre-wrap">'+n.body+'</div>'}</div>
-      ${imgs.length?`<div style="margin-top:24px"><div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">SCREENSHOTY</div><div class="re-img-grid">${imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}" onclick="viewImg('${img.dataUrl}')"></div>`).join('')}</div></div>`:''}
+
     `:`
       <div class="fg" style="margin-bottom:16px"><input class="fi" id="nd-t-${id}" value="${n.title.replace(/"/g,'&quot;')}" style="font-size:22px;font-weight:700;border:none;background:transparent;padding:0;border-bottom:2px solid var(--acc)"></div>
       <div class="fg">
@@ -705,13 +703,13 @@ function renderNoteDetail(c,id){
           <div class="re-body" id="re-ed-${id}" contenteditable="true" data-ph="Treść notatki..." onpaste="handleEditorPaste(event,'${id}')">${bodyHtml||n.body}</div>
         </div>
       </div>
-      <div class="fg">
-        <div style="font-size:11px;font-weight:500;color:var(--t2);margin-bottom:8px">Screenshoty i zdjęcia</div>
-        <div class="re-img-grid" id="nd-imgs-${id}">${imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}"><div class="re-img-del" onclick="delNImg('${id}',${i})">x</div></div>`).join('')}</div>
-        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-          <label class="att-btn" style="cursor:pointer">+ Screenshot / zdjęcie<input type="file" accept="image/*" multiple style="display:none" onchange="addNImgs('${id}',this)"></label>
-          <div class="att-btn" style="cursor:pointer" onclick="pasteNClip('${id}')">Wklej ze schowka (Ctrl+V)</div>
-        </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:2px;margin-bottom:8px">
+        <label class="att-btn" style="cursor:pointer;font-size:12px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:3px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Wstaw zdjęcie
+          <input type="file" accept="image/*" multiple style="display:none" onchange="insertImgsFromFiles(this)">
+        </label>
+        <span style="font-size:11px;color:var(--t3)">lub Ctrl+V w miejscu kursora</span>
       </div>
       <div style="display:flex;gap:10px;padding-top:16px;border-top:.5px solid var(--b3)">
         <button class="detail-action-btn pri" onclick="saveNEdit('${id}')">Zapisz zmiany</button>
@@ -734,531 +732,81 @@ function saveNEdit(id){
 }
 function deleteNote(id){if(!confirm('Usunac notatke?'))return;S.allNotes=S.allNotes.filter(n=>n.id!==id);persist();goView('notes');}
 function editNoteInline(id){enterNoteEdit(id);}
-function delNImg(id,idx){const n=S.allNotes.find(x=>x.id===id);if(!n||!n.imgs)return;n.imgs.splice(idx,1);persist();const g=$('nd-imgs-'+id);if(g)g.innerHTML=n.imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}"><div class="re-img-del" onclick="delNImg('${id}',${i})">x</div></div>`).join('');}
-function addNImgs(id,input){const n=S.allNotes.find(x=>x.id===id);if(!n)return;n.imgs=n.imgs||[];const files=Array.from(input.files);let p=files.length;files.forEach(f=>{const r=new FileReader();r.onload=e=>{n.imgs.push({name:f.name,dataUrl:e.target.result});persist();if(--p===0){const g=$('nd-imgs-'+id);if(g)g.innerHTML=n.imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}"><div class="re-img-del" onclick="delNImg('${id}',${i})">x</div></div>`).join('');}};r.readAsDataURL(f);});input.value='';}
-async function pasteNClip(id){try{const items=await navigator.clipboard.read();for(const ci of items){for(const type of ci.types){if(type.startsWith('image/')){const blob=await ci.getType(type);const r=new FileReader();r.onload=e=>{const n=S.allNotes.find(x=>x.id===id);if(!n)return;n.imgs=n.imgs||[];n.imgs.push({name:'screenshot.png',dataUrl:e.target.result});persist();const g=$('nd-imgs-'+id);if(g)g.innerHTML=n.imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}"><div class="re-img-del" onclick="delNImg('${id}',${i})">x</div></div>`).join('');};r.readAsDataURL(blob);return;}}}alert('Brak obrazu w schowku.');}catch(e){alert('Sprobuj Ctrl+V w edytorze.');}}
-function handleEditorPaste(e,id){const items=e.clipboardData?.items||[];for(const item of items){if(item.type.startsWith('image/')){e.preventDefault();const blob=item.getAsFile();const r=new FileReader();r.onload=ev=>{const n=S.allNotes.find(x=>x.id===id);if(!n)return;n.imgs=n.imgs||[];n.imgs.push({name:'screenshot.png',dataUrl:ev.target.result});persist();const g=$('nd-imgs-'+id);if(g)g.innerHTML=n.imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}"><div class="re-img-del" onclick="delNImg('${id}',${i})">x</div></div>`).join('');};r.readAsDataURL(blob);return;}}}
-function viewImg(src){const ov=document.createElement('div');ov.className='re-img-full';ov.onclick=()=>ov.remove();const img=document.createElement('img');img.src=src;ov.appendChild(img);document.body.appendChild(ov);}
-
-// ───────────────────────── MEETINGS ─────────────────────────
-function renderMeetings(c){
-  const groups={};S.meetings.forEach(m=>{if(!groups[m.date])groups[m.date]=[];groups[m.date].push(m);});
-  const days=Object.keys(groups).sort();
-  const typeMap={team:'mt-team',client:'mt-client',design:'mt-design'};
-  const typeLbl={team:'Zespół',client:'Klient',design:'Design review'};
-  c.innerHTML=`<div class="page-wrap"><div class="view-header"><div class="view-title">Spotkania</div><button class="btn pri xs" onclick="openAddMeeting()">+ Spotkanie</button></div>
-    ${days.map(day=>`<div style="margin-bottom:20px">
-      <div class="td-sec-title" style="margin-bottom:10px">${day}</div>
-      ${groups[day].map(m=>`<div class="meeting-card" onclick="goDetail('meeting-detail',{id:'${m.id}',title:'${m.title.replace(/'/g,"\\'")}' })">
-        <div class="meeting-hd">
-          <span class="meeting-time">${m.time}</span>
-          <span class="meeting-title">${m.title}</span>
-          <span class="meeting-type ${typeMap[m.type]||'mt-team'}">${typeLbl[m.type]||m.type}</span>
-        </div>
-        ${m.attendees?`<div style="font-size:11px;color:var(--t3);margin-bottom:4px">👥 ${m.attendees}</div>`:''}
-        ${m.notes?`<div class="meeting-notes">${m.notes.slice(0,120)}${m.notes.length>120?'…':''}</div>`:''}
-        <div style="margin-top:8px;font-size:11px;color:var(--acc)">
-          ${S.allNotes.filter(n=>n.meetingId===m.id).length} notatek ze spotkania →
-        </div>
-      </div>`).join('')}
-    </div>`).join('')}
-    ${!S.meetings.length?`<div class="empty">Brak spotkań.</div>`:''}` + '</div>';
+async function handleEditorPaste(e,id){
+  const items=e.clipboardData?.items||[];
+  for(const item of items){
+    if(item.type.startsWith('image/')){
+      e.preventDefault();
+      const blob=item.getAsFile();
+      const r=new FileReader();
+      r.onload=ev=>{
+        insertImgAtCursor(ev.target.result);
+      };
+      r.readAsDataURL(blob);
+      return;
+    }
+  }
+}
+function viewImg(src){
+  const ov=document.createElement('div');ov.className='re-img-full';
+  ov.onclick=()=>ov.remove();
+  const img=document.createElement('img');img.src=src;
+  ov.appendChild(img);document.body.appendChild(ov);
 }
 
-function renderMeetingDetail(c,id){
-  const m=S.meetings.find(x=>x.id===id);if(!m){c.innerHTML='<div class="empty">Nie znaleziono.</div>';return;}
-  const notes=S.allNotes.filter(n=>n.meetingId===id);
-  const typeMap={team:'mt-team',client:'mt-client',design:'mt-design'};
-  const typeLbl={team:'Zespół',client:'Klient',design:'Design review'};
-  c.innerHTML=`<div class="detail-wrap">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;padding-bottom:16px;border-bottom:.5px solid var(--b3)">
-      <div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-          <div style="font-weight:700;font-size:20px">${m.title}</div>
-          <span class="meeting-type ${typeMap[m.type]||'mt-team'}">${typeLbl[m.type]||m.type}</span>
-        </div>
-        <div style="font-size:12px;color:var(--t3)">${m.date} · ${m.time}</div>
-        ${m.attendees?`<div style="font-size:12px;color:var(--t2);margin-top:4px">👥 ${m.attendees}</div>`:''}
-      </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
-        <button class="detail-action-btn pri" onclick="openAddNote(null,'${id}')">+ Notatka</button>
-        <button class="detail-action-btn danger" onclick="deleteMeeting('${id}')">🗑 Usuń</button>
-      </div>
-    </div>
-    ${m.notes?`<div class="td-section"><div class="td-sec-title">Opis / Agenda</div><div style="background:var(--bg1);border-radius:var(--r8);padding:12px;font-size:13px;line-height:1.7;color:var(--t2)">${m.notes}</div></div>`:''}
-    <div class="td-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="td-sec-title">Notatki (${notes.length})</div>
-        <button class="btn xs" onclick="openAddNote(null,'${id}')">+ Dodaj</button>
-      </div>
-      ${notes.map(n=>`<div class="tl-note" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })">
-        <div class="tl-note-title">${n.title}</div>
-        <div class="tl-note-body">${n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,"").slice(0,200):n.body}</div>
-        <div style="font-size:11px;color:var(--t3);margin-top:5px">${n.date}</div>
-      </div>`).join('')}
-      ${!notes.length?`<div class="empty" style="padding:16px 0">Brak notatek. Dodaj pierwszą!</div>`:''}
-    </div>
-  </div>`;
-}
-function deleteMeeting(id){if(!confirm('Usunąć spotkanie?'))return;S.meetings=S.meetings.filter(m=>m.id!==id);persist();goView('meetings');}
-
-// ───────────────────────── ROADMAP ─────────────────────────
-function renderRoadmap(c){
-  updateBadges();
-  const proj=S.projects;
-  const curProjObj=S.projects.find(x=>x.id===S.curProj)||S.projects[0];
-const tabsHTML=`<div class="proj-tabs">
-    ${proj.map(p=>`<div class="ptab ${S.curProj===p.id?'act':''}" onclick="switchProj('${p.id}')">
-      <div class="ptab-dot" style="background:${p.color}"></div>${p.name}
-      <div class="ptab-del" onclick="event.stopPropagation();deleteProjectRm('${p.id}')">✕</div>
-    </div>`).join('')}
-    <div class="ptab-add" onclick="openAddProject()">+ Projekt</div>
-  </div>`;
-  const p=proj.find(x=>x.id===S.curProj)||proj[0];
-  if(!p){c.innerHTML=tabsHTML+`<div class="empty">Brak projektów. Dodaj pierwszy!</div>`;return;}
-  const engageBar=p.engage!=null?`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--bg1);border-radius:var(--r8);border:.5px solid var(--b3)"><div style="font-size:12px;color:var(--t2)">Moje zaangażowanie w tym kwartale:</div><div style="flex:1;height:5px;background:var(--b3);border-radius:3px;overflow:hidden"><div style="height:100%;background:${p.color};border-radius:3px;width:${p.engage}%"></div></div><div style="font-size:13px;font-weight:700;color:${p.color};flex-shrink:0">${p.engage}%</div></div>`:"";
-  const qHTMLHeader=engageBar;
-  const items=S.items.filter(i=>i.pid===p.id);
-  const qs=[...new Set(items.map(i=>i.q))].sort();
-  const qHTML=qs.length?qs.map(q=>{
-    const qItems=items.filter(i=>i.q===q);
-    const tot=qItems.reduce((a,i)=>a+i.tasks.length,0);
-    const dn=qItems.reduce((a,i)=>a+i.tasks.filter(t=>t.done).length,0);
-    return`<div class="q-section">
-      <div class="q-hd"><span class="q-title">${q}</span><span style="font-size:11px;color:var(--t3)">${qItems.length} tasków · ${dn}/${tot} zadań</span></div>
-      ${qItems.map(item=>rmCardHTML(item,p.color)).join('')}
-    </div>`;}).join('')
-    :`<div style="text-align:center;padding:48px 0;color:var(--t3)">Brak tasków w tym projekcie.<br><br><button class="btn pri xs" onclick="openAddItem()">+ Dodaj task</button></div>`;
-  c.innerHTML=``+tabsHTML+qHTMLHeader+qHTML+`</div>`;
-}
-function deleteProjectRm(pid){if(!confirm('Usunąć projekt i wszystkie jego taski?'))return;S.projects=S.projects.filter(p=>p.id!==pid);S.items=S.items.filter(i=>i.pid!==pid);if(S.curProj===pid)S.curProj=S.projects[0]?.id||'';persist();renderRoadmap($('content'));}
-function switchProj(pid){S.curProj=pid;persist();renderRoadmap($('content'));}
-
-function rmCardHTML(item,projColor){
-  const dn=item.tasks.filter(t=>t.done).length;
-  const open=!!S.expanded[item.id];
-  return`<div class="rm-card" id="rmc-${item.id}">
-    <div class="rm-card-hd" onclick="toggleRM('${item.id}')">
-      <div class="rm-icon" style="background:${projColor}22"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="${projColor}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg></div>
-      <span class="rm-name">${item.name}</span>
-      <div class="rm-badges">
-        <span class="pill ${SC[item.status]}">${SL[item.status]}</span>
-        ${item.poDesc?`<span style="font-size:9px;padding:1px 6px;border-radius:5px;background:#E1F5EE;color:#0F6E56;font-weight:700">PO</span>`:''}
-        ${item.myDesc?`<span style="font-size:9px;padding:1px 6px;border-radius:5px;background:#EEEDfe;color:#534AB7;font-weight:700">Mój</span>`:''}
-        ${item.kpis&&item.kpis.length?`<span style="font-size:9px;padding:1px 6px;border-radius:5px;background:#FAEEDA;color:#854F0B;font-weight:700">KPI ${item.kpis.length}</span>`:''}
-        ${item.tasks.length?`<span class="cnt ${dn===item.tasks.length&&item.tasks.length?'has':''}">✓ ${dn}/${item.tasks.length}</span>`:''}
-        ${item.notes.length?`<span class="cnt has">◻ ${item.notes.length}</span>`:''}
-        <span class="rm-open-btn" onclick="event.stopPropagation();goDetail('task-detail',{id:'${item.id}',name:'${item.name.replace(/'/g,"\\'")}'})" title="Szczegóły">↗</span>
-        <span class="rm-edit-btn" onclick="event.stopPropagation();openEditItem('${item.id}')" title="Edytuj">✎</span>
-        <span class="rm-del-btn" onclick="event.stopPropagation();deleteItem('${item.id}')" title="Usuń">✕</span>
-      </div>
-      <span class="rm-chev ${open?'open':''}" id="chev-${item.id}">▶</span>
-    </div>
-    ${open?rmBodyHTML(item,projColor):''}
-  </div>`;
+function insertImgAtCursor(dataUrl){
+  // Insert image inline at current cursor position in the focused contenteditable
+  const sel=window.getSelection();
+  if(!sel||sel.rangeCount===0){
+    // No selection — just append to whatever editor is active
+    const ed=document.querySelector('.re-body[contenteditable="true"]');
+    if(ed){
+      const img=document.createElement('img');
+      img.src=dataUrl;img.style.maxWidth='100%';
+      img.onclick=()=>viewImg(dataUrl);
+      ed.appendChild(document.createElement('p')).appendChild(img);
+    }
+    return;
+  }
+  const range=sel.getRangeAt(0);
+  // Make sure we're inside a re-body
+  let container=range.commonAncestorContainer;
+  while(container&&!container.classList?.contains('re-body'))container=container.parentNode;
+  if(!container){
+    // fallback: append to first active editor
+    const ed=document.querySelector('.re-body[contenteditable="true"]');
+    if(ed){
+      const p=document.createElement('p');
+      const img=document.createElement('img');img.src=dataUrl;
+      img.onclick=()=>viewImg(dataUrl);
+      p.appendChild(img);ed.appendChild(p);
+    }
+    return;
+  }
+  // Insert a paragraph with image at cursor
+  const img=document.createElement('img');
+  img.src=dataUrl;
+  img.onclick=function(){viewImg(this.src);};
+  const p=document.createElement('p');p.appendChild(img);
+  range.deleteContents();
+  range.insertNode(p);
+  // Move cursor after the image
+  const newRange=document.createRange();
+  newRange.setStartAfter(p);
+  newRange.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(newRange);
+  // Insert empty paragraph after for continued typing
+  const after=document.createElement('p');after.innerHTML='<br>';
+  p.after(after);
+  newRange.setStart(after,0);
+  newRange.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(newRange);
 }
 
-// DELETE ITEM with confirmation
-function deleteItem(id){
-  const item=S.items.find(x=>x.id===id);if(!item)return;
-  if(!confirm(`Czy na pewno chcesz usunąć task "${item.name}"? Tej operacji nie można cofnąć.`))return;
-  S.items=S.items.filter(x=>x.id!==id);
-  // also clean allNotes linked to this item
-  S.allNotes=S.allNotes.map(n=>n.itemId===id?{...n,itemId:''}:n);
-  persist();renderRoadmap($('content'));
-}
+async function addNoteModalLink(){const name=$('mo-nln')?.value.trim(),url=$('mo-nlu')?.value.trim();if(!url)return;window._notePendingLinks=window._notePendingLinks||[];window._notePendingLinks.push({id:uid(),type:'link',name:name||url,url,dataUrl:''});$('mo-nln').value='';$('mo-nlu').value='';$('mo-note-links').innerHTML=(window._notePendingLinks||[]).map(l=>attChipHTML(l,null)).join('');}
 
-// EDIT ITEM
-function openEditItem(id){
-  const item=S.items.find(x=>x.id===id);if(!item)return;
-  const statusOptions=Object.entries(SL).map(([val,lbl])=>`<option value="${val}" ${item.status===val?'selected':''}>${lbl}</option>`).join('');
-  const quarterOptions=QUARTERS.map(q=>`<option value="${q}" ${item.q===q?'selected':''}>${q}</option>`).join('');
-  const projectOptions=S.projects.map(p=>`<option value="${p.id}" ${item.pid===p.id?'selected':''}>${p.name}</option>`).join('');
-  openMo('Edytuj task',`
-    <div class="fg"><label class="fl">Projekt</label><select class="fs" id="mo-pid">${projectOptions}</select></div>
-    <div class="fg"><label class="fl">Nazwa taska</label><input class="fi" id="mo-name" value="${item.name.replace(/"/g,'&quot;')}"></div>
-    <div class="fg"><label class="fl">Kwartał</label><select class="fs" id="mo-q">${quarterOptions}</select></div>
-    <div class="fg"><label class="fl">Status</label><select class="fs" id="mo-s">${statusOptions}</select></div>
-    <div class="fg"><label class="fl">Deadline (opcjonalnie)</label>
-      <div style="display:flex;gap:8px;align-items:center">
-        <select class="fs" id="mo-dl-day" style="width:100px"><option value="">Dzień</option>${Array.from({length:31},(_,i)=>`<option value="${i+1}" ${item.deadlineDay==i+1?'selected':''}>${i+1}</option>`).join('')}</select>
-        <select class="fs" id="mo-dl-month" style="flex:1"><option value="">Miesiąc</option>${['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'].map((m,i)=>`<option value="${i+1}" ${item.deadlineMonth==i+1?'selected':''}>${m}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3">${item.poDesc||''}</textarea></div>
-    <div class="fg"><label class="fl">Mój opis (opcjonalnie)</label><textarea class="ta" id="mo-my" rows="3">${item.myDesc||''}</textarea></div>`,'item-edit',{id});
-}
-
-function rmBodyHTML(item,projColor){
-  const tasks=item.tasks,notes=item.notes,atts=item.atts;
-  return`<div class="rm-body">
-    ${item.poDesc?`<div class="rm-sec"><div class="rm-sec-hd"><span class="rm-sec-label" style="color:#0F6E56">Opis PO</span></div><div style="font-size:12px;color:var(--t2);line-height:1.65">${item.poDesc}</div></div>`:''}
-    ${item.myDesc?`<div class="rm-sec"><div class="rm-sec-hd"><span class="rm-sec-label" style="color:#534AB7">Mój opis</span></div><div style="font-size:12px;color:var(--t2);line-height:1.65">${item.myDesc}</div></div>`:''}
-    ${item.kpis&&item.kpis.length?`<div class="rm-sec"><div class="rm-sec-hd"><span class="rm-sec-label" style="color:#854F0B">Wskaźniki</span></div>
-      ${item.kpis.map(k=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:.5px solid var(--b3)">
-        <span style="font-size:12px;font-weight:600">${k.name}</span>
-        <span style="font-size:11px;color:#1D9E75;font-weight:600">${k.current} <span style="color:var(--t3);font-weight:400">/ ${k.target}</span></span>
-      </div>`).join('')}
-    </div>`:''}
-    <div class="rm-sec">
-      <div class="rm-sec-hd"><span class="rm-sec-label">Zadania (${tasks.length})</span><button class="btn xs" onclick="showInlineTaskForm('${item.id}')">+ Dodaj</button></div>
-      <div id="tl-${item.id}">${tasks.map(t=>taskRowHTML(t,item.id)).join('')||`<div style="font-size:12px;color:var(--t3);padding:4px 0">Brak zadań.</div>`}</div>
-      <div id="tf-${item.id}" style="display:none;padding-top:8px">
-        <div style="display:flex;gap:6px;align-items:center">
-          <input class="fi-sm" id="ti-${item.id}" placeholder="Nowe zadanie..." onkeydown="if(event.key==='Enter')saveInlineTask('${item.id}')">
-          <input class="fi-due" id="td-${item.id}" placeholder="Termin">
-          <button class="btn xs pri" onclick="saveInlineTask('${item.id}')">OK</button>
-          <button class="btn xs" onclick="$('tf-${item.id}').style.display='none'">✕</button>
-        </div>
-      </div>
-    </div>
-    <div class="rm-sec">
-      <div class="rm-sec-hd"><span class="rm-sec-label">Notatki (${notes.length})</span><button class="btn xs" onclick="showInlineNoteForm('${item.id}')">+ Dodaj</button></div>
-      <div id="nl-${item.id}">${notes.map(n=>noteChipHTML(n,item.id)).join('')||`<div style="font-size:12px;color:var(--t3);padding:4px 0">Brak notatek.</div>`}</div>
-      <div id="nf-${item.id}" style="display:none"><div class="inline-area" style="margin-top:6px">
-        <div class="fg"><input class="fi" id="nti-${item.id}" placeholder="Tytuł notatki..."></div>
-        <div class="fg"><textarea class="ta" id="nta-${item.id}" placeholder="Treść..." rows="3"></textarea></div>
-        <div style="display:flex;gap:6px;justify-content:flex-end">
-          <button class="btn xs" onclick="hideNoteForm('${item.id}')">Anuluj</button>
-          <button class="btn xs pri" onclick="saveInlineNote('${item.id}')">Zapisz</button>
-        </div>
-      </div></div>
-    </div>
-    <div class="rm-sec">
-      <div class="rm-sec-hd"><span class="rm-sec-label">Załączniki (${atts.length})</span></div>
-      ${attToolbar(item.id,'rm')}
-      <div id="att-lf-${item.id}-rm" style="display:none" class="link-row">
-        <input class="fi-sm" id="att-ln-${item.id}-rm" placeholder="Nazwa"><input class="fi-sm" id="att-lu-${item.id}-rm" placeholder="https://...">
-        <button class="btn xs pri" onclick="saveLinkToItem('${item.id}')">Dodaj</button>
-        <button class="btn xs" onclick="$('att-lf-${item.id}-rm').style.display='none'">✕</button>
-      </div>
-      <input type="file" id="att-fi-${item.id}-rm" style="display:none" multiple onchange="handleItemFiles('${item.id}',this)">
-      <input type="file" id="att-img-${item.id}-rm" style="display:none" accept="image/*" multiple onchange="handleItemFiles('${item.id}',this)">
-      <div class="att-grid" id="att-grid-${item.id}-rm">${atts.map(a=>attChipHTML(a,`delItemAtt_${item.id}`)).join('')}</div>
-    </div>
-  </div>`;
-}
-
-function taskRowHTML(t,iid){return`<div class="task-row"><div class="cb ${t.done?'dn':''}" onclick="togTask('${t.id}','${iid}')">${t.done?'✓':''}</div><span style="flex:1;font-size:13px;line-height:1.4;${t.done?'text-decoration:line-through;color:var(--t3)':''}">${t.text}</span><span style="font-size:11px;color:var(--t3)">${t.due||''}</span></div>`;}
-function noteChipHTML(n,iid){
-  return`<div class="note-chip" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })">
-    <div class="note-chip-title">${n.title}</div>
-    <div class="note-chip-body">${n.body}</div>
-    <div style="font-size:10px;color:var(--t3);margin-top:3px">${n.date}</div>
-  </div>`;
-}
-function attChipHTML(a,onDelFn){
-  const typeMap={img:'ai-img',png:'ai-img',jpg:'ai-img',pdf:'ai-pdf',fig:'ai-fig',figma:'ai-fig',link:'ai-link',file:'ai-file'};
-  const labelMap={img:'IMG',png:'IMG',jpg:'IMG',pdf:'PDF',fig:'FIG',figma:'FIG',link:'↗',file:'DOC'};
-  const ic=typeMap[a.type]||'ai-file',lb=labelMap[a.type]||'DOC';
-  const del=onDelFn?`<span class="att-del" onclick="event.stopPropagation();${onDelFn}('${a.id}')">✕</span>`:'';
-  if(a.dataUrl&&a.dataUrl.startsWith('data:image'))return`<div class="att-chip"><img src="${a.dataUrl}" style="width:22px;height:22px;border-radius:3px;object-fit:cover;flex-shrink:0"><span class="att-name">${a.name}</span>${del}</div>`;
-  return`<div class="att-chip" ${a.url?`onclick="window.open('${a.url}','_blank')"`:''}><div class="att-icon ${ic}">${lb}</div><span class="att-name">${a.name}</span>${del}</div>`;
-}
-function attToolbar(id,ctx){return`<div class="att-toolbar">
-  <button class="att-btn" onclick="$('att-fi-${id}-${ctx}').click()">📎 Plik</button>
-  <button class="att-btn" onclick="$('att-img-${id}-${ctx}').click()">🖼 Obraz</button>
-  <button class="att-btn" onclick="$('att-lf-${id}-${ctx}').style.display='flex'">🔗 Link</button>
-</div>`;}
-
-function toggleRM(id){S.expanded[id]=!S.expanded[id];renderRoadmap($('content'));}
-function showInlineTaskForm(id){const f=$(`tf-${id}`);if(f){f.style.display='block';$(`ti-${id}`)?.focus();}}
-function saveInlineTask(id){
-  const txt=$(`ti-${id}`)?.value.trim(),due=$(`td-${id}`)?.value.trim();if(!txt)return;
-  const item=S.items.find(x=>x.id===id);if(!item)return;
-  item.tasks.push({id:uid(),text:txt,done:false,due:due||''});
-  persist();updateBadges();S.expanded[id]=true;renderRoadmap($('content'));
-}
-function togTask(tid,iid){const item=S.items.find(x=>x.id===iid);if(!item)return;const t=item.tasks.find(x=>x.id===tid);if(t)t.done=!t.done;persist();updateBadges();const list=$(`tl-${iid}`);if(list)list.innerHTML=item.tasks.map(t=>taskRowHTML(t,iid)).join('')||`<div style="font-size:12px;color:var(--t3);padding:4px 0">Brak zadań.</div>`;}
-function showInlineNoteForm(id){const f=$(`nf-${id}`);if(f){f.style.display='block';$(`nti-${id}`)?.focus();}}
-function hideNoteForm(id){const f=$(`nf-${id}`);if(f)f.style.display='none';}
-function saveInlineNote(id){
-  const title=$(`nti-${id}`)?.value.trim(),body=$(`nta-${id}`)?.value.trim();if(!title)return;
-  const item=S.items.find(x=>x.id===id);if(!item)return;
-  const nid=uid();const now=new Date().toLocaleDateString('pl',{day:'numeric',month:'long',year:'numeric'});
-  const note={id:nid,title,body:body||'',date:now,type:'roadmap',meetingId:'',atts:[]};
-  item.notes.unshift(note);
-  S.allNotes.unshift({...note,itemId:id});
-  persist();S.expanded[id]=true;renderRoadmap($('content'));
-}
-function saveLinkToItem(id){
-  const name=$(`att-ln-${id}-rm`)?.value.trim(),url=$(`att-lu-${id}-rm`)?.value.trim();if(!url)return;
-  const item=S.items.find(x=>x.id===id);if(!item)return;
-  item.atts.push({id:uid(),type:'link',name:name||url,url,dataUrl:''});
-  $(`att-lf-${id}-rm`).style.display='none';persist();S.expanded[id]=true;renderRoadmap($('content'));
-}
-function handleItemFiles(id,input){
-  const item=S.items.find(x=>x.id===id);if(!item)return;
-  const files=Array.from(input.files);let p=files.length;
-  files.forEach(f=>{const isImg=f.type.startsWith('image/');const att={id:uid(),type:isImg?'img':'file',name:f.name,dataUrl:'',url:''};
-    if(isImg){const r=new FileReader();r.onload=e=>{att.dataUrl=e.target.result;item.atts.push(att);persist();if(--p===0){S.expanded[id]=true;renderRoadmap($('content'));}}; r.readAsDataURL(f);}
-    else{item.atts.push(att);persist();if(--p===0){S.expanded[id]=true;renderRoadmap($('content'));}}});input.value='';
-}
-S.items.forEach(item=>{window[`delItemAtt_${item.id}`]=function(aid){item.atts=item.atts.filter(a=>a.id!==aid);persist();S.expanded[item.id]=true;renderRoadmap($('content'));};});
-
-// ───────────────────────── TASK DETAIL ─────────────────────────
-function renderTaskDetail(c,id){
-  const item=S.items.find(x=>x.id===id);if(!item)return;
-  const proj=S.projects.find(p=>p.id===item.pid);
-  window[`delDetAtt_${id}`]=function(aid){item.atts=item.atts.filter(a=>a.id!==aid);persist();renderTaskDetail($('content'),id);};
-  const dn=item.tasks.filter(t=>t.done).length;
-  c.innerHTML=`<div class="content-inner">
-    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:.5px solid var(--b3)">
-      <div style="width:40px;height:40px;border-radius:var(--r8);background:${proj?proj.color+'20':'var(--bg1)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <div style="width:13px;height:13px;border-radius:50%;background:${proj?proj.color:'var(--acc)'}"></div>
-      </div>
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
-          <div style="font-weight:700;font-size:26px;line-height:1.25;letter-spacing:-.2px">${item.name}</div>
-          <span class="pill ${SC[item.status]}">${SL[item.status]}</span>
-        </div>
-        <div style="font-size:12px;color:var(--t3)">${proj?proj.name:''} · ${item.q}</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-shrink:0">
-        <button class="btn" style="padding:7px 16px;font-size:13px;display:flex;align-items:center;gap:6px" onclick="openEditItem('${id}')">&#9998; Edytuj</button>
-        <button class="btn danger" style="padding:7px 14px;font-size:13px" onclick="deleteItemFromDetail('${id}')">&#128465; Usuń</button>
-      </div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:22px">
-      ${[['Zadania',`${dn}/${item.tasks.length}`],['Notatki',item.notes.length],['KPI',(item.kpis||[]).length],['Załączniki',item.atts.length]].map(([l,v])=>`
-        <div style="background:var(--bg1);border-radius:var(--r8);padding:12px 14px">
-          <div style="font-size:11px;color:var(--t3);margin-bottom:3px">${l}</div>
-          <div style="font-size:20px;font-weight:700">${v}</div>
-        </div>`).join('')}
-    </div>
-
-    <div class="td-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="td-sec-title" style="color:#0F6E56">Opis Product Ownera</div>
-        <button class="btn xs" onclick="editDesc('${id}','po')">Edytuj</button>
-      </div>
-      <div id="po-view-${id}" style="background:var(--bg1);border-radius:var(--r8);padding:12px 14px;font-size:13px;color:var(--t2);line-height:1.65;border-left:3px solid #1D9E75">
-        ${item.poDesc||`<span style="color:var(--t3);font-style:italic">Brak opisu PO.</span>`}
-      </div>
-      <div id="po-edit-${id}" style="display:none;margin-top:8px">
-        <textarea class="ta" id="po-ta-${id}" rows="5" style="margin-bottom:8px">${item.poDesc||''}</textarea>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn xs" onclick="cancelDesc('${id}','po')">Anuluj</button>
-          <button class="btn xs pri" onclick="saveDesc('${id}','po')">Zapisz</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="td-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="td-sec-title" style="color:#534AB7">Mój opis</div>
-        <button class="btn xs" onclick="editDesc('${id}','my')">Edytuj</button>
-      </div>
-      <div id="my-view-${id}" style="background:#EEEDfe;border-radius:var(--r8);padding:12px 14px;font-size:13px;color:var(--t2);line-height:1.65;border-left:3px solid #534AB7">
-        ${item.myDesc||`<span style="color:var(--t3);font-style:italic">Twoje własne notatki, kontekst, przemyślenia do tego zadania.</span>`}
-      </div>
-      <div id="my-edit-${id}" style="display:none;margin-top:8px">
-        <textarea class="ta" id="my-ta-${id}" rows="5" style="margin-bottom:8px">${item.myDesc||''}</textarea>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn xs" onclick="cancelDesc('${id}','my')">Anuluj</button>
-          <button class="btn xs pri" onclick="saveDesc('${id}','my')">Zapisz</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="td-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="td-sec-title" style="color:#854F0B">Wskaźniki sukcesu</div>
-        <button class="btn xs" onclick="showKPIForm('${id}')">+ KPI</button>
-      </div>
-      <div id="kpi-list-${id}">
-        ${(item.kpis||[]).length?kpiListHTML(item):`<div style="font-size:12px;color:var(--t3)">Brak wskaźników.</div>`}
-      </div>
-      <div id="kpi-form-${id}" style="display:none"><div class="inline-area">
-        <div class="two-col"><div class="fg"><label class="fl">Nazwa wskaźnika</label><input class="fi" id="kn-${id}" placeholder="np. Czas onboardingu"></div>
-          <div class="fg"><label class="fl">Cel</label><input class="fi" id="kt-${id}" placeholder="np. < 3 min"></div></div>
-        <div class="fg"><label class="fl">Obecna wartość</label><input class="fi" id="kc-${id}" placeholder="np. 7 min" style="width:50%"></div>
-        <div class="fg"><label class="fl">Linki do źródeł</label>
-          <div id="kpi-links-pending-${id}" class="att-grid" style="margin-bottom:8px"></div>
-          <div class="link-row"><input class="fi-sm" id="kl-n-${id}" placeholder="Nazwa"><input class="fi-sm" id="kl-u-${id}" placeholder="https://..."><button class="btn xs" onclick="addKPILink('${id}')">+ Link</button></div>
-        </div>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn xs" onclick="$('kpi-form-${id}').style.display='none'">Anuluj</button>
-          <button class="btn xs pri" onclick="saveKPI('${id}')">Zapisz wskaźnik</button>
-        </div>
-      </div></div>
-    </div>
-
-    <div class="td-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="td-sec-title">Zadania (${item.tasks.length})</div>
-        <button class="btn xs" onclick="showDetTaskForm('${id}')">+ Dodaj</button>
-      </div>
-      <div style="background:var(--bg0);border:.5px solid var(--b3);border-radius:var(--r12);padding:2px 14px" id="dtl-${id}">
-        ${item.tasks.map(t=>detTaskRowHTML(t,id)).join('')||`<div style="font-size:12px;color:var(--t3);padding:12px 0">Brak zadań.</div>`}
-      </div>
-      <div id="dtf-${id}" style="display:none;margin-top:8px">
-        <div style="display:flex;gap:6px;align-items:center">
-          <input class="fi-sm" id="dti-${id}" placeholder="Nowe zadanie..." onkeydown="if(event.key==='Enter')saveDetTask('${id}')">
-          <input class="fi-due" id="dtd-${id}" placeholder="Termin">
-          <button class="btn xs pri" onclick="saveDetTask('${id}')">OK</button>
-          <button class="btn xs" onclick="$('dtf-${id}').style.display='none'">✕</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="td-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="td-sec-title">Notatki (${item.notes.length})</div>
-        <button class="btn xs" onclick="openAddNote('${id}')">+ Dodaj</button>
-      </div>
-      ${item.notes.map(n=>{
-        const gn=S.allNotes.find(x=>x.id===n.id);
-        const meet=gn?.meetingId?S.meetings.find(m=>m.id===gn.meetingId):null;
-        return`<div style="background:var(--bg0);border:.5px solid var(--b3);border-left:3px solid ${proj?proj.color:'var(--acc)'};border-radius:var(--r12);padding:12px 15px;margin-bottom:8px;cursor:pointer" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })">
-          <div style="font-weight:600;font-size:13px;margin-bottom:3px">${n.title}</div>
-          <div style="font-size:12px;color:var(--t2);line-height:1.5">${n.body.slice(0,120)}${n.body.length>120?'…':''}</div>
-          <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
-            ${meet?`<span class="tl-badge tl-meeting">◷ ${meet.title}</span>`:''}
-            ${n.atts&&n.atts.length?`<span style="font-size:10px;color:var(--t3)">📎 ${n.atts.length}</span>`:''}
-            <span style="font-size:11px;color:var(--t3)">${n.date}</span>
-          </div>
-        </div>`;}).join('')}
-      ${!item.notes.length?`<div style="font-size:12px;color:var(--t3)">Brak notatek.</div>`:''}
-    </div>
-
-    <div class="td-section">
-      <div class="td-sec-title" style="margin-bottom:10px">Załączniki</div>
-      ${attToolbar(id,'det')}
-      <div id="att-lf-${id}-det" style="display:none" class="link-row">
-        <input class="fi-sm" id="att-ln-${id}-det" placeholder="Nazwa"><input class="fi-sm" id="att-lu-${id}-det" placeholder="https://...">
-        <button class="btn xs pri" onclick="saveLinkDet('${id}')">Dodaj</button>
-        <button class="btn xs" onclick="$('att-lf-${id}-det').style.display='none'">✕</button>
-      </div>
-      <input type="file" id="att-fi-${id}-det" style="display:none" multiple onchange="handleDetFiles('${id}',this)">
-      <input type="file" id="att-img-${id}-det" style="display:none" accept="image/*" multiple onchange="handleDetFiles('${id}',this)">
-      <div class="att-grid" id="att-grid-${id}-det">${item.atts.map(a=>attChipHTML(a,`delDetAtt_${id}`)).join('')}</div>
-    </div>
-  </div>`;
-}
-
-function deleteItemFromDetail(id){
-  const item=S.items.find(x=>x.id===id);if(!item)return;
-  if(!confirm(`Czy na pewno chcesz usunąć task "${item.name}"? Tej operacji nie można cofnąć.`))return;
-  S.items=S.items.filter(x=>x.id!==id);
-  S.allNotes=S.allNotes.map(n=>n.itemId===id?{...n,itemId:''}:n);
-  persist();goView('roadmap');
-}
-
-function editDesc(id,type){$(`${type}-view-${id}`).style.display='none';$(`${type}-edit-${id}`).style.display='block';}
-function cancelDesc(id,type){$(`${type}-view-${id}`).style.display='block';$(`${type}-edit-${id}`).style.display='none';}
-function saveDesc(id,type){
-  const item=S.items.find(x=>x.id===id);if(!item)return;
-  const val=$(`${type}-ta-${id}`)?.value.trim()||'';
-  if(type==='po')item.poDesc=val;else item.myDesc=val;
-  persist();renderTaskDetail($('content'),id);
-}
-function kpiListHTML(item){return`<div style="background:var(--bg0);border:.5px solid var(--b3);border-radius:var(--r12);padding:2px 14px">
-  ${item.kpis.map(k=>`<div class="kpi-row">
-    <div style="flex:1"><div style="font-size:13px;font-weight:600">${k.name}</div>${(k.links||[]).length?`<div class="att-grid" style="margin-top:5px">${(k.links||[]).map(l=>attChipHTML(l,null)).join('')}</div>`:''}</div>
-    <div style="text-align:right;flex-shrink:0"><div style="font-size:11px;color:var(--t3)">cel: <strong>${k.target}</strong></div><div style="font-size:14px;font-weight:700;color:#1D9E75">${k.current}</div></div>
-  </div>`).join('')}
-</div>`;}
-function showKPIForm(id){const f=$(`kpi-form-${id}`);if(f){f.style.display='block';$(`kn-${id}`)?.focus();}S.kpiPendingLinks[id]=[];}
-function addKPILink(id){const name=$(`kl-n-${id}`)?.value.trim(),url=$(`kl-u-${id}`)?.value.trim();if(!url)return;S.kpiPendingLinks[id]=S.kpiPendingLinks[id]||[];S.kpiPendingLinks[id].push({id:uid(),type:'link',name:name||url,url,dataUrl:''});$(`kl-n-${id}`).value='';$(`kl-u-${id}`).value='';refreshKPILinks(id);}
-function refreshKPILinks(id){const el=$(`kpi-links-pending-${id}`);if(el)el.innerHTML=(S.kpiPendingLinks[id]||[]).map(l=>attChipHTML(l,null)).join('');}
-function saveKPI(id){const name=$(`kn-${id}`)?.value.trim(),target=$(`kt-${id}`)?.value.trim(),current=$(`kc-${id}`)?.value.trim();if(!name)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.kpis=item.kpis||[];item.kpis.push({id:uid(),name,target:target||'—',current:current||'—',links:[...(S.kpiPendingLinks[id]||[])]});delete S.kpiPendingLinks[id];persist();renderTaskDetail($('content'),id);}
-function detTaskRowHTML(t,iid){return`<div style="display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:.5px solid var(--b3)"><div class="cb ${t.done?'dn':''}" onclick="togDetTask('${t.id}','${iid}')">${t.done?'✓':''}</div><span style="flex:1;font-size:13px;${t.done?'text-decoration:line-through;color:var(--t3)':''}">${t.text}</span><span style="font-size:11px;color:var(--t3)">${t.due||''}</span></div>`;}
-function togDetTask(tid,iid){const item=S.items.find(x=>x.id===iid);if(!item)return;const t=item.tasks.find(x=>x.id===tid);if(t)t.done=!t.done;persist();updateBadges();const list=$(`dtl-${iid}`);if(list)list.innerHTML=item.tasks.map(t=>detTaskRowHTML(t,iid)).join('')||`<div style="font-size:12px;color:var(--t3);padding:12px 0">Brak zadań.</div>`;}
-function showDetTaskForm(id){const f=$(`dtf-${id}`);if(f){f.style.display='block';$(`dti-${id}`)?.focus();}}
-function saveDetTask(id){const txt=$(`dti-${id}`)?.value.trim(),due=$(`dtd-${id}`)?.value.trim();if(!txt)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.tasks.push({id:uid(),text:txt,done:false,due:due||''});persist();updateBadges();renderTaskDetail($('content'),id);}
-function saveLinkDet(id){const name=$(`att-ln-${id}-det`)?.value.trim(),url=$(`att-lu-${id}-det`)?.value.trim();if(!url)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.atts.push({id:uid(),type:'link',name:name||url,url,dataUrl:''});$(`att-lf-${id}-det`).style.display='none';persist();renderTaskDetail($('content'),id);}
-function handleDetFiles(id,input){const item=S.items.find(x=>x.id===id);if(!item)return;const files=Array.from(input.files);let p=files.length;files.forEach(f=>{const isImg=f.type.startsWith('image/');const att={id:uid(),type:isImg?'img':'file',name:f.name,dataUrl:'',url:''};if(isImg){const r=new FileReader();r.onload=e=>{att.dataUrl=e.target.result;item.atts.push(att);persist();if(--p===0)renderTaskDetail($('content'),id);};r.readAsDataURL(f);}else{item.atts.push(att);persist();if(--p===0)renderTaskDetail($('content'),id);}});input.value='';}
-
-// ───────────────────────── MODALS ─────────────────────────
-let moMode='',moExtra={};
-function openMo(title,body,mode,extra){moMode=mode;moExtra=extra||{};$('mo-title').textContent=title;$('mo-body').innerHTML=body;$('mo').classList.add('open');}
-function closeMo(){$('mo').classList.remove('open');}
-$('mo').addEventListener('click',function(e){if(e.target===this)closeMo();});
-
-function openAddProject(){
-  openMo('Nowy projekt',`<div class="fg"><label class="fl">Nazwa projektu</label><input class="fi" id="mo-pname" placeholder="np. Platform Redesign"></div>
-    <div class="fg"><label class="fl">Kolor</label><div style="display:flex;gap:8px;flex-wrap:wrap" id="cp">
-      ${['#5B4CF5','#EF9F27','#1D9E75','#D4537E','#378ADD','#EF4444','#888780'].map(c=>`<div onclick="selColor('${c}')" id="cp${c.slice(1)}" style="width:26px;height:26px;border-radius:50%;background:${c};cursor:pointer;border:2px solid transparent;transition:border-color .15s"></div>`).join('')}
-    </div></div>
-    <div class="fg"><label class="fl">Moje zaangażowanie w tym kwartale</label>
-      <div style="display:flex;align-items:center;gap:12px">
-        <input type="range" id="mo-engage" min="0" max="100" step="5" value="50" style="flex:1" oninput="$('mo-engage-val').textContent=this.value+'%'">
-        <span id="mo-engage-val" style="font-size:14px;font-weight:700;color:var(--acc);min-width:40px">50%</span>
-      </div>
-    </div>`,'proj');
-  window._sc='#5B4CF5';setTimeout(()=>{const el=$('cp5B4CF5');if(el)el.style.borderColor='var(--t1)';},50);
-}
-function selColor(c){window._sc=c;document.querySelectorAll('#cp div').forEach(d=>d.style.borderColor='transparent');const el=$('cp'+c.slice(1));if(el)el.style.borderColor='var(--t1)';}
-
-// Build status options HTML helper
-function statusOptionsHTML(selected){
-  return Object.entries(SL).map(([val,lbl])=>`<option value="${val}" ${selected===val?'selected':''}>${lbl}</option>`).join('');
-}
-
-function openAddItem(){
-  // Auto-select the currently active project
-  const currentProjId = S.curProj || (S.projects[0]?.id || '');
-  const projectOptions = S.projects.map(p=>`<option value="${p.id}" ${p.id===currentProjId?'selected':''}>${p.name}</option>`).join('');
-  const quarterOptions = QUARTERS.map(q=>`<option value="${q}" ${q==='Q2 2026'?'selected':''}>${q}</option>`).join('');
-
-  openMo('Nowy task z roadmapy',`
-    <div class="fg"><label class="fl">Projekt</label><select class="fs" id="mo-pid">${projectOptions}</select></div>
-    <div class="fg"><label class="fl">Nazwa taska</label><input class="fi" id="mo-name" placeholder="np. Redesign ustawień"></div>
-    <div class="fg"><label class="fl">Kwartał</label><select class="fs" id="mo-q">${quarterOptions}</select></div>
-    <div class="fg"><label class="fl">Status</label><select class="fs" id="mo-s">${statusOptionsHTML('planning')}</select></div>
-    <div class="fg"><label class="fl">Deadline (opcjonalnie)</label>
-      <div style="display:flex;gap:8px;align-items:center">
-        <select class="fs" id="mo-dl-day" style="width:100px"><option value="">Dzień</option>${Array.from({length:31},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('')}</select>
-        <select class="fs" id="mo-dl-month" style="flex:1"><option value="">Miesiąc</option>${['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'].map((m,i)=>`<option value="${i+1}">${m}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3" placeholder="Cel, kontekst biznesowy..."></textarea></div>
-    <div class="fg"><label class="fl">Mój opis (opcjonalnie)</label><textarea class="ta" id="mo-my" rows="3" placeholder="Twoje notatki, przemyślenia..."></textarea></div>`,'item');
-}
-
-function openAddNote(itemId,meetingId){
-  const iid=itemId||'';const mid=meetingId||'';
-  openMo('Nowa notatka',`
-    <div class="fg"><label class="fl">Tytul</label><input class="fi" id="mo-ntitle" placeholder="Tytul notatki..."></div>
-    <div class="fg"><label class="fl">Tresc</label>
-      <div class="re-wrap">${richToolbarHTML('mo-re-body')}<div class="re-body" id="mo-re-body" contenteditable="true" data-ph="Tresc notatki..." onpaste="handleModalPaste(event)"></div></div>
-    </div>
-    <div class="fg"><label class="fl">Screenshoty</label>
-      <div class="re-img-grid" id="mo-note-imgs" style="margin-bottom:6px"></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <label class="att-btn" style="cursor:pointer">+ Dodaj screenshot<input type="file" accept="image/*" multiple style="display:none" onchange="handleNoteModalFiles(this)"></label>
-        <div class="att-btn" style="cursor:pointer" onclick="pasteModalClipboard()">Wklej ze schowka</div>
-      </div>
-      <div style="font-size:11px;color:var(--t3);margin-top:4px">Lub wklej Ctrl+V w edytorze powyzej</div>
-    </div>
-    <div class="fg"><label class="fl">Powiazanie</label>
-      <select class="fs" id="mo-ntype" onchange="toggleNoteLinks()">
-        <option value="free">Luzna notatka</option>
-        <option value="meeting" ${mid?'selected':''}>Spotkanie</option>
-        <option value="roadmap" ${iid?'selected':''}>Element roadmapy</option>
-      </select>
-    </div>
-    <div id="mo-meeting-sel" style="display:${mid?'block':'none'};margin-bottom:10px">
-      <label class="fl">Spotkanie</label>
-      <select class="fs" id="mo-nmid">${S.meetings.map(m=>`<option value="${m.id}" ${m.id===mid?'selected':''}>${m.title} (${m.date})</option>`).join('')}</select>
-    </div>
-    <div id="mo-item-sel" style="display:${iid?'block':'none'};margin-bottom:10px">
-      <label class="fl">Element roadmapy</label>
-      <select class="fs" id="mo-niid">${S.items.map(i=>`<option value="${i.id}" ${i.id===iid?'selected':''}>${i.name}</option>`).join('')}</select>
-    </div>`,'note',{itemId:iid,meetingId:mid});
-  window._notePendingImgs=[];
-  setTimeout(()=>initRE('mo-re-body'),60);
-}
-function toggleNoteLinks(){const v=$('mo-ntype')?.value;$('mo-meeting-sel').style.display=v==='meeting'?'block':'none';$('mo-item-sel').style.display=v==='roadmap'?'block':'none';}
-
-function refreshMI(){const el=$('mo-note-imgs');if(!el)return;el.innerHTML=(window._notePendingImgs||[]).map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" style="max-width:100px;max-height:70px"><div class="re-img-del" onclick="delMI(${i})">x</div></div>`).join('');}
-function delMI(i){window._notePendingImgs.splice(i,1);refreshMI();}
-function handleModalPaste(e){const items=e.clipboardData?.items||[];for(const item of items){if(item.type.startsWith('image/')){e.preventDefault();const r=new FileReader();const blob=item.getAsFile();r.onload=ev=>{window._notePendingImgs=window._notePendingImgs||[];window._notePendingImgs.push({name:'screenshot.png',dataUrl:ev.target.result});refreshMI();};r.readAsDataURL(blob);return;}}}
-async function pasteModalClipboard(){try{const items=await navigator.clipboard.read();for(const ci of items){for(const type of ci.types){if(type.startsWith('image/')){const blob=await ci.getType(type);const r=new FileReader();r.onload=e=>{window._notePendingImgs=window._notePendingImgs||[];window._notePendingImgs.push({name:'screenshot.png',dataUrl:e.target.result});refreshMI();};r.readAsDataURL(blob);return;}}}alert('Brak obrazu.');}catch(e){alert('Sprobuj Ctrl+V w edytorze.');}}
-function addNoteModalLink(){const name=$('mo-nln')?.value.trim(),url=$('mo-nlu')?.value.trim();if(!url)return;window._notePendingLinks=window._notePendingLinks||[];window._notePendingLinks.push({id:uid(),type:'link',name:name||url,url,dataUrl:''});$('mo-nln').value='';$('mo-nlu').value='';$('mo-note-links').innerHTML=(window._notePendingLinks||[]).map(l=>attChipHTML(l,null)).join('');}
-function handleNoteModalFiles(input){const files=Array.from(input.files);let p=files.length;window._notePendingImgs=window._notePendingImgs||[];files.forEach(f=>{const att={id:uid(),type:'img',name:f.name,dataUrl:'',url:''};const r=new FileReader();r.onload=e=>{att.dataUrl=e.target.result;window._notePendingImgs.push(att);if(--p===0)$('mo-note-imgs').innerHTML=(window._notePendingImgs||[]).map(a=>attChipHTML(a,null)).join('');};r.readAsDataURL(f);});input.value='';}
 
 function openAddMeeting(){
   openMo('Nowe spotkanie',`
@@ -1331,12 +879,10 @@ function saveMo(){
     const meetingId=type==='meeting'?($('mo-nmid')?.value||''):'';
     const itemId=type==='roadmap'?($('mo-niid')?.value||''):'';
     const now=new Date().toLocaleDateString('pl',{day:'numeric',month:'long',year:'numeric'});
-    const imgs=[...(window._notePendingImgs||[])];
     const nid=uid();
-    const note={id:nid,title,body,bodyHtml,date:now,type,meetingId,itemId,atts:[],imgs};
+    const note={id:nid,title,body,bodyHtml,date:now,type,meetingId,itemId,atts:[],imgs:[]};
     S.allNotes.unshift(note);
     if(itemId){const it=S.items.find(x=>x.id===itemId);if(it)it.notes.unshift({id:nid,title,body,bodyHtml,date:now,type,meetingId,atts:[],imgs:[]});}
-    window._notePendingImgs=[];
     persist();closeMo();goView('notes');
   }
   else if(moMode==='note-edit'){
@@ -1353,6 +899,16 @@ function saveMo(){
     item.tasks.push({id:uid(),text:txt,done:false,due:$('mo-tdue')?.value.trim()||''});
     persist();updateBadges();closeMo();renderTasks($('content'));
   }
+}
+
+function insertImgsFromFiles(input){
+  const files=Array.from(input.files);
+  files.forEach(f=>{
+    const r=new FileReader();
+    r.onload=e=>insertImgAtCursor(e.target.result);
+    r.readAsDataURL(f);
+  });
+  input.value='';
 }
 
 
