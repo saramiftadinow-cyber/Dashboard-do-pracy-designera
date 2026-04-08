@@ -16,12 +16,20 @@
   --danger:#A32D2D;--success:#1D9E75;--warn:#854F0B;
   --font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
 }
-@media(prefers-color-scheme:dark){:root{
+/* dark theme class applied by JS */
+body.dark{
   --bg0:#1c1c1a;--bg1:#252523;--bg2:#2e2e2b;
   --t1:#f0efe8;--t2:#a8a8a0;--t3:#6e6e68;
   --b1:rgba(255,255,255,.24);--b2:rgba(255,255,255,.14);--b3:rgba(255,255,255,.08);
   --danger:#F09595;
-}}
+}
+/* theme toggle button */
+.theme-btn{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:20px;border:.5px solid var(--b2);background:transparent;cursor:pointer;font-size:11px;font-weight:500;color:var(--t2);font-family:var(--font);transition:all .15s}
+.theme-btn:hover{background:var(--bg2);color:var(--t1)}
+.theme-track{width:28px;height:16px;border-radius:8px;background:var(--b2);position:relative;transition:background .2s;flex-shrink:0}
+.theme-track.on{background:var(--acc)}
+.theme-thumb{width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.theme-track.on .theme-thumb{transform:translateX(12px)}
 html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);background:var(--bg0)}
 
 /* LAYOUT */
@@ -29,7 +37,8 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .sb{width:196px;border-right:.5px solid var(--b3);padding:12px 0;display:flex;flex-direction:column;gap:1px;background:var(--bg1);flex-shrink:0;overflow-y:auto}
 .main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden}
 .tb{border-bottom:.5px solid var(--b3);padding:10px 18px;display:flex;align-items:center;gap:9px;background:var(--bg0);flex-shrink:0}
-.content{flex:1;padding:18px 22px;overflow-y:auto}
+.content{flex:1;padding:24px 32px;overflow-y:auto}
+.content-inner{max-width:760px;margin:0 auto;padding:32px 40px}
 
 /* SIDEBAR */
 .sb-logo{padding:0 14px 12px;font-weight:700;font-size:15px;border-bottom:.5px solid var(--b3);margin-bottom:6px;display:flex;align-items:center;gap:9px}
@@ -234,6 +243,17 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .empty{font-size:13px;color:var(--t3);padding:30px 0;text-align:center}
 .sep{height:.5px;background:var(--b3);margin:16px 0}
 .view-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-wrap{max-width:860px;margin:0 auto;padding:0 8px}
+.detail-wrap{max-width:780px;margin:0 auto;padding:32px 8px 48px}
+.detail-title{font-size:28px;font-weight:700;line-height:1.25;margin-bottom:6px;color:var(--t1)}
+.detail-meta{font-size:12px;color:var(--t3);margin-bottom:28px;display:flex;align-items:center;gap:10px}
+.detail-actions{display:flex;gap:8px;margin-bottom:24px}
+.detail-action-btn{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:var(--r8);border:.5px solid var(--b2);background:var(--bg0);font-size:13px;font-weight:500;cursor:pointer;color:var(--t2);font-family:var(--font);transition:all .15s}
+.detail-action-btn:hover{background:var(--bg1);border-color:var(--b1);color:var(--t1)}
+.detail-action-btn.danger{color:var(--danger);border-color:transparent}
+.detail-action-btn.danger:hover{background:#fee2e2;border-color:#fca5a5}
+.detail-action-btn.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+.detail-action-btn.pri:hover{background:#4a3dd4}
 .view-title{font-size:18px;font-weight:700}
 </style>
 </head>
@@ -290,6 +310,11 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
     <div class="ni" id="nav-notes" onclick="goView('notes')"><span class="nic">◻</span>Notatki</div>
     <div style="flex:1"></div>
     <div style="padding:10px 12px;border-top:.5px solid var(--b3);display:flex;flex-direction:column;gap:5px">
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-toggle-btn" style="width:100%;margin-bottom:6px">
+        <div class="theme-track" id="theme-track"><div class="theme-thumb"></div></div>
+        <span id="theme-label">Ciemny motyw</span>
+      </button>
+      <button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px;margin-bottom:3px" onclick="toggleTheme()" id="theme-btn">☀ Jasny motyw</button>
       <button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px;margin-bottom:3px" onclick="showChangePassword()">🔒 Zmień hasło</button>
       <button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px;margin-bottom:3px" onclick="lockApp()">🚪 Zablokuj</button>
       <button class="btn xs" style="width:100%;justify-content:center;display:flex;align-items:center;gap:5px" onclick="exportData()">⬇ Eksportuj dane</button>
@@ -515,7 +540,7 @@ function renderDashboard(c){
 
 // ───────────────────────── PROJECTS VIEW ─────────────────────────
 function renderProjectsView(c){
-  c.innerHTML=`<div class="view-header"><div class="view-title">Projekty</div><button class="btn pri xs" onclick="openAddProject()">+ Projekt</button></div>
+  c.innerHTML=`<div class="page-wrap"><div class="view-header"><div class="view-title">Projekty</div><button class="btn pri xs" onclick="openAddProject()">+ Projekt</button></div>
     <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
       ${S.projects.map(p=>{
         const pitems=S.items.filter(i=>i.pid===p.id);
@@ -554,7 +579,7 @@ function renderTasks(c){
   const filters=[['all','Wszystkie'],['open','Otwarte'],['done','Ukończone']];
   const filtered=all.filter(t=>S.taskFilter==='all'?true:S.taskFilter==='open'?!t.done:t.done);
   const groups={};filtered.forEach(t=>{const k=t.proj?.id||'other';if(!groups[k])groups[k]=[];groups[k].push(t);});
-  c.innerHTML=`<div class="view-header"><div class="view-title">Zadania</div><button class="btn pri xs" onclick="openAddGlobalTask()">+ Zadanie</button></div>
+  c.innerHTML=`<div class="page-wrap"><div class="view-header"><div class="view-title">Zadania</div><button class="btn pri xs" onclick="openAddGlobalTask()">+ Zadanie</button></div>
     <div class="task-filter">
       ${filters.map(([v,l])=>`<div class="tfil ${S.taskFilter===v?'act':''}" onclick="S.taskFilter='${v}';renderTasks($('content'))">${l}</div>`).join('')}
     </div>
@@ -573,7 +598,7 @@ function renderTasks(c){
           </div>
         </div>`).join('')}
       </div>`;}).join('')}
-    ${!filtered.length?`<div class="empty">Brak zadań.</div>`:''}`;
+    ${!filtered.length?`<div class="empty">Brak zadań.</div>`:''}` + '</div>';
 }
 function togGlobalTask(tid,iid){const item=S.items.find(x=>x.id===iid);if(!item)return;const t=item.tasks.find(x=>x.id===tid);if(t)t.done=!t.done;persist();updateBadges();renderTasks($('content'));}
 
@@ -612,7 +637,7 @@ function renderNotes(c){
     return vb-va;
   });
   if(qGroups['Inne'])qKeys.push('Inne');
-  c.innerHTML=`<div class="view-header"><div class="view-title">Notatki</div><button class="btn pri xs" onclick="openAddNote()">+ Notatka</button></div>
+  c.innerHTML=`<div class="page-wrap"><div class="view-header"><div class="view-title">Notatki</div><button class="btn pri xs" onclick="openAddNote()">+ Notatka</button></div>
     ${qKeys.map(q=>{
       const notes=qGroups[q];
       const qLabel=q==='Inne'?'?':q.split(' ')[0];
@@ -645,7 +670,7 @@ function renderNotes(c){
         </div>
       </div>`;
     }).join('')}
-    ${!qKeys.length?`<div class="empty">Brak notatek. Dodaj pierwszą!</div>`:''}`;
+    ${!qKeys.length?`<div class="empty">Brak notatek. Dodaj pierwszą!</div>`:''}` + '</div>';
 }
 
 function renderNoteDetail(c,id){
@@ -655,43 +680,42 @@ function renderNoteDetail(c,id){
   const imgs=n.imgs||[];
   const bodyHtml=n.bodyHtml||'';
   const isEditing=S.noteEditMode===id;
-  c.innerHTML=`<div style="max-width:760px">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px">
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${meet?`<span class="tl-badge tl-meeting" style="padding:3px 10px;border-radius:7px">&#9656; ${meet.title}</span>`:''}
-        ${item?`<span class="tl-badge tl-roadmap" style="padding:3px 10px;border-radius:7px">&#8594; ${item.name}</span>`:''}
-        ${!meet&&!item?`<span class="tl-badge tl-free" style="padding:3px 10px;border-radius:7px">&#9633; Luzna notatka</span>`:''}
-      </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
-        ${!isEditing?`<button class="btn xs" onclick="enterNoteEdit('${id}')">Edytuj</button>`:''}
-        <button class="btn xs danger" onclick="deleteNote('${id}')">Usun</button>
-      </div>
+  c.innerHTML=`<div class="detail-wrap">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">
+      ${meet?`<span class="tl-badge tl-meeting" style="padding:3px 10px;border-radius:7px">&#9656; ${meet.title}</span>`:''}
+      ${item?`<span class="tl-badge tl-roadmap" style="padding:3px 10px;border-radius:7px">&#8594; ${item.name}</span>`:''}
+      ${!meet&&!item?`<span class="tl-badge tl-free" style="padding:3px 10px;border-radius:7px">&#9633; Luźna notatka</span>`:''}
     </div>
     ${!isEditing?`
-      <div style="font-weight:700;font-size:22px;margin-bottom:6px;line-height:1.3">${n.title}</div>
-      <div style="font-size:12px;color:var(--t3);margin-bottom:20px">${n.date}</div>
-      <div style="font-size:14px;color:var(--t2);line-height:1.8">${bodyHtml||'<div style="white-space:pre-wrap">'+n.body+'</div>'}</div>
-      ${imgs.length?`<div style="margin-top:16px"><div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">SCREENSHOTY</div><div class="re-img-grid">${imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}" onclick="viewImg('${img.dataUrl}')"></div>`).join('')}</div></div>`:''}
+      <h1 class="detail-title">${n.title}</h1>
+      <div class="detail-meta">
+        <span>${n.date}</span>
+      </div>
+      <div class="detail-actions">
+        <button class="detail-action-btn pri" onclick="enterNoteEdit('${id}')">✎ Edytuj notatkę</button>
+        <button class="detail-action-btn danger" onclick="deleteNote('${id}')">🗑 Usuń</button>
+      </div>
+      <div style="font-size:15px;color:var(--t2);line-height:1.8;border-top:.5px solid var(--b3);padding-top:20px">${bodyHtml||'<div style="white-space:pre-wrap">'+n.body+'</div>'}</div>
+      ${imgs.length?`<div style="margin-top:24px"><div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">SCREENSHOTY</div><div class="re-img-grid">${imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}" onclick="viewImg('${img.dataUrl}')"></div>`).join('')}</div></div>`:''}
     `:`
-      <div class="fg"><label class="fl">Tytul</label><input class="fi" id="nd-t-${id}" value="${n.title.replace(/"/g,'&quot;')}" style="font-size:16px;font-weight:700"></div>
+      <div class="fg" style="margin-bottom:16px"><input class="fi" id="nd-t-${id}" value="${n.title.replace(/"/g,'&quot;')}" style="font-size:22px;font-weight:700;border:none;background:transparent;padding:0;border-bottom:2px solid var(--acc)"></div>
       <div class="fg">
         <div class="re-wrap">
           ${richToolbarHTML('re-ed-'+id)}
-          <div class="re-body" id="re-ed-${id}" contenteditable="true" data-ph="Tresc notatki..." onpaste="handleEditorPaste(event,'${id}')">${bodyHtml||n.body}</div>
+          <div class="re-body" id="re-ed-${id}" contenteditable="true" data-ph="Treść notatki..." onpaste="handleEditorPaste(event,'${id}')">${bodyHtml||n.body}</div>
         </div>
       </div>
       <div class="fg">
-        <div style="font-size:11px;font-weight:500;color:var(--t2);margin-bottom:8px">Screenshoty i zdjecia</div>
+        <div style="font-size:11px;font-weight:500;color:var(--t2);margin-bottom:8px">Screenshoty i zdjęcia</div>
         <div class="re-img-grid" id="nd-imgs-${id}">${imgs.map((img,i)=>`<div class="re-img-card"><img src="${img.dataUrl}" alt="${img.name}"><div class="re-img-del" onclick="delNImg('${id}',${i})">x</div></div>`).join('')}</div>
         <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-          <label class="att-btn" style="cursor:pointer">+ Screenshot / zdjecie<input type="file" accept="image/*" multiple style="display:none" onchange="addNImgs('${id}',this)"></label>
+          <label class="att-btn" style="cursor:pointer">+ Screenshot / zdjęcie<input type="file" accept="image/*" multiple style="display:none" onchange="addNImgs('${id}',this)"></label>
           <div class="att-btn" style="cursor:pointer" onclick="pasteNClip('${id}')">Wklej ze schowka (Ctrl+V)</div>
         </div>
-        <div style="font-size:11px;color:var(--t3);margin-top:5px">Lub wklej Ctrl+V bezposrednio w edytorze powyzej / przeciagnij plik</div>
       </div>
-      <div style="display:flex;gap:8px;padding-top:14px;border-top:.5px solid var(--b3)">
-        <button class="btn xs pri" onclick="saveNEdit('${id}')">Zapisz</button>
-        <button class="btn xs" onclick="cancelNEdit('${id}')">Anuluj</button>
+      <div style="display:flex;gap:10px;padding-top:16px;border-top:.5px solid var(--b3)">
+        <button class="detail-action-btn pri" onclick="saveNEdit('${id}')">Zapisz zmiany</button>
+        <button class="detail-action-btn" onclick="cancelNEdit('${id}')">Anuluj</button>
       </div>
     `}
   </div>`;
@@ -722,7 +746,7 @@ function renderMeetings(c){
   const days=Object.keys(groups).sort();
   const typeMap={team:'mt-team',client:'mt-client',design:'mt-design'};
   const typeLbl={team:'Zespół',client:'Klient',design:'Design review'};
-  c.innerHTML=`<div class="view-header"><div class="view-title">Spotkania</div><button class="btn pri xs" onclick="openAddMeeting()">+ Spotkanie</button></div>
+  c.innerHTML=`<div class="page-wrap"><div class="view-header"><div class="view-title">Spotkania</div><button class="btn pri xs" onclick="openAddMeeting()">+ Spotkanie</button></div>
     ${days.map(day=>`<div style="margin-bottom:20px">
       <div class="td-sec-title" style="margin-bottom:10px">${day}</div>
       ${groups[day].map(m=>`<div class="meeting-card" onclick="goDetail('meeting-detail',{id:'${m.id}',title:'${m.title.replace(/'/g,"\\'")}' })">
@@ -738,7 +762,7 @@ function renderMeetings(c){
         </div>
       </div>`).join('')}
     </div>`).join('')}
-    ${!S.meetings.length?`<div class="empty">Brak spotkań.</div>`:''}`;
+    ${!S.meetings.length?`<div class="empty">Brak spotkań.</div>`:''}` + '</div>';
 }
 
 function renderMeetingDetail(c,id){
@@ -746,7 +770,7 @@ function renderMeetingDetail(c,id){
   const notes=S.allNotes.filter(n=>n.meetingId===id);
   const typeMap={team:'mt-team',client:'mt-client',design:'mt-design'};
   const typeLbl={team:'Zespół',client:'Klient',design:'Design review'};
-  c.innerHTML=`<div style="max-width:680px">
+  c.innerHTML=`<div class="detail-wrap">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;padding-bottom:16px;border-bottom:.5px solid var(--b3)">
       <div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
@@ -757,8 +781,8 @@ function renderMeetingDetail(c,id){
         ${m.attendees?`<div style="font-size:12px;color:var(--t2);margin-top:4px">👥 ${m.attendees}</div>`:''}
       </div>
       <div style="display:flex;gap:6px;flex-shrink:0">
-        <button class="btn xs" onclick="openAddNote(null,'${id}')">+ Notatka</button>
-        <button class="btn xs danger" onclick="deleteMeeting('${id}')">Usuń</button>
+        <button class="detail-action-btn pri" onclick="openAddNote(null,'${id}')">+ Notatka</button>
+        <button class="detail-action-btn danger" onclick="deleteMeeting('${id}')">🗑 Usuń</button>
       </div>
     </div>
     ${m.notes?`<div class="td-section"><div class="td-sec-title">Opis / Agenda</div><div style="background:var(--bg1);border-radius:var(--r8);padding:12px;font-size:13px;line-height:1.7;color:var(--t2)">${m.notes}</div></div>`:''}
@@ -805,7 +829,7 @@ const tabsHTML=`<div class="proj-tabs">
       ${qItems.map(item=>rmCardHTML(item,p.color)).join('')}
     </div>`;}).join('')
     :`<div style="text-align:center;padding:48px 0;color:var(--t3)">Brak tasków w tym projekcie.<br><br><button class="btn pri xs" onclick="openAddItem()">+ Dodaj task</button></div>`;
-  c.innerHTML=tabsHTML+qHTMLHeader+qHTML;
+  c.innerHTML=``+tabsHTML+qHTMLHeader+qHTML+`</div>`;
 }
 function deleteProjectRm(pid){if(!confirm('Usunąć projekt i wszystkie jego taski?'))return;S.projects=S.projects.filter(p=>p.id!==pid);S.items=S.items.filter(i=>i.pid!==pid);if(S.curProj===pid)S.curProj=S.projects[0]?.id||'';persist();renderRoadmap($('content'));}
 function switchProj(pid){S.curProj=pid;persist();renderRoadmap($('content'));}
@@ -978,21 +1002,21 @@ function renderTaskDetail(c,id){
   const proj=S.projects.find(p=>p.id===item.pid);
   window[`delDetAtt_${id}`]=function(aid){item.atts=item.atts.filter(a=>a.id!==aid);persist();renderTaskDetail($('content'),id);};
   const dn=item.tasks.filter(t=>t.done).length;
-  c.innerHTML=`<div style="max-width:720px">
+  c.innerHTML=`<div class="content-inner">
     <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:.5px solid var(--b3)">
       <div style="width:40px;height:40px;border-radius:var(--r8);background:${proj?proj.color+'20':'var(--bg1)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <div style="width:13px;height:13px;border-radius:50%;background:${proj?proj.color:'var(--acc)'}"></div>
       </div>
       <div style="flex:1">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
-          <div style="font-weight:700;font-size:20px">${item.name}</div>
+          <div style="font-weight:700;font-size:26px;line-height:1.25;letter-spacing:-.2px">${item.name}</div>
           <span class="pill ${SC[item.status]}">${SL[item.status]}</span>
         </div>
         <div style="font-size:12px;color:var(--t3)">${proj?proj.name:''} · ${item.q}</div>
       </div>
-      <div style="display:flex;gap:6px;flex-shrink:0">
-        <button class="btn xs" onclick="openEditItem('${id}')">✎ Edytuj</button>
-        <button class="btn xs danger" onclick="deleteItemFromDetail('${id}')">✕ Usuń</button>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="btn" style="padding:7px 16px;font-size:13px;display:flex;align-items:center;gap:6px" onclick="openEditItem('${id}')">&#9998; Edytuj</button>
+        <button class="btn danger" style="padding:7px 14px;font-size:13px" onclick="deleteItemFromDetail('${id}')">&#128465; Usuń</button>
       </div>
     </div>
 
@@ -1497,9 +1521,30 @@ function lockApp(){
   setTimeout(()=>document.getElementById('lock-input')?.focus(), 100);
 }
 
+// ───────────────────────── THEME ─────────────────────────
+function initTheme(){
+  const saved=localStorage.getItem('dos-theme')||'dark';
+  if(saved==='dark'){document.body.classList.add('dark');}
+  else{document.body.classList.remove('dark');}
+  updateThemeUI();
+}
+function toggleTheme(){
+  const isDark=document.body.classList.toggle('dark');
+  localStorage.setItem('dos-theme',isDark?'dark':'light');
+  updateThemeUI();
+}
+function updateThemeUI(){
+  const isDark=document.body.classList.contains('dark');
+  const track=document.getElementById('theme-track');
+  const label=document.getElementById('theme-label');
+  if(track)track.className='theme-track'+(isDark?' on':'');
+  if(label)label.textContent=isDark?'Ciemny motyw':'Jasny motyw';
+}
+
 // ───────────────────────── INIT ─────────────────────────
 updateBadges();
-function startApp(){goView('roadmap');}
+initTheme();
+function startApp(){goView('roadmap');updateThemeUI();}
 initLock();
 </script>
 </body>
