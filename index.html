@@ -1257,9 +1257,7 @@ function openAddGlobalTask(){
     </div>`,'task');
 }
 
-function openEditNote(id){enterNoteEdit(id);}"></div>
-    <div class="fg"><label class="fl">Treść</label><textarea class="ta" id="mo-nbody" rows="6">${n.body}</textarea></div>`,'note-edit',{id});
-}
+function openEditNote(id){enterNoteEdit(id);}
 
 function saveMo(){
   if(moMode==='proj'){
@@ -1317,8 +1315,8 @@ function saveMo(){
     window._notePendingImgs=[];
     persist();closeMo();goView('notes');
   }
-  else if(moMode==='note-edit'){}}}
-    persist();closeMo();goDetail('note-detail',{id:n.id,title:n.title});
+  else if(moMode==='note-edit'){
+    // handled inline
   }
   else if(moMode==='meeting'){
     const title=$('mo-mtitle')?.value.trim();if(!title)return;
