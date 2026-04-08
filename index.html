@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DesignOS — Product Design Workspace</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --acc: #5B4CF5;
+      --acc-l: #EEEDfe;
+      --acc-m: #7F77DD;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f8f7;
+      --bg-tertiary: #f2f1ee;
+      --text-primary: #1a1a18;
+      --text-secondary: #6b6b67;
+      --text-tertiary: #9e9e99;
+      --border-tertiary: rgba(0,0,0,0.10);
+      --border-secondary: rgba(0,0,0,0.18);
+      --border-primary: rgba(0,0,0,0.28);
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --color-text-danger: #A32D2D;
+      --color-background-secondary: #f8f8f7;
+      --color-background-primary: #ffffff;
+      --color-border-tertiary: rgba(0,0,0,0.10);
+      --color-border-secondary: rgba(0,0,0,0.18);
+      --color-text-primary: #1a1a18;
+      --color-text-secondary: #6b6b67;
+      --color-text-tertiary: #9e9e99;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1c1c1a;
+        --bg-secondary: #252523;
+        --bg-tertiary: #2e2e2b;
+        --text-primary: #f0efe8;
+        --text-secondary: #a8a8a0;
+        --text-tertiary: #6e6e68;
+        --border-tertiary: rgba(255,255,255,0.10);
+        --border-secondary: rgba(255,255,255,0.16);
+        --border-primary: rgba(255,255,255,0.24);
+        --color-text-danger: #F09595;
+        --color-background-secondary: #252523;
+        --color-background-primary: #1c1c1a;
+        --color-border-tertiary: rgba(255,255,255,0.10);
+        --color-border-secondary: rgba(255,255,255,0.16);
+        --color-text-primary: #f0efe8;
+        --color-text-secondary: #a8a8a0;
+        --color-text-tertiary: #6e6e68;
+      }
+    }
+
+    html, body { height: 100%; font-family: var(--font-sans); font-size: 13px; color: var(--text-primary); background: var(--bg-primary); }
+
+    /* ── LAYOUT ── */
+    .app { display: flex; height: 100vh; overflow: hidden; }
+    .sb { width: 200px; border-right: 0.5px solid var(--border-tertiary); padding: 12px 0; display: flex; flex-direction: column; gap: 2px; background: var(--bg-secondary); flex-shrink: 0; overflow-y: auto; }
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+    .tb { border-bottom: 0.5px solid var(--border-tertiary); padding: 10px 18px; display: flex; align-items: center; gap: 9px; background: var(--bg-primary); flex-shrink: 0; }
+    .content { flex: 1; padding: 16px 20px; overflow-y: auto; }
+
+    /* ── SIDEBAR ── */
+    .sb-logo { padding: 0 14px 12px; font-weight: 600; font-size: 15px; border-bottom: 0.5px solid var(--border-tertiary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .ldot { width: 20px; height: 20px; border-radius: 6px; background: var(--acc); flex-shrink: 0; }
+    .ns { padding: 0 10px; font-size: 10px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .08em; margin: 8px 0 2px; text-transform: uppercase; }
+    .ni { display: flex; align-items: center; gap: 8px; padding: 6px 10px; cursor: pointer; border-radius: var(--border-radius-md); margin: 0 6px; color: var(--text-secondary); font-size: 13px; transition: background .1s; user-select: none; }
+    .ni:hover { background: var(--bg-primary); color: var(--text-primary); }
+    .ni.act { background: var(--bg-primary); color: var(--text-primary); font-weight: 600; }
+    .nic { font-size: 14px; width: 16px; text-align: center; }
+    .bdg { margin-left: auto; font-size: 10px; padding: 1px 5px; border-radius: 8px; background: var(--acc-l); color: var(--acc); }
+
+    /* ── TOPBAR ── */
+    .tb-left { flex: 1; display: flex; align-items: center; gap: 6px; min-width: 0; }
+    .tb-title { font-weight: 600; font-size: 15px; white-space: nowrap; }
+    .bc-sep { color: var(--text-tertiary); font-size: 12px; }
+    .bc-link { font-size: 12px; color: var(--acc); cursor: pointer; }
+    .bc-link:hover { text-decoration: underline; }
+    .bc-cur { font-size: 12px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── BUTTONS ── */
+    .btn { padding: 5px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--border-secondary); background: transparent; cursor: pointer; font-size: 12px; color: var(--text-primary); font-family: var(--font-sans); transition: background .1s; }
+    .btn:hover { background: var(--bg-secondary); }
+    .btn.pri { background: var(--acc); color: #fff; border-color: var(--acc); }
+    .btn.pri:hover { background: #4a3dd4; }
+    .btn.xs { padding: 3px 8px; font-size: 11px; }
+
+    /* ── PILLS ── */
+    .pill { font-size: 10px; padding: 2px 7px; border-radius: 7px; }
+    .sp { background: #EEEDfe; color: #534AB7; }
+    .sr { background: #FAEEDA; color: #854F0B; }
+    .sd { background: #EAF3DE; color: #3B6D11; }
+    .sl { background: #E6F1FB; color: #185FA5; }
+
+    /* ── CARDS ── */
+    .card { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; }
+
+    /* ── PROJECT TABS ── */
+    .proj-tabs { display: flex; border-bottom: 0.5px solid var(--border-tertiary); margin-bottom: 18px; overflow-x: auto; }
+    .ptab { padding: 8px 16px; cursor: pointer; font-size: 13px; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -0.5px; white-space: nowrap; transition: all .15s; display: flex; align-items: center; gap: 7px; }
+    .ptab:hover { color: var(--text-primary); }
+    .ptab.act { color: var(--acc); border-bottom-color: var(--acc); font-weight: 600; }
+    .ptab-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .ptab-add { padding: 8px 12px; cursor: pointer; font-size: 12px; color: var(--acc); border-bottom: 2px solid transparent; margin-bottom: -0.5px; }
+    .ptab-add:hover { background: var(--acc-l); border-radius: 8px 8px 0 0; }
+
+    /* ── QUARTER / ROADMAP ── */
+    .q-section { margin-bottom: 24px; }
+    .q-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding-bottom: 7px; border-bottom: 0.5px solid var(--border-tertiary); }
+    .q-title { font-weight: 600; font-size: 12px; color: var(--text-secondary); }
+    .rm-card { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--border-radius-lg); margin-bottom: 8px; overflow: hidden; transition: border-color .15s; }
+    .rm-card:hover { border-color: var(--border-secondary); }
+    .rm-card-hd { display: flex; align-items: center; gap: 9px; padding: 12px 15px; cursor: pointer; user-select: none; }
+    .rm-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .rm-name { font-weight: 600; font-size: 14px; flex: 1; min-width: 0; }
+    .rm-badges { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+    .cnt { font-size: 10px; padding: 1px 6px; border-radius: 6px; color: var(--text-tertiary); }
+    .cnt.has { background: var(--acc-l); color: var(--acc); }
+    .rm-open-btn { font-size: 12px; color: var(--acc); cursor: pointer; flex-shrink: 0; padding: 2px 6px; border-radius: 5px; transition: background .1s; }
+    .rm-open-btn:hover { background: var(--acc-l); }
+    .rm-chev { font-size: 10px; color: var(--text-tertiary); transition: transform .2s; flex-shrink: 0; }
+    .rm-chev.open { transform: rotate(90deg); }
+
+    /* ── EXPANDED BODY ── */
+    .rm-body { border-top: 0.5px solid var(--border-tertiary); }
+    .rm-sec { padding: 11px 15px; border-bottom: 0.5px solid var(--border-tertiary); }
+    .rm-sec:last-child { border-bottom: none; }
+    .rm-sec-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .rm-sec-label { font-size: 10px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .08em; }
+
+    /* ── TASK ROW ── */
+    .task-row { display: flex; align-items: flex-start; gap: 9px; padding: 7px 0; border-bottom: 0.5px solid var(--border-tertiary); }
+    .task-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .cb { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--border-secondary); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 9px; cursor: pointer; transition: all .15s; }
+    .cb.dn { background: #639922; border-color: #639922; color: #fff; }
+    .task-text { flex: 1; font-size: 13px; line-height: 1.4; }
+    .task-text.dn { text-decoration: line-through; color: var(--text-tertiary); }
+    .task-due { font-size: 11px; color: var(--text-tertiary); flex-shrink: 0; }
+
+    /* ── NOTE CHIP ── */
+    .note-chip { background: var(--bg-secondary); border-radius: var(--border-radius-md); padding: 8px 11px; margin-bottom: 6px; cursor: pointer; border-left: 2px solid var(--acc-m); transition: background .1s; }
+    .note-chip:hover { background: var(--acc-l); }
+    .note-chip-title { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+    .note-chip-body { font-size: 12px; color: var(--text-secondary); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* ── ATTACHMENT ── */
+    .att-grid { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+    .att-chip { display: flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: var(--border-radius-md); border: 0.5px solid var(--border-tertiary); background: var(--bg-primary); font-size: 11px; cursor: pointer; max-width: 200px; transition: border-color .15s; }
+    .att-chip:hover { border-color: var(--border-secondary); }
+    .att-icon { width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; font-weight: 700; }
+    .ai-img { background: #EEEDfe; color: #534AB7; }
+    .ai-pdf { background: #FCEBEB; color: #A32D2D; }
+    .ai-fig { background: #E1F5EE; color: #0F6E56; }
+    .ai-link { background: #FAEEDA; color: #854F0B; }
+    .ai-file { background: #E6F1FB; color: #185FA5; }
+    .att-name { font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .att-del { margin-left: auto; font-size: 11px; color: var(--text-tertiary); cursor: pointer; padding-left: 4px; flex-shrink: 0; }
+    .att-del:hover { color: #A32D2D; }
+
+    /* ── FORMS ── */
+    .fi, .fs, .ta { width: 100%; padding: 7px 10px; border: 0.5px solid var(--border-secondary); border-radius: var(--border-radius-md); background: var(--bg-secondary); color: var(--text-primary); font-size: 13px; font-family: var(--font-sans); }
+    .fi-sm { flex: 1; padding: 6px 9px; border: 0.5px solid var(--border-secondary); border-radius: var(--border-radius-md); background: var(--bg-secondary); color: var(--text-primary); font-size: 12px; font-family: var(--font-sans); }
+    .fi-due { width: 72px; padding: 6px 9px; border: 0.5px solid var(--border-secondary); border-radius: var(--border-radius-md); background: var(--bg-secondary); color: var(--text-primary); font-size: 12px; font-family: var(--font-sans); }
+    .ta { resize: vertical; }
+    .fg { margin-bottom: 10px; }
+    .fl { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; display: block; font-weight: 500; }
+    .fi:focus, .fi-sm:focus, .fi-due:focus, .ta:focus, .fs:focus { outline: none; border-color: var(--acc); box-shadow: 0 0 0 3px rgba(91,76,245,0.12); }
+
+    /* ── ATT TOOLBAR ── */
+    .att-toolbar { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 7px; }
+    .att-btn { display: flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--border-tertiary); background: var(--bg-primary); font-size: 12px; cursor: pointer; color: var(--text-secondary); font-family: var(--font-sans); transition: all .15s; }
+    .att-btn:hover { border-color: var(--acc); color: var(--acc); background: var(--acc-l); }
+    .link-row { display: flex; gap: 6px; margin-bottom: 7px; align-items: center; }
+
+    /* ── DETAIL SECTIONS ── */
+    .td-section { margin-bottom: 20px; }
+    .td-sec-title { font-size: 11px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+    .kpi-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 0.5px solid var(--border-tertiary); }
+    .kpi-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .inline-area { background: var(--bg-secondary); border-radius: var(--border-radius-md); padding: 12px; margin-top: 8px; }
+
+    /* ── DASHBOARD STATS ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 20px; }
+    .stat-card { background: var(--bg-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; cursor: pointer; border: 1px solid transparent; transition: border-color .15s; }
+    .stat-card:hover { border-color: var(--acc-m); }
+    .stat-label { font-size: 11px; color: var(--text-tertiary); margin-bottom: 4px; }
+    .stat-val { font-size: 24px; font-weight: 700; }
+    .stat-arrow { font-size: 11px; color: var(--acc); margin-top: 5px; }
+
+    /* ── MODAL ── */
+    .mo-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); align-items: flex-start; justify-content: center; padding: 60px 20px; z-index: 100; }
+    .mo-overlay.open { display: flex; }
+    .mo-box { background: var(--bg-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--border-secondary); padding: 24px; width: 480px; max-width: 100%; max-height: 80vh; overflow-y: auto; }
+    .mo-title { font-weight: 700; font-size: 16px; margin-bottom: 16px; }
+    .mo-acts { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+    /* ── MISC ── */
+    .empty-msg { font-size: 12px; color: var(--text-tertiary); padding: 4px 0; }
+    .view-placeholder { padding: 40px 0; color: var(--text-tertiary); font-size: 14px; text-align: center; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="sb">
+    <div class="sb-logo"><span class="ldot"></span>DesignOS</div>
+    <span class="ns">Workspace</span>
+    <div class="ni" onclick="goSimple('dashboard')"><span class="nic">◈</span>Dashboard</div>
+    <div class="ni" onclick="goSimple('projects')"><span class="nic">◫</span>Projekty</div>
+    <div class="ni" onclick="goSimple('tasks')"><span class="nic">✓</span>Zadania<span class="bdg" id="b-t">7</span></div>
+    <span class="ns">Planowanie</span>
+    <div class="ni act" id="nav-roadmap" onclick="go('roadmap')"><span class="nic">→</span>Roadmapa</div>
+    <div class="ni" onclick="goSimple('meetings')"><span class="nic">◷</span>Spotkania</div>
+    <span class="ns">Wiedza</span>
+    <div class="ni" onclick="goSimple('notes')"><span class="nic">◻</span>Notatki</div>
+  </div>
+  <div class="main">
+    <div class="tb">
+      <div class="tb-left" id="tb-left"><span class="tb-title">Roadmapa</span></div>
+      <button class="btn xs" onclick="openAddProject()">+ Projekt</button>
+      <button class="btn xs pri" onclick="openAddItem()">+ Zadanie</button>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div class="mo-overlay" id="mo">
+  <div class="mo-box">
+    <div class="mo-title" id="mo-title"></div>
+    <div id="mo-body"></div>
+    <div class="mo-acts">
+      <button class="btn" onclick="closeMo()">Anuluj</button>
+      <button class="btn pri" onclick="saveMo()">Zapisz</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SL={progress:'W toku',review:'Review',planning:'Planowanie',done:'Ukończony'};
+const SC={progress:'sp',review:'sr',planning:'sl',done:'sd'};
+const QUARTERS=['Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026'];
+
+// Load state from localStorage or use defaults
+function loadState() {
+  try {
+    const saved = localStorage.getItem('designos-state');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return null;
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('designos-state', JSON.stringify({
+      projects: S.projects,
+      items: S.items,
+      curProj: S.curProj,
+    }));
+  } catch(e) {}
+}
+
+const defaultState = {
+  projects:[
+    {id:'p1',name:'Design System',color:'#5B4CF5'},
+    {id:'p2',name:'Mobile App 3.0',color:'#EF9F27'},
+    {id:'p3',name:'Growth Platform',color:'#1D9E75'},
+  ],
+  items:[
+    {id:'i1',pid:'p1',q:'Q2 2025',name:'Tokenizacja — warstwa semantyczna',status:'progress',
+      poDesc:'Celem jest stworzenie spójnej warstwy tokenów semantycznych, które będą jedynym źródłem prawdy dla wszystkich wartości designerskich.',
+      kpis:[
+        {id:'k1',name:'Pokrycie komponentów tokenami',target:'100%',current:'42%',links:[]},
+        {id:'k2',name:'Czas wdrożenia nowego motywu',target:'< 1 dzień',current:'~4 dni',links:[]},
+      ],
+      tasks:[
+        {id:'t1',text:'Zdefiniować tokeny koloru semantycznego',done:false,due:'15 kwi'},
+        {id:'t2',text:'Zaktualizować Figma library',done:true,due:'8 kwi'},
+        {id:'t3',text:'Dokumentacja tokenów dla dev-ów',done:false,due:'22 kwi'},
+      ],
+      notes:[{id:'n1',title:'Decyzja: semantyczne przed globalnymi',body:'Zaczniemy od warstwy semantycznej.',date:'8 kwi',atts:[]}],
+      atts:[],
+    },
+    {id:'i2',pid:'p1',q:'Q2 2025',name:'Komponenty — stany i dostępność',status:'planning',
+      poDesc:'Wszystkie komponenty muszą mieć w pełni zaprojektowane stany. WCAG 2.2 AA jest warunkiem koniecznym.',
+      kpis:[{id:'k3',name:'Komponenty ze wszystkimi stanami',target:'100%',current:'28%',links:[]}],
+      tasks:[{id:'t4',text:'Audit istniejących komponentów',done:false,due:'20 kwi'}],
+      notes:[],atts:[],
+    },
+    {id:'i3',pid:'p2',q:'Q2 2025',name:'User research — nowi użytkownicy',status:'progress',
+      poDesc:'Zbadanie ścieżki nowych użytkowników — od pierwszego uruchomienia do onboarding completion.',
+      kpis:[
+        {id:'k5',name:'Onboarding completion rate',target:'>65%',current:'38%',links:[]},
+        {id:'k6',name:'Time-to-first-value',target:'< 3 min',current:'7 min',links:[]},
+      ],
+      tasks:[
+        {id:'t6',text:'Przeprowadzić 8 sesji user testing',done:false,due:'18 kwi'},
+        {id:'t7',text:'Synthesis workshop z teamem',done:false,due:'22 kwi'},
+      ],
+      notes:[],atts:[],
+    },
+    {id:'i4',pid:'p3',q:'Q2 2025',name:'Dashboard analityczny — redesign',status:'review',
+      poDesc:'Nowy dashboard musi pokazywać dane w sposób zrozumiały dla nie-technicznych użytkowników.',
+      kpis:[
+        {id:'k9',name:'Czas do znalezienia kluczowej metryki',target:'< 10 sek',current:'34 sek',links:[]},
+        {id:'k10',name:'NPS dashboardu',target:'>50',current:'22',links:[]},
+      ],
+      tasks:[
+        {id:'t11',text:'Zaprojektować nową hierarchię informacji',done:true,due:'5 kwi'},
+        {id:'t12',text:'Prototyp do testów',done:true,due:'7 kwi'},
+        {id:'t13',text:'Testy z 5 użytkownikami',done:false,due:'14 kwi'},
+      ],
+      notes:[],atts:[],
+    },
+  ],
+  curProj: 'p1',
+};
+
+const saved = loadState();
+const S = {
+  ...(saved || defaultState),
+  expanded: {},
+  moMode: '',
+  aiHist: [],
+  kpiPendingLinks: {},
+};
+if (!saved) S.curProj = 'p1';
+
+function persist() { saveState(); }
+function updateBadges() {
+  const open = S.items.reduce((a,i) => a + i.tasks.filter(t=>!t.done).length, 0);
+  document.getElementById('b-t').textContent = open;
+}
+
+// ── ROUTING ──
+function go(view, opts) {
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('act'));
+  document.getElementById('nav-roadmap')?.classList.add('act');
+  render(view, opts || {});
+}
+function goSimple(v) {
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('act'));
+  document.getElementById('content').innerHTML = `<div class="view-placeholder">← Kliknij <strong>Roadmapa</strong> aby zobaczyć pełne demo.<br><br>Pozostałe sekcje gotowe do rozbudowy.</div>`;
+  setBc(null);
+}
+function setBc(parts) {
+  const el = document.getElementById('tb-left');
+  if (!parts) { el.innerHTML = `<span class="tb-title">Roadmapa</span>`; return; }
+  el.innerHTML = parts.map((p,i) => i < parts.length-1
+    ? `<span class="bc-link" onclick="${p.fn}">${p.label}</span><span class="bc-sep">›</span>`
+    : `<span class="bc-cur">${p.label}</span>`
+  ).join('');
+}
+function render(view, opts) {
+  const c = document.getElementById('content');
+  if (view === 'roadmap') { setBc(null); renderRoadmap(c); }
+  else if (view === 'task-detail') { renderTaskDetail(c, opts.id); }
+  else if (view === 'note-detail') { renderNoteDetail(c, opts.id, opts.iid); }
+}
+
+// ── ROADMAP ──
+function renderRoadmap(c) {
+  updateBadges();
+  const proj = S.projects;
+  const tabsHTML = `<div class="proj-tabs">
+    ${proj.map(p => `<div class="ptab ${S.curProj===p.id?'act':''}" onclick="switchProj('${p.id}')">
+      <div class="ptab-dot" style="background:${p.color}"></div>${p.name}
+    </div>`).join('')}
+    <div class="ptab-add" onclick="openAddProject()">+ Projekt</div>
+  </div>`;
+  const p = proj.find(x => x.id === S.curProj) || proj[0];
+  const items = S.items.filter(i => i.pid === p.id);
+  const qs = [...new Set(items.map(i => i.q))].sort();
+  const qHTML = qs.length ? qs.map(q => {
+    const qItems = items.filter(i => i.q === q);
+    const tot = qItems.reduce((a,i) => a + i.tasks.length, 0);
+    const dn = qItems.reduce((a,i) => a + i.tasks.filter(t=>t.done).length, 0);
+    return `<div class="q-section">
+      <div class="q-hd"><span class="q-title">${q}</span><span style="font-size:11px;color:var(--text-tertiary)">${qItems.length} elementów · ${dn}/${tot} zadań</span></div>
+      ${qItems.map(item => rmCardHTML(item, p.color)).join('')}
+    </div>`;
+  }).join('') : `<div style="text-align:center;padding:40px 0;color:var(--text-tertiary)">Brak elementów.<br><br><button class="btn pri xs" onclick="openAddItem()">+ Dodaj element</button></div>`;
+  c.innerHTML = tabsHTML + qHTML;
+}
+
+function switchProj(pid) { S.curProj = pid; persist(); renderRoadmap(document.getElementById('content')); }
+
+function rmCardHTML(item, projColor) {
+  const dn = item.tasks.filter(t=>t.done).length;
+  const open = !!S.expanded[item.id];
+  return `<div class="rm-card" id="rmc-${item.id}">
+    <div class="rm-card-hd" onclick="toggleRM('${item.id}')">
+      <div class="rm-dot" style="background:${projColor}"></div>
+      <span class="rm-name">${item.name}</span>
+      <div class="rm-badges">
+        <span class="pill ${SC[item.status]}">${SL[item.status]}</span>
+        ${item.poDesc?`<span style="font-size:9px;padding:1px 6px;border-radius:5px;background:#E1F5EE;color:#0F6E56;font-weight:700">PO</span>`:''}
+        ${item.kpis&&item.kpis.length?`<span style="font-size:9px;padding:1px 6px;border-radius:5px;background:#FAEEDA;color:#854F0B;font-weight:700">KPI ${item.kpis.length}</span>`:''}
+        ${item.tasks.length?`<span class="cnt ${dn===item.tasks.length&&item.tasks.length?'has':''}">✓ ${dn}/${item.tasks.length}</span>`:''}
+        ${item.notes.length?`<span class="cnt has">◻ ${item.notes.length}</span>`:''}
+        <span class="rm-open-btn" onclick="event.stopPropagation();go('task-detail',{id:'${item.id}'})" title="Szczegóły">↗</span>
+      </div>
+      <span class="rm-chev ${open?'open':''}" id="chev-${item.id}">▶</span>
+    </div>
+    ${open ? rmBodyHTML(item, projColor) : ''}
+  </div>`;
+}
+
+function rmBodyHTML(item, projColor) {
+  const tasks = item.tasks, notes = item.notes, atts = item.atts;
+  return `<div class="rm-body">
+    ${item.poDesc?`<div class="rm-sec"><div class="rm-sec-hd"><span class="rm-sec-label" style="color:#0F6E56">Opis PO</span></div><div style="font-size:12px;color:var(--text-secondary);line-height:1.65">${item.poDesc}</div></div>`:''}
+    ${item.kpis&&item.kpis.length?`<div class="rm-sec"><div class="rm-sec-hd"><span class="rm-sec-label" style="color:#854F0B">Wskaźniki</span></div>
+      ${item.kpis.map(k=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--border-tertiary)">
+        <span style="font-size:12px;font-weight:600">${k.name}</span>
+        <span style="font-size:11px;color:#1D9E75;font-weight:600">${k.current} <span style="color:var(--text-tertiary);font-weight:400">/ ${k.target}</span></span>
+      </div>`).join('')}
+    </div>`:''}
+    <div class="rm-sec">
+      <div class="rm-sec-hd"><span class="rm-sec-label">Zadania (${tasks.length})</span><button class="btn xs" onclick="showInlineTaskForm('${item.id}')">+ Dodaj</button></div>
+      <div id="tl-${item.id}">${tasks.map(t=>taskRowHTML(t,item.id)).join('')||`<div class="empty-msg">Brak zadań.</div>`}</div>
+      <div id="tf-${item.id}" style="display:none;padding-top:8px">
+        <div style="display:flex;gap:6px;align-items:center">
+          <input class="fi-sm" id="ti-${item.id}" placeholder="Nowe zadanie..." onkeydown="if(event.key==='Enter')saveInlineTask('${item.id}')">
+          <input class="fi-due" id="td-${item.id}" placeholder="Termin">
+          <button class="btn xs pri" onclick="saveInlineTask('${item.id}')">OK</button>
+          <button class="btn xs" onclick="document.getElementById('tf-${item.id}').style.display='none'">✕</button>
+        </div>
+      </div>
+    </div>
+    <div class="rm-sec">
+      <div class="rm-sec-hd"><span class="rm-sec-label">Notatki (${notes.length})</span><button class="btn xs" onclick="showInlineNoteForm('${item.id}')">+ Dodaj</button></div>
+      <div id="nl-${item.id}">${notes.map(n=>noteChipHTML(n,item.id)).join('')||`<div class="empty-msg">Brak notatek.</div>`}</div>
+      <div id="nf-${item.id}" style="display:none"><div class="inline-area" style="margin-top:6px">
+        <div class="fg"><input class="fi" id="nti-${item.id}" placeholder="Tytuł notatki..."></div>
+        <div class="fg"><textarea class="ta" id="nta-${item.id}" placeholder="Treść..." rows="3"></textarea></div>
+        <div style="display:flex;gap:6px;justify-content:flex-end">
+          <button class="btn xs" onclick="hideNoteForm('${item.id}')">Anuluj</button>
+          <button class="btn xs pri" onclick="saveInlineNote('${item.id}')">Zapisz</button>
+        </div>
+      </div></div>
+    </div>
+    <div class="rm-sec">
+      <div class="rm-sec-hd"><span class="rm-sec-label">Załączniki (${atts.length})</span></div>
+      ${attToolbar(item.id,'rm')}
+      <div id="att-lf-${item.id}-rm" style="display:none" class="link-row">
+        <input class="fi-sm" id="att-ln-${item.id}-rm" placeholder="Nazwa"><input class="fi-sm" id="att-lu-${item.id}-rm" placeholder="https://...">
+        <button class="btn xs pri" onclick="saveLinkToItem('${item.id}')">Dodaj</button>
+        <button class="btn xs" onclick="document.getElementById('att-lf-${item.id}-rm').style.display='none'">✕</button>
+      </div>
+      <input type="file" id="att-fi-${item.id}-rm" style="display:none" multiple onchange="handleItemFiles('${item.id}',this)">
+      <input type="file" id="att-img-${item.id}-rm" style="display:none" accept="image/*" multiple onchange="handleItemFiles('${item.id}',this)">
+      <div class="att-grid" id="att-grid-${item.id}-rm">${atts.map(a=>attChipHTML(a,`delItemAtt_${item.id}`)).join('')}</div>
+    </div>
+  </div>`;
+}
+
+function taskRowHTML(t, iid) {
+  return `<div class="task-row"><div class="cb ${t.done?'dn':''}" onclick="togTask('${t.id}','${iid}')">${t.done?'✓':''}</div><span class="task-text ${t.done?'dn':''}">${t.text}</span><span class="task-due">${t.due||''}</span></div>`;
+}
+function noteChipHTML(n, iid) {
+  return `<div class="note-chip" onclick="go('note-detail',{id:'${n.id}',iid:'${iid}'})"><div class="note-chip-title">${n.title}</div><div class="note-chip-body">${n.body}</div><div style="font-size:10px;color:var(--text-tertiary);margin-top:3px">${n.date}</div></div>`;
+}
+function attChipHTML(a, onDelFn) {
+  const typeMap={img:'ai-img',png:'ai-img',jpg:'ai-img',pdf:'ai-pdf',fig:'ai-fig',figma:'ai-fig',link:'ai-link',file:'ai-file'};
+  const labelMap={img:'IMG',png:'IMG',jpg:'IMG',pdf:'PDF',fig:'FIG',figma:'FIG',link:'↗',file:'DOC'};
+  const ic = typeMap[a.type]||'ai-file', lb = labelMap[a.type]||'DOC';
+  const del = onDelFn ? `<span class="att-del" onclick="event.stopPropagation();${onDelFn}('${a.id}')">✕</span>` : '';
+  if (a.dataUrl && a.dataUrl.startsWith('data:image')) return `<div class="att-chip"><img src="${a.dataUrl}" style="width:22px;height:22px;border-radius:3px;object-fit:cover;flex-shrink:0"><span class="att-name">${a.name}</span>${del}</div>`;
+  return `<div class="att-chip" ${a.url?`onclick="window.open('${a.url}','_blank')"`:''}><div class="att-icon ${ic}">${lb}</div><span class="att-name">${a.name}</span>${del}</div>`;
+}
+function attToolbar(id, ctx) {
+  return `<div class="att-toolbar">
+    <button class="att-btn" onclick="document.getElementById('att-fi-${id}-${ctx}').click()">📎 Plik</button>
+    <button class="att-btn" onclick="document.getElementById('att-img-${id}-${ctx}').click()">🖼 Obraz</button>
+    <button class="att-btn" onclick="document.getElementById('att-lf-${id}-${ctx}').style.display='flex'">🔗 Link</button>
+  </div>`;
+}
+
+function toggleRM(id) { S.expanded[id]=!S.expanded[id]; renderRoadmap(document.getElementById('content')); }
+function showInlineTaskForm(id) { const f=document.getElementById(`tf-${id}`);if(f){f.style.display='block';document.getElementById(`ti-${id}`)?.focus();} }
+function saveInlineTask(id) {
+  const txt=document.getElementById(`ti-${id}`)?.value.trim(), due=document.getElementById(`td-${id}`)?.value.trim();
+  if(!txt)return;
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  item.tasks.push({id:'t'+Date.now(),text:txt,done:false,due:due||''});
+  persist(); updateBadges(); S.expanded[id]=true; renderRoadmap(document.getElementById('content'));
+}
+function togTask(tid, iid) {
+  const item=S.items.find(x=>x.id===iid);if(!item)return;
+  const t=item.tasks.find(x=>x.id===tid);if(t)t.done=!t.done;
+  persist(); updateBadges();
+  const list=document.getElementById(`tl-${iid}`);
+  if(list)list.innerHTML=item.tasks.map(t=>taskRowHTML(t,iid)).join('')||`<div class="empty-msg">Brak zadań.</div>`;
+}
+function showInlineNoteForm(id) { const f=document.getElementById(`nf-${id}`);if(f){f.style.display='block';document.getElementById(`nti-${id}`)?.focus();} }
+function hideNoteForm(id) { const f=document.getElementById(`nf-${id}`);if(f)f.style.display='none'; }
+function saveInlineNote(id) {
+  const title=document.getElementById(`nti-${id}`)?.value.trim(), body=document.getElementById(`nta-${id}`)?.value.trim();
+  if(!title)return;
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  item.notes.unshift({id:'n'+Date.now(),title,body:body||'',date:new Date().toLocaleDateString('pl'),atts:[]});
+  persist(); S.expanded[id]=true; renderRoadmap(document.getElementById('content'));
+}
+function saveLinkToItem(id) {
+  const name=document.getElementById(`att-ln-${id}-rm`)?.value.trim(), url=document.getElementById(`att-lu-${id}-rm`)?.value.trim();
+  if(!url)return;
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  item.atts.push({id:'a'+Date.now(),type:'link',name:name||url,url,dataUrl:''});
+  document.getElementById(`att-lf-${id}-rm`).style.display='none';
+  persist(); S.expanded[id]=true; renderRoadmap(document.getElementById('content'));
+}
+function handleItemFiles(id, input) {
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  const files=Array.from(input.files);let p=files.length;
+  files.forEach(f=>{
+    const isImg=f.type.startsWith('image/');
+    const att={id:'a'+Date.now()+Math.random(),type:isImg?'img':'file',name:f.name,dataUrl:'',url:''};
+    if(isImg){const r=new FileReader();r.onload=e=>{att.dataUrl=e.target.result;item.atts.push(att);persist();if(--p===0){S.expanded[id]=true;renderRoadmap(document.getElementById('content'));}};r.readAsDataURL(f);}
+    else{item.atts.push(att);persist();if(--p===0){S.expanded[id]=true;renderRoadmap(document.getElementById('content'));}}
+  });input.value='';
+}
+S.items.forEach(item=>{window[`delItemAtt_${item.id}`]=function(aid){item.atts=item.atts.filter(a=>a.id!==aid);persist();S.expanded[item.id]=true;renderRoadmap(document.getElementById('content'));};});
+
+// ── TASK DETAIL ──
+function renderTaskDetail(c, id) {
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  const proj=S.projects.find(p=>p.id===item.pid);
+  setBc([{label:'Roadmapa',fn:"go('roadmap')"},{label:item.name}]);
+  const dn=item.tasks.filter(t=>t.done).length;
+  c.innerHTML=`
+    <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;padding-bottom:16px;border-bottom:0.5px solid var(--border-tertiary)">
+      <div style="width:38px;height:38px;border-radius:var(--border-radius-md);background:${proj?proj.color+'20':'var(--bg-secondary)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <div style="width:12px;height:12px;border-radius:50%;background:${proj?proj.color:'var(--acc)'}"></div>
+      </div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <div style="font-weight:700;font-size:18px">${item.name}</div>
+          <span class="pill ${SC[item.status]}">${SL[item.status]}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-tertiary)">${proj?proj.name:''} · ${item.q}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:20px">
+      ${[['Zadania',`${dn}/${item.tasks.length}`],['Notatki',item.notes.length],['Wskaźniki',(item.kpis||[]).length],['Załączniki',item.atts.length]].map(([l,v])=>`
+        <div style="background:var(--bg-secondary);border-radius:var(--border-radius-md);padding:12px 14px">
+          <div style="font-size:11px;color:var(--text-tertiary);margin-bottom:3px">${l}</div>
+          <div style="font-size:18px;font-weight:700">${v}</div>
+        </div>`).join('')}
+    </div>
+
+    <div class="td-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="td-sec-title" style="color:#0F6E56">Opis Product Ownera</div>
+        <button class="btn xs" onclick="editPODesc('${item.id}')">Edytuj</button>
+      </div>
+      <div id="po-view-${item.id}" style="background:var(--bg-secondary);border-radius:var(--border-radius-md);padding:12px 14px;font-size:13px;color:var(--text-secondary);line-height:1.65;border-left:3px solid #1D9E75">
+        ${item.poDesc||`<span style="color:var(--text-tertiary);font-style:italic">Brak opisu PO. Kliknij "Edytuj" aby dodać.</span>`}
+      </div>
+      <div id="po-edit-${item.id}" style="display:none;margin-top:8px">
+        <textarea class="ta" id="po-ta-${item.id}" rows="5" style="margin-bottom:8px">${item.poDesc||''}</textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn xs" onclick="cancelPOEdit('${item.id}')">Anuluj</button>
+          <button class="btn xs pri" onclick="savePODesc('${item.id}')">Zapisz</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="td-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="td-sec-title" style="color:#854F0B">Wskaźniki sukcesu</div>
+        <button class="btn xs" onclick="showKPIForm('${item.id}')">+ KPI</button>
+      </div>
+      <div id="kpi-list-${item.id}">
+        ${(item.kpis||[]).length ? kpiListHTML(item) : `<div class="empty-msg">Brak wskaźników.</div>`}
+      </div>
+      <div id="kpi-form-${item.id}" style="display:none">
+        <div class="inline-area">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div class="fg"><label class="fl">Nazwa wskaźnika</label><input class="fi" id="kn-${item.id}" placeholder="np. Czas onboardingu"></div>
+            <div class="fg"><label class="fl">Cel</label><input class="fi" id="kt-${item.id}" placeholder="np. < 3 min"></div>
+          </div>
+          <div class="fg"><label class="fl">Obecna wartość</label><input class="fi" id="kc-${item.id}" placeholder="np. 7 min" style="width:50%"></div>
+          <div class="fg"><label class="fl">Linki do źródeł / plików</label>
+            <div id="kpi-links-pending-${item.id}" class="att-grid" style="margin-bottom:8px"></div>
+            <div class="link-row">
+              <input class="fi-sm" id="kl-n-${item.id}" placeholder="Nazwa linku">
+              <input class="fi-sm" id="kl-u-${item.id}" placeholder="https://...">
+              <button class="btn xs" onclick="addKPILink('${item.id}')">+ Link</button>
+            </div>
+            <div style="margin-top:8px">
+              <input type="file" id="kl-fi-${item.id}" style="display:none" multiple onchange="addKPIFile('${item.id}',this)">
+              <button class="att-btn" onclick="document.getElementById('kl-fi-${item.id}').click()">📎 Wgraj plik</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button class="btn xs" onclick="document.getElementById('kpi-form-${item.id}').style.display='none'">Anuluj</button>
+            <button class="btn xs pri" onclick="saveKPI('${item.id}')">Zapisz wskaźnik</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="td-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="td-sec-title">Zadania (${item.tasks.length})</div>
+        <button class="btn xs" onclick="showDetTaskForm('${item.id}')">+ Dodaj</button>
+      </div>
+      <div style="background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--border-radius-lg);padding:2px 14px" id="dtl-${item.id}">
+        ${item.tasks.map(t=>detTaskRowHTML(t,item.id)).join('')||`<div style="font-size:12px;color:var(--text-tertiary);padding:12px 0">Brak zadań.</div>`}
+      </div>
+      <div id="dtf-${item.id}" style="display:none;margin-top:8px">
+        <div style="display:flex;gap:6px;align-items:center">
+          <input class="fi-sm" id="dti-${item.id}" placeholder="Nowe zadanie..." onkeydown="if(event.key==='Enter')saveDetTask('${item.id}')">
+          <input class="fi-due" id="dtd-${item.id}" placeholder="Termin">
+          <button class="btn xs pri" onclick="saveDetTask('${item.id}')">OK</button>
+          <button class="btn xs" onclick="document.getElementById('dtf-${item.id}').style.display='none'">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="td-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="td-sec-title">Notatki (${item.notes.length})</div>
+        <button class="btn xs" onclick="showDetNoteForm('${item.id}')">+ Dodaj</button>
+      </div>
+      ${item.notes.map(n=>`
+        <div style="background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-left:3px solid ${proj?proj.color:'var(--acc)'};border-radius:var(--border-radius-lg);padding:12px 15px;margin-bottom:8px;cursor:pointer" onclick="go('note-detail',{id:'${n.id}',iid:'${item.id}'})">
+          <div style="font-weight:600;font-size:13px;margin-bottom:3px">${n.title}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5">${n.body}</div>
+          <div style="font-size:11px;color:var(--text-tertiary);margin-top:6px">${n.date}</div>
+        </div>`).join('')}
+      ${!item.notes.length?`<div class="empty-msg">Brak notatek.</div>`:''}
+      <div id="dnf-${item.id}" style="display:none"><div class="inline-area">
+        <div class="fg"><input class="fi" id="dnti-${item.id}" placeholder="Tytuł notatki..."></div>
+        <div class="fg"><textarea class="ta" id="dnta-${item.id}" placeholder="Treść..." rows="3"></textarea></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn xs" onclick="document.getElementById('dnf-${item.id}').style.display='none'">Anuluj</button>
+          <button class="btn xs pri" onclick="saveDetNote('${item.id}')">Zapisz</button>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="td-section">
+      <div class="td-sec-title" style="margin-bottom:10px">Załączniki</div>
+      ${attToolbar(item.id,'det')}
+      <div id="att-lf-${item.id}-det" style="display:none" class="link-row">
+        <input class="fi-sm" id="att-ln-${item.id}-det" placeholder="Nazwa"><input class="fi-sm" id="att-lu-${item.id}-det" placeholder="https://...">
+        <button class="btn xs pri" onclick="saveLinkDet('${item.id}')">Dodaj</button>
+        <button class="btn xs" onclick="document.getElementById('att-lf-${item.id}-det').style.display='none'">✕</button>
+      </div>
+      <input type="file" id="att-fi-${item.id}-det" style="display:none" multiple onchange="handleDetFiles('${item.id}',this)">
+      <input type="file" id="att-img-${item.id}-det" style="display:none" accept="image/*" multiple onchange="handleDetFiles('${item.id}',this)">
+      <div class="att-grid" id="att-grid-${item.id}-det">${item.atts.map(a=>attChipHTML(a,`delDetAtt_${item.id}`)).join('')}</div>
+    </div>`;
+
+  window[`delDetAtt_${item.id}`] = function(aid){item.atts=item.atts.filter(a=>a.id!==aid);persist();renderTaskDetail(document.getElementById('content'),item.id);};
+}
+
+function kpiListHTML(item) {
+  return `<div style="background:var(--bg-primary);border:0.5px solid var(--border-tertiary);border-radius:var(--border-radius-lg);padding:2px 14px">
+    ${item.kpis.map(k=>`<div class="kpi-row">
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">${k.name}</div>${(k.links||[]).length?`<div class="att-grid" style="margin-top:5px">${(k.links||[]).map(l=>attChipHTML(l,null)).join('')}</div>`:''}</div>
+      <div style="text-align:right;flex-shrink:0;min-width:90px">
+        <div style="font-size:11px;color:var(--text-tertiary)">cel: <strong>${k.target}</strong></div>
+        <div style="font-size:14px;font-weight:700;color:#1D9E75">${k.current}</div>
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function showKPIForm(id){const f=document.getElementById(`kpi-form-${id}`);if(f){f.style.display='block';document.getElementById(`kn-${id}`)?.focus();}S.kpiPendingLinks[id]=[];}
+function addKPILink(id){
+  const name=document.getElementById(`kl-n-${id}`)?.value.trim(),url=document.getElementById(`kl-u-${id}`)?.value.trim();
+  if(!url)return;
+  S.kpiPendingLinks[id]=S.kpiPendingLinks[id]||[];
+  S.kpiPendingLinks[id].push({id:'kl'+Date.now(),type:'link',name:name||url,url,dataUrl:''});
+  document.getElementById(`kl-n-${id}`).value='';document.getElementById(`kl-u-${id}`).value='';
+  refreshKPILinks(id);
+}
+function addKPIFile(id,input){
+  const files=Array.from(input.files);let p=files.length;S.kpiPendingLinks[id]=S.kpiPendingLinks[id]||[];
+  files.forEach(f=>{const att={id:'kl'+Date.now()+Math.random(),type:f.type.startsWith('image/')?'img':'file',name:f.name,dataUrl:'',url:''};S.kpiPendingLinks[id].push(att);if(--p===0)refreshKPILinks(id);});input.value='';
+}
+function refreshKPILinks(id){const el=document.getElementById(`kpi-links-pending-${id}`);if(el)el.innerHTML=(S.kpiPendingLinks[id]||[]).map(l=>attChipHTML(l,null)).join('');}
+function saveKPI(id){
+  const name=document.getElementById(`kn-${id}`)?.value.trim(),target=document.getElementById(`kt-${id}`)?.value.trim(),current=document.getElementById(`kc-${id}`)?.value.trim();
+  if(!name)return;
+  const item=S.items.find(x=>x.id===id);if(!item)return;
+  item.kpis=item.kpis||[];item.kpis.push({id:'k'+Date.now(),name,target:target||'—',current:current||'—',links:[...(S.kpiPendingLinks[id]||[])]});
+  delete S.kpiPendingLinks[id];persist();renderTaskDetail(document.getElementById('content'),id);
+}
+function editPODesc(id){document.getElementById(`po-view-${id}`).style.display='none';document.getElementById(`po-edit-${id}`).style.display='block';}
+function cancelPOEdit(id){document.getElementById(`po-view-${id}`).style.display='block';document.getElementById(`po-edit-${id}`).style.display='none';}
+function savePODesc(id){const item=S.items.find(x=>x.id===id);if(!item)return;item.poDesc=document.getElementById(`po-ta-${id}`)?.value.trim()||'';persist();renderTaskDetail(document.getElementById('content'),id);}
+function detTaskRowHTML(t,iid){return`<div style="display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:0.5px solid var(--border-tertiary)"><div class="cb ${t.done?'dn':''}" onclick="togDetTask('${t.id}','${iid}')">${t.done?'✓':''}</div><span style="flex:1;font-size:13px;${t.done?'text-decoration:line-through;color:var(--text-tertiary)':''}">${t.text}</span><span style="font-size:11px;color:var(--text-tertiary)">${t.due||''}</span></div>`;}
+function togDetTask(tid,iid){const item=S.items.find(x=>x.id===iid);if(!item)return;const t=item.tasks.find(x=>x.id===tid);if(t)t.done=!t.done;persist();updateBadges();const list=document.getElementById(`dtl-${iid}`);if(list)list.innerHTML=item.tasks.map(t=>detTaskRowHTML(t,iid)).join('')||`<div style="font-size:12px;color:var(--text-tertiary);padding:12px 0">Brak zadań.</div>`;}
+function showDetTaskForm(id){const f=document.getElementById(`dtf-${id}`);if(f){f.style.display='block';document.getElementById(`dti-${id}`)?.focus();}}
+function saveDetTask(id){const txt=document.getElementById(`dti-${id}`)?.value.trim(),due=document.getElementById(`dtd-${id}`)?.value.trim();if(!txt)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.tasks.push({id:'t'+Date.now(),text:txt,done:false,due:due||''});persist();updateBadges();renderTaskDetail(document.getElementById('content'),id);}
+function showDetNoteForm(id){const f=document.getElementById(`dnf-${id}`);if(f){f.style.display='block';document.getElementById(`dnti-${id}`)?.focus();}}
+function saveDetNote(id){const title=document.getElementById(`dnti-${id}`)?.value.trim(),body=document.getElementById(`dnta-${id}`)?.value.trim();if(!title)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.notes.unshift({id:'n'+Date.now(),title,body:body||'',date:new Date().toLocaleDateString('pl'),atts:[]});persist();renderTaskDetail(document.getElementById('content'),id);}
+function saveLinkDet(id){const name=document.getElementById(`att-ln-${id}-det`)?.value.trim(),url=document.getElementById(`att-lu-${id}-det`)?.value.trim();if(!url)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.atts.push({id:'a'+Date.now(),type:'link',name:name||url,url,dataUrl:''});document.getElementById(`att-lf-${id}-det`).style.display='none';persist();renderTaskDetail(document.getElementById('content'),id);}
+function handleDetFiles(id,input){const item=S.items.find(x=>x.id===id);if(!item)return;const files=Array.from(input.files);let p=files.length;files.forEach(f=>{const isImg=f.type.startsWith('image/');const att={id:'a'+Date.now()+Math.random(),type:isImg?'img':'file',name:f.name,dataUrl:'',url:''};if(isImg){const r=new FileReader();r.onload=e=>{att.dataUrl=e.target.result;item.atts.push(att);persist();if(--p===0)renderTaskDetail(document.getElementById('content'),id);};r.readAsDataURL(f);}else{item.atts.push(att);persist();if(--p===0)renderTaskDetail(document.getElementById('content'),id);}});input.value='';}
+
+// ── NOTE DETAIL ──
+function renderNoteDetail(c,id,iid){
+  const item=S.items.find(x=>x.id===iid);const n=(item?.notes||[]).find(x=>x.id===id);if(!n)return;
+  const proj=item?S.projects.find(p=>p.id===item.pid):null;
+  setBc([{label:'Roadmapa',fn:"go('roadmap')"},{label:item?item.name:'',fn:`go('task-detail',{id:'${iid}'})`},{label:n.title}]);
+  c.innerHTML=`<div class="card"><div style="display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 10px;border-radius:8px;margin-bottom:14px;background:${proj?proj.color+'20':'var(--acc-l)'};color:${proj?proj.color:'var(--acc)'}"><div style="width:7px;height:7px;border-radius:50%;background:${proj?proj.color:'var(--acc)'}"></div>${item?item.name:''}</div>
+    <div style="font-weight:700;font-size:18px;margin-bottom:6px">${n.title}</div>
+    <div style="font-size:12px;color:var(--text-tertiary);margin-bottom:16px">${n.date}</div>
+    <div style="font-size:14px;color:var(--text-secondary);line-height:1.7">${n.body}</div>
+    <div style="display:flex;gap:8px;margin-top:20px"><button class="btn xs">Edytuj</button><button class="btn xs" style="color:var(--color-text-danger)">Usuń</button></div>
+  </div>`;
+}
+
+// ── MODALS ──
+let moMode='';
+function openAddProject(){
+  moMode='proj';document.getElementById('mo-title').textContent='Nowy projekt';
+  document.getElementById('mo-body').innerHTML=`<div class="fg"><label class="fl">Nazwa projektu</label><input class="fi" id="mo-pname" placeholder="np. Platform Redesign"></div>
+    <div class="fg"><label class="fl">Kolor</label><div style="display:flex;gap:8px;flex-wrap:wrap" id="cp">
+      ${['#5B4CF5','#EF9F27','#1D9E75','#D4537E','#378ADD','#EF4444','#888780'].map(c=>`<div onclick="selColor('${c}')" id="cp${c.slice(1)}" style="width:26px;height:26px;border-radius:50%;background:${c};cursor:pointer;border:2px solid transparent;transition:border-color .15s"></div>`).join('')}
+    </div></div>`;
+  window._sc='#5B4CF5';setTimeout(()=>{const el=document.getElementById('cp5B4CF5');if(el)el.style.borderColor='var(--text-primary)';},50);
+  document.getElementById('mo').classList.add('open');
+}
+function selColor(c){window._sc=c;document.querySelectorAll('#cp div').forEach(d=>d.style.borderColor='transparent');const el=document.getElementById('cp'+c.slice(1));if(el)el.style.borderColor='var(--text-primary)';}
+function openAddItem(){
+  moMode='item';document.getElementById('mo-title').textContent='Nowy element roadmapy';
+  document.getElementById('mo-body').innerHTML=`
+    <div class="fg"><label class="fl">Projekt</label><select class="fs" id="mo-pid">${S.projects.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">Nazwa</label><input class="fi" id="mo-name" placeholder="np. Redesign ustawień"></div>
+    <div class="fg"><label class="fl">Kwartał</label><select class="fs" id="mo-q">${QUARTERS.map(q=>`<option${q==='Q2 2025'?' selected':''}>${q}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">Status</label><select class="fs" id="mo-s"><option value="planning">Planowanie</option><option value="progress">W toku</option><option value="review">Review</option><option value="done">Ukończony</option></select></div>
+    <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" placeholder="Cel, kontekst biznesowy..." rows="3"></textarea></div>`;
+  document.getElementById('mo').classList.add('open');
+}
+function closeMo(){document.getElementById('mo').classList.remove('open');}
+function saveMo(){
+  if(moMode==='proj'){const name=document.getElementById('mo-pname')?.value.trim();if(!name)return;const id='p'+Date.now();S.projects.push({id,name,color:window._sc||'#5B4CF5'});S.curProj=id;}
+  else if(moMode==='item'){const name=document.getElementById('mo-name')?.value.trim();if(!name)return;const id='i'+Date.now();S.items.push({id,pid:document.getElementById('mo-pid')?.value,q:document.getElementById('mo-q')?.value,name,status:document.getElementById('mo-s')?.value||'planning',poDesc:document.getElementById('mo-po')?.value.trim()||'',kpis:[],tasks:[],notes:[],atts:[]});S.curProj=document.getElementById('mo-pid')?.value;S.expanded[id]=false;}
+  closeMo();persist();renderRoadmap(document.getElementById('content'));
+}
+document.getElementById('mo').addEventListener('click',function(e){if(e.target===this)closeMo();});
+
+updateBadges();
+render('roadmap',{});
+</script>
+</body>
+</html>
