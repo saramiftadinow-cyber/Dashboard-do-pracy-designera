@@ -1196,26 +1196,25 @@ function rmBodyHTML(item,projColor){
 }
 function taskRowHTML(t,iid){return`<div class="task-row"><div class="cb ${t.done?'dn':''}" onclick="togTask('${t.id}','${iid}')">${t.done?'✓':''}</div><span style="flex:1;font-size:13px;line-height:1.4;${t.done?'text-decoration:line-through;color:var(--t3)':''}">${t.text}</span><span style="font-size:11px;color:var(--t3)">${t.due||''}</span></div>`;}
 function noteChipHTML(n,iid){
-  const preview=n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,'').slice(0,120):(n.body||'');
-  const safeTitle=n.title.replace(/`/g,"'").replace(/\\/g,'');
-  const safeIid=(iid||'').replace(/`/g,"'");
-  return`<div class="note-chip" id="nchip-${n.id}">
-    <div class="note-chip-view" onclick="toggleChipEdit('${n.id}','${safeIid}')">
+  const preview=(n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,''):(n.body||'')).slice(0,120);
+  const eid='nchip-'+n.id;
+  return`<div class="note-chip" id="${eid}" data-nid="${n.id}" data-iid="${iid||''}">
+    <div class="note-chip-view" onclick="chipClick(this)">
       <div style="flex:1;min-width:0">
         <div class="note-chip-title">${n.title}</div>
         <div class="note-chip-body">${preview||'Kliknij aby edytować…'}</div>
         <div style="font-size:10px;color:var(--t3);margin-top:4px">${n.date}</div>
       </div>
       <div class="note-chip-actions">
-        <span class="note-chip-action-btn" onclick="event.stopPropagation();goDetail('note-detail',{id:'${n.id}',title:'${safeTitle}'})">↗</span>
+        <span class="note-chip-action-btn" onclick="event.stopPropagation();chipOpen(this)">↗</span>
       </div>
     </div>
-    <div id="nchip-edit-${n.id}" style="display:none;flex-direction:column;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--b3)">
-      <input class="fi" id="nchip-t-${n.id}" value="${n.title.replace(/"/g,'&quot;')}" style="font-size:13px;font-weight:600" placeholder="Tytuł notatki...">
-      <textarea class="ta" id="nchip-b-${n.id}" rows="3" style="font-size:13px;line-height:1.6" placeholder="Treść...">${n.body||''}</textarea>
+    <div class="nchip-editor" style="display:none;flex-direction:column;gap:8px;padding:0 13px 13px">
+      <input class="fi nchip-t" style="font-size:13px;font-weight:600" placeholder="Tytuł notatki..." value="${n.title.replace(/"/g,'&quot;')}">
+      <textarea class="ta nchip-b" rows="3" style="font-size:13px;line-height:1.6" placeholder="Treść...">${n.body||''}</textarea>
       <div style="display:flex;gap:6px;justify-content:flex-end">
-        <button class="btn xs" onclick="event.stopPropagation();cancelChipEdit('${n.id}')">Anuluj</button>
-        <button class="btn xs pri" onclick="event.stopPropagation();saveChipEdit('${n.id}','${safeIid}')">Zapisz</button>
+        <button class="btn xs" onclick="event.stopPropagation();chipCancel(this)">Anuluj</button>
+        <button class="btn xs pri" onclick="event.stopPropagation();chipSave(this)">Zapisz</button>
       </div>
     </div>
   </div>`;
@@ -1488,37 +1487,47 @@ function openAddGlobalTask(){
 function openEditNote(id){enterNoteEdit(id);}
 
 // ─── QUICK NOTE EDIT ───
-function toggleChipEdit(nid, iid){
-  const editor=document.getElementById('nchip-edit-'+nid);
+function getChip(el){
+  let n=el;
+  while(n&&!n.classList?.contains('note-chip'))n=n.parentNode;
+  return n;
+}
+function chipClick(viewEl){
+  const chip=getChip(viewEl);
+  if(!chip)return;
+  const editor=chip.querySelector('.nchip-editor');
   if(!editor)return;
   const isOpen=editor.style.display==='flex';
-  if(isOpen){
-    editor.style.display='none';
-  } else {
-    // Populate with latest data before showing
-    const gn=S.allNotes.find(x=>x.id===nid);
-    if(gn){
-      const ti=document.getElementById('nchip-t-'+nid);
-      const bi=document.getElementById('nchip-b-'+nid);
-      if(ti)ti.value=gn.title;
-      if(bi)bi.value=gn.body||'';
-    }
-    editor.style.display='flex';
-    editor.style.flexDirection='column';
-    editor.style.padding='0 13px 13px';
-    setTimeout(()=>{
-      const bi=document.getElementById('nchip-b-'+nid);
-      if(bi){bi.focus();bi.setSelectionRange(bi.value.length,bi.value.length);}
-    },30);
+  if(isOpen)return;
+  // populate
+  const nid=chip.dataset.nid;
+  const gn=S.allNotes.find(x=>x.id===nid);
+  if(gn){
+    const ti=chip.querySelector('.nchip-t');
+    const bi=chip.querySelector('.nchip-b');
+    if(ti)ti.value=gn.title;
+    if(bi)bi.value=gn.body||'';
   }
+  editor.style.display='flex';
+  editor.style.flexDirection='column';
+  editor.style.borderTop='1px solid var(--b3)';
+  editor.style.paddingTop='10px';
+  editor.style.marginTop='4px';
+  setTimeout(()=>{const bi=chip.querySelector('.nchip-b');if(bi){bi.focus();bi.setSelectionRange(9999,9999);}},30);
 }
-function cancelChipEdit(nid){
-  const editor=document.getElementById('nchip-edit-'+nid);
+function chipCancel(btn){
+  const chip=getChip(btn);
+  if(!chip)return;
+  const editor=chip.querySelector('.nchip-editor');
   if(editor)editor.style.display='none';
 }
-function saveChipEdit(nid, iid){
-  const title=document.getElementById('nchip-t-'+nid)?.value.trim();
-  const body=document.getElementById('nchip-b-'+nid)?.value.trim();
+function chipSave(btn){
+  const chip=getChip(btn);
+  if(!chip)return;
+  const nid=chip.dataset.nid;
+  const iid=chip.dataset.iid;
+  const title=chip.querySelector('.nchip-t')?.value.trim();
+  const body=chip.querySelector('.nchip-b')?.value.trim();
   if(!title)return;
   const gn=S.allNotes.find(x=>x.id===nid);
   if(gn){gn.title=title;gn.body=body||'';gn.bodyHtml='';}
@@ -1527,38 +1536,28 @@ function saveChipEdit(nid, iid){
     if(item){const n=item.notes.find(x=>x.id===nid);if(n){n.title=title;n.body=body||'';n.bodyHtml='';}}
   }
   persist();
-  const chip=document.getElementById('nchip-'+nid);
-  if(chip){
-    const srcNote=iid
-      ? S.items.find(x=>x.id===iid)?.notes.find(x=>x.id===nid)
-      : S.allNotes.find(x=>x.id===nid);
-    if(srcNote){
-      const tmp=document.createElement('div');
-      tmp.innerHTML=noteChipHTML(srcNote,iid||'');
-      const newChip=tmp.firstChild;
-      chip.replaceWith(newChip);
-      // attach hover listeners
-      attachChipHover(nid);
-    }
+  // Update view in place
+  const view=chip.querySelector('.note-chip-view');
+  if(view){
+    const t=view.querySelector('.note-chip-title');
+    const b=view.querySelector('.note-chip-body');
+    if(t)t.textContent=title;
+    if(b)b.textContent=(body||'').slice(0,120)||'Kliknij aby edytować…';
   }
+  const editor=chip.querySelector('.nchip-editor');
+  if(editor)editor.style.display='none';
 }
-
-function attachChipHover(nid){
-  const chip=document.getElementById('nchip-'+nid);
+function chipOpen(btn){
+  const chip=getChip(btn);
   if(!chip)return;
-  chip.addEventListener('mouseenter',()=>{
-    const b=document.getElementById('nchip-btn-'+nid);
-    const o=document.getElementById('nchip-open-'+nid);
-    if(b)b.style.opacity='1';
-    if(o)o.style.opacity='1';
-  });
-  chip.addEventListener('mouseleave',()=>{
-    const b=document.getElementById('nchip-btn-'+nid);
-    const o=document.getElementById('nchip-open-'+nid);
-    if(b)b.style.opacity='0';
-    if(o)o.style.opacity='0';
-  });
+  const nid=chip.dataset.nid;
+  const gn=S.allNotes.find(x=>x.id===nid);
+  if(gn)goDetail('note-detail',{id:nid,title:gn.title});
 }
+// legacy aliases (keep for backwards compat)
+function toggleChipEdit(nid,iid){const c=document.getElementById('nchip-'+nid);if(c)chipClick(c.querySelector('.note-chip-view'));}
+function cancelChipEdit(nid){const c=document.getElementById('nchip-'+nid);if(c)chipCancel(c);}
+function saveChipEdit(nid,iid){const c=document.getElementById('nchip-'+nid);if(c)chipSave(c);}
 
 // ─── RICH EDITOR HELPERS ───
 function richToolbarHTML(tid){
