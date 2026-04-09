@@ -108,7 +108,7 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 /* PROJECT TABS */
-.proj-tabs{display:flex;border-bottom:.5px solid var(--b3);overflow-x:auto;flex-shrink:0}
+.proj-tabs{display:flex;border-bottom:.5px solid var(--b3);overflow:visible;flex-shrink:0;flex-wrap:wrap}
 .ptab{padding:9px 16px;cursor:pointer;font-size:13px;color:var(--t2);border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:7px;position:relative}
 .ptab:hover{color:var(--t1)}
 .ptab.act{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}
@@ -122,8 +122,8 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .q-section{margin-bottom:20px}
 .q-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:7px;border-bottom:.5px solid var(--b3)}
 .q-title{font-weight:700;font-size:14px;color:var(--t1);letter-spacing:.02em}
-.rm-card{background:var(--bg0);border:1px solid var(--b3);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:all .18s}
-.rm-card:hover{border-color:var(--b2)}
+.rm-card{background:var(--bg0);border:1px solid var(--b3);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.rm-card:hover{border-color:var(--b2)} .rm-body{border-top:1px solid var(--b3)}
 .rm-card-hd{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;cursor:pointer;user-select:none}
 .rm-icon{width:22px;height:22px;border-radius:6px;flex-shrink:0;margin-top:1px;background:var(--acc-l);display:flex;align-items:center;justify-content:center}
 .rm-name{font-weight:700;font-size:16px;flex:1;min-width:0;line-height:1.35}
@@ -142,10 +142,10 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 
 /* CARD BODY */
 .rm-body{border-top:.5px solid var(--b3)}
-.rm-sec{padding:12px 16px;border-bottom:.5px solid var(--b3)}
+.rm-sec{padding:14px 18px;border-bottom:1px solid var(--b3)}
 .rm-sec:last-child{border-bottom:none}
-.rm-sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
-.rm-sec-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em}
+.rm-sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.rm-sec-label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.1em}
 
 /* TASKS */
 .task-row{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:.5px solid var(--b3)}
@@ -1085,18 +1085,19 @@ function openEditItem(id){
 function rmBodyHTML(item,projColor){
   const tasks=item.tasks,notes=item.notes,atts=item.atts||[];
   return`<div class="rm-body">
-    ${item.poDesc?`<div class="rm-sec"><div class="rm-sec-hd"><span class="rm-sec-label" style="color:#0F6E56">Opis PO</span></div><div style="font-size:12px;color:var(--t2);line-height:1.65">${item.poDesc}</div></div>`:''}
-    ${item.myDesc?`<div class="rm-sec"><div class="rm-sec-hd"><span class="rm-sec-label" style="color:#534AB7">Mój opis</span></div><div style="font-size:12px;color:var(--t2);line-height:1.65">${item.myDesc}</div></div>`:''}
-    ${item.kpis&&item.kpis.length?`<div class="rm-sec"><div class="rm-sec-hd"><span class="rm-sec-label" style="color:#854F0B">Wskaźniki</span></div>
-      ${item.kpis.map(k=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:.5px solid var(--b3)">
-        <span style="font-size:12px;font-weight:600">${k.name}</span>
-        <span style="font-size:11px;color:#1D9E75;font-weight:600">${k.current} <span style="color:var(--t3)">/ ${k.target}</span></span>
-      </div>`).join('')}
+    ${item.poDesc||item.myDesc?`<div class="rm-sec" style="display:grid;grid-template-columns:${item.poDesc&&item.myDesc?'1fr 1fr':'1fr'};gap:16px;background:var(--bg1)">
+      ${item.poDesc?`<div><div class="rm-sec-label" style="color:#0F6E56;margin-bottom:6px">Opis PO</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${item.poDesc}</div></div>`:''}
+      ${item.myDesc?`<div><div class="rm-sec-label" style="color:#534AB7;margin-bottom:6px">Mój opis</div><div style="font-size:12px;color:var(--t2);line-height:1.6">${item.myDesc}</div></div>`:''}
     </div>`:''}
     <div class="rm-sec">
-      <div class="rm-sec-hd"><span class="rm-sec-label">Zadania (${tasks.length})</span><button class="btn xs" onclick="showInlineTaskForm('${item.id}')">+ Dodaj</button></div>
-      <div id="tl-${item.id}">${tasks.map(t=>taskRowHTML(t,item.id)).join('')||`<div style="font-size:12px;color:var(--t3);padding:4px 0">Brak zadań.</div>`}</div>
-      <div id="tf-${item.id}" style="display:none;padding-top:8px">
+      <div class="rm-sec-hd">
+        <span class="rm-sec-label">Zadania${tasks.length?` (${tasks.length})`:''}  <span style="font-size:10px;font-weight:400;color:var(--t3)">${tasks.filter(t=>t.done).length}/${tasks.length} ukończone</span></span>
+        <button class="btn xs" onclick="showInlineTaskForm('${item.id}')">+ Dodaj</button>
+      </div>
+      <div id="tl-${item.id}" style="display:flex;flex-direction:column;gap:2px">
+        ${tasks.map(t=>taskRowHTML(t,item.id)).join('')||`<div style="font-size:12px;color:var(--t3);padding:4px 0">Brak zadań.</div>`}
+      </div>
+      <div id="tf-${item.id}" style="display:none;padding-top:10px">
         <div style="display:flex;gap:6px;align-items:center">
           <input class="fi-sm" id="ti-${item.id}" placeholder="Nowe zadanie..." onkeydown="if(event.key==='Enter')saveInlineTask('${item.id}')">
           <input class="fi-due" id="td-${item.id}" placeholder="Termin">
@@ -1106,9 +1107,14 @@ function rmBodyHTML(item,projColor){
       </div>
     </div>
     <div class="rm-sec">
-      <div class="rm-sec-hd"><span class="rm-sec-label">Notatki (${notes.length})</span><button class="btn xs" onclick="showInlineNoteForm('${item.id}')">+ Dodaj</button></div>
-      <div id="nl-${item.id}">${notes.map(n=>noteChipHTML(n,item.id)).join('')||`<div style="font-size:12px;color:var(--t3);padding:4px 0">Brak notatek.</div>`}</div>
-      <div id="nf-${item.id}" style="display:none"><div class="inline-area" style="margin-top:6px">
+      <div class="rm-sec-hd">
+        <span class="rm-sec-label">Notatki${notes.length?` (${notes.length})`:''}</span>
+        <button class="btn xs" onclick="showInlineNoteForm('${item.id}')">+ Dodaj</button>
+      </div>
+      <div id="nl-${item.id}" style="display:flex;flex-direction:column;gap:6px">
+        ${notes.map(n=>noteChipHTML(n,item.id)).join('')||`<div style="font-size:12px;color:var(--t3);padding:4px 0">Brak notatek.</div>`}
+      </div>
+      <div id="nf-${item.id}" style="display:none;margin-top:8px"><div class="inline-area">
         <div class="fg"><input class="fi" id="nti-${item.id}" placeholder="Tytuł notatki..."></div>
         <div class="fg"><textarea class="ta" id="nta-${item.id}" placeholder="Treść..." rows="3"></textarea></div>
         <div style="display:flex;gap:6px;justify-content:flex-end">
@@ -1117,8 +1123,8 @@ function rmBodyHTML(item,projColor){
         </div>
       </div></div>
     </div>
-    <div class="rm-sec">
-      <div class="rm-sec-hd"><span class="rm-sec-label">Załączniki (${atts.length})</span></div>
+    ${atts.length||true?`<div class="rm-sec" style="background:var(--bg1)">
+      <div class="rm-sec-hd"><span class="rm-sec-label">Załączniki${atts.length?` (${atts.length})`:''}</span></div>
       ${attToolbar(item.id,'rm')}
       <div id="att-lf-${item.id}-rm" style="display:none" class="link-row">
         <input class="fi-sm" id="att-ln-${item.id}-rm" placeholder="Nazwa"><input class="fi-sm" id="att-lu-${item.id}-rm" placeholder="https://...">
@@ -1128,11 +1134,11 @@ function rmBodyHTML(item,projColor){
       <input type="file" id="att-fi-${item.id}-rm" style="display:none" multiple onchange="handleItemFiles('${item.id}',this)">
       <input type="file" id="att-img-${item.id}-rm" style="display:none" accept="image/*" multiple onchange="handleItemFiles('${item.id}',this)">
       <div class="att-grid" id="att-grid-${item.id}-rm">${atts.map(a=>attChipHTML(a,`delItemAtt_${item.id}`)).join('')}</div>
-    </div>
+    </div>`:``}
   </div>`;
 }
 function taskRowHTML(t,iid){return`<div class="task-row"><div class="cb ${t.done?'dn':''}" onclick="togTask('${t.id}','${iid}')">${t.done?'✓':''}</div><span style="flex:1;font-size:13px;line-height:1.4;${t.done?'text-decoration:line-through;color:var(--t3)':''}">${t.text}</span><span style="font-size:11px;color:var(--t3)">${t.due||''}</span></div>`;}
-function noteChipHTML(n,iid){return`<div class="note-chip" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })"><div class="note-chip-title">${n.title}</div><div class="note-chip-body">${n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,'').slice(0,100):n.body}</div><div style="font-size:10px;color:var(--t3);margin-top:3px">${n.date}</div></div>`;}
+function noteChipHTML(n,iid){return`<div class="note-chip" style="border-left:2px solid var(--acc);border-radius:0 var(--r8) var(--r8) 0" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })"><div class="note-chip-title">${n.title}</div><div class="note-chip-body">${n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,'').slice(0,100):n.body}</div><div style="font-size:10px;color:var(--t3);margin-top:3px">${n.date}</div></div>`;}
 function attChipHTML(a,onDelFn){
   const typeMap={img:'ai-img',png:'ai-img',jpg:'ai-img',pdf:'ai-pdf',fig:'ai-fig',figma:'ai-fig',link:'ai-link',file:'ai-file'};
   const labelMap={img:'IMG',png:'IMG',jpg:'IMG',pdf:'PDF',fig:'FIG',figma:'FIG',link:'↗',file:'DOC'};
@@ -1142,7 +1148,25 @@ function attChipHTML(a,onDelFn){
   return`<div class="att-chip" ${a.url?`onclick="window.open('${a.url}','_blank')"`:''}>  <div class="att-icon ${ic}">${lb}</div><span class="att-name">${a.name}</span>${del}</div>`;
 }
 function attToolbar(id,ctx){return`<div class="att-toolbar"><button class="att-btn" onclick="$('att-fi-${id}-${ctx}').click()">📎 Plik</button><button class="att-btn" onclick="$('att-img-${id}-${ctx}').click()">🖼 Obraz</button><button class="att-btn" onclick="$('att-lf-${id}-${ctx}').style.display='flex'">🔗 Link</button></div>`;}
-function toggleRM(id){S.expanded[id]=!S.expanded[id];renderRoadmap($('content'));}
+function toggleRM(id){
+  S.expanded[id]=!S.expanded[id];
+  const card=document.getElementById('rmc-'+id);
+  const chev=document.getElementById('chev-'+id);
+  if(!card)return;
+  const existing=card.querySelector('.rm-body');
+  if(existing){
+    existing.remove();
+    if(chev)chev.classList.remove('open');
+  } else {
+    const item=S.items.find(x=>x.id===id);
+    const proj=S.projects.find(p=>p.id===item?.pid);
+    if(!item||!proj)return;
+    const div=document.createElement('div');
+    div.innerHTML=rmBodyHTML(item,proj.color);
+    card.appendChild(div.firstChild);
+    if(chev)chev.classList.add('open');
+  }
+}
 function showInlineTaskForm(id){const f=$(`tf-${id}`);if(f){f.style.display='block';$(`ti-${id}`)?.focus();}}
 function saveInlineTask(id){const txt=$(`ti-${id}`)?.value.trim(),due=$(`td-${id}`)?.value.trim();if(!txt)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.tasks.push({id:uid(),text:txt,done:false,due:due||''});persist();updateBadges();S.expanded[id]=true;renderRoadmap($('content'));}
 function togTask(tid,iid){const item=S.items.find(x=>x.id===iid);if(!item)return;const t=item.tasks.find(x=>x.id===tid);if(t)t.done=!t.done;persist();updateBadges();const list=$(`tl-${iid}`);if(list)list.innerHTML=item.tasks.map(t=>taskRowHTML(t,iid)).join('')||`<div style="font-size:12px;color:var(--t3);padding:4px 0">Brak zadań.</div>`;}
