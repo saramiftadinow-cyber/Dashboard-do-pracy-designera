@@ -36,7 +36,7 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .app{display:flex;height:100vh;overflow:hidden}
 .sb{width:196px;border-right:.5px solid var(--b3);padding:12px 0;display:flex;flex-direction:column;gap:1px;background:var(--bg1);flex-shrink:0;overflow-y:auto}
 .main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;position:relative}
-.tb{display:none}
+.tb{display:flex;padding:0 40px;height:40px;align-items:center;background:var(--bg0);border-bottom:.5px solid var(--b3);flex-shrink:0}
 .content{flex:1;padding:0;overflow-y:scroll}
 .content-inner{max-width:760px;margin:0 auto;padding:32px 40px}
 
@@ -51,11 +51,11 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .bdg{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:8px;background:var(--acc-l);color:var(--acc);font-weight:600}
 
 /* TOPBAR */
-.tb-left{display:none}
-.tb-title{display:none}
-.bc-sep{color:var(--t3);font-size:12px;display:none}
-.bc-link{font-size:12px;color:var(--acc);cursor:pointer}
-.bc-link:hover{text-decoration:underline}
+.tb-left{flex:1;display:flex;align-items:center;gap:6px;min-width:0}
+.tb-title{font-size:13px;font-weight:500;color:var(--t2)}
+.bc-sep{color:var(--t3);font-size:12px;margin:0 2px}
+.bc-link{font-size:12px;color:var(--t2);cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;transition:all .12s}
+.bc-link:hover{background:var(--bg1);color:var(--t1)}
 .bc-cur{font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* BUTTONS */
@@ -119,10 +119,10 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 
 /* PROJECT TABS */
 .proj-tabs{display:flex;border-bottom:.5px solid var(--b3);overflow:visible;flex-shrink:0;flex-wrap:wrap}
-.ptab{padding:9px 16px;cursor:pointer;font-size:13px;color:var(--t2);border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:7px;position:relative}
+.ptab{padding:9px 16px;cursor:pointer;font-size:13px;color:var(--t2);border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:5px;position:relative}
 .ptab:hover{color:var(--t1)}
 .ptab.act{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}
-.ptab-dot{width:8px;height:8px;border-radius:50%}
+.ptab-dot{display:none}
 .ptab-del{display:none;margin-left:4px;width:14px;height:14px;border-radius:3px;background:rgba(163,45,45,.12);color:#A32D2D;font-size:9px;align-items:center;justify-content:center;cursor:pointer}
 .ptab:hover .ptab-del{display:flex}
 .ptab-add{padding:9px 12px;cursor:pointer;font-size:12px;color:var(--acc);border-bottom:2px solid transparent;margin-bottom:-0.5px;flex-shrink:0}
@@ -488,10 +488,16 @@ function goDetail(view,opts){
 }
 function setBc(parts){
   const el=$('tb-left');
-  if(!parts){el.innerHTML=`<span class="tb-title">${viewTitle(S.curView)}</span>`;return;}
+  const tb=document.querySelector('.tb');
+  if(!parts){
+    if(tb)tb.style.display='none';
+    el.innerHTML='';
+    return;
+  }
+  if(tb)tb.style.display='flex';
   el.innerHTML=parts.map((p,i)=>i<parts.length-1
-    ?`<span class="bc-link" onclick="${p.fn}">${p.label}</span><span class="bc-sep">›</span>`
-    :`<span class="bc-cur">${p.label}</span>`).join('');
+    ?`<span class="bc-link" onclick="${p.fn}">← ${p.label}</span>`
+    :`<span class="bc-cur" style="font-size:13px;color:var(--t1);font-weight:500">${p.label}</span>`).join('<span class="bc-sep">›</span>');
 }
 function viewTitle(v){return{roadmap:'Roadmapa',dashboard:'Dashboard',tasks:'Zadania',notes:'Notatki',meetings:'Spotkania',projects:'Projekty'}[v]||'DesignOS'}
 function setTbActions(v){
@@ -1226,8 +1232,9 @@ function renderTaskDetail(c,id){
   const dn=item.tasks.filter(t=>t.done).length;
   c.innerHTML=`<div class="detail-wrap">
     <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:24px;padding-bottom:20px;border-bottom:.5px solid var(--b3)">
-      <div style="width:40px;height:40px;border-radius:var(--r8);background:${proj?proj.color+'20':'var(--bg1)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <div style="width:13px;height:13px;border-radius:50%;background:${proj?proj.color:'var(--acc)'}"></div>
+      <div style="padding:4px 10px;border-radius:6px;background:${proj?proj.color+'18':'var(--bg1)'};border:1px solid ${proj?proj.color+'44':'var(--b2)'};flex-shrink:0;display:flex;align-items:center;gap:5px">
+        <div style="width:7px;height:7px;border-radius:50%;background:${proj?proj.color:'var(--acc)'};flex-shrink:0"></div>
+        <span style="font-size:12px;font-weight:600;color:${proj?proj.color:'var(--acc)'}">${proj?proj.name:'Projekt'}</span>
       </div>
       <div style="flex:1">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
