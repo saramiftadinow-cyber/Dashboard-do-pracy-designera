@@ -69,12 +69,12 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 
 /* PILLS */
 .pill{font-size:10px;padding:2px 7px;border-radius:7px;font-weight:500}
-.tag-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;background:var(--bg2);color:var(--t2);border:.5px solid var(--b2);cursor:default}
-.tag-chip-del{font-size:9px;color:var(--t3);cursor:pointer;line-height:1;padding:0 1px}
-.tag-chip-del:hover{color:var(--danger)}
-.tag-input-wrap{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:6px 8px;border:.5px solid var(--b2);border-radius:var(--r8);background:var(--bg1);min-height:36px;cursor:text}
+.tag-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 9px;border-radius:20px;font-weight:500;cursor:default;white-space:nowrap}
+.tag-chip-del{font-size:9px;cursor:pointer;line-height:1;padding:0 1px;opacity:.6}
+.tag-chip-del:hover{opacity:1}
+.tag-input-wrap{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:6px 8px;border:.5px solid var(--b2);border-radius:var(--r8);background:var(--bg1);min-height:38px;cursor:text;transition:border-color .15s}
 .tag-input-wrap:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px rgba(91,76,245,.12)}
-.tag-input-inner{border:none;background:transparent;outline:none;font-size:12px;color:var(--t1);font-family:var(--font);min-width:80px;flex:1}
+.tag-input-inner{border:none;background:transparent;outline:none;font-size:12px;color:var(--t1);font-family:var(--font);min-width:100px;flex:1;padding:2px 0}
 .sp{background:#EEEDfe;color:#534AB7}
 .sr{background:#FAEEDA;color:#854F0B}
 .sd{background:#EAF3DE;color:#3B6D11}
@@ -1038,7 +1038,7 @@ function rmCardHTML(item,projColor){
           <span class="rm-name" style="flex:1;min-width:180px">${item.name}</span>
           <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
             <span class="pill ${SC[item.status]}">${SL[item.status]}</span>
-            ${(item.tags||[]).map(t=>`<span class="tag-chip" style="font-size:10px">${t}</span>`).join('')}
+            ${(item.tags||[]).map(t=>tagChipHTML(t,false)).join('')}
             ${item.poDesc?`<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:#E1F5EE;color:#0F6E56;font-weight:700">PO</span>`:''}
             ${item.myDesc?`<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:#EEEDfe;color:#534AB7;font-weight:700">Mój</span>`:''}
             ${item.kpis&&item.kpis.length?`<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:#FAEEDA;color:#854F0B;font-weight:700">KPI ${item.kpis.length}</span>`:''}
@@ -1090,7 +1090,7 @@ function openEditItem(id){
     <div class="fg"><label class="fl">Tagi (opcjonalnie)</label>
       <div class="tag-input-wrap" id="mo-tags-wrap" onclick="document.getElementById('mo-tag-input').focus()">
         ${(item.tags||[]).map(t=>`<span class="tag-chip">${t}<span class="tag-chip-del" onclick="removeMoTag('${t}')">✕</span></span>`).join('')}
-        <input class="tag-input-inner" id="mo-tag-input" placeholder="Dodaj tag..." onkeydown="handleTagInput(event,'mo')">
+        <input class="tag-input-inner" id="mo-tag-input" placeholder="Dodaj tag..." onkeydown="handleTagInput(event)">
       </div>
     </div>
     <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3">${item.poDesc||''}</textarea></div>
@@ -1385,13 +1385,14 @@ function openAddItem(){
     </div>
     <div class="fg"><label class="fl">Tagi (opcjonalnie)</label>
       <div class="tag-input-wrap" id="mo-tags-wrap" onclick="document.getElementById('mo-tag-input').focus()">
-        <input class="tag-input-inner" id="mo-tag-input" placeholder="Wpisz tag i Enter..." onkeydown="handleTagInput(event,'mo')">
+        <input class="tag-input-inner" id="mo-tag-input" placeholder="Wpisz tag i Enter..." onkeydown="handleTagInput(event)">
       </div>
       <div style="font-size:11px;color:var(--t3);margin-top:4px">Wpisz tag i naciśnij Enter lub przecinek</div>
     </div>
     <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3" placeholder="Cel, kontekst biznesowy..."></textarea></div>
     <div class="fg"><label class="fl">Mój opis (opcjonalnie)</label><textarea class="ta" id="mo-my" rows="3" placeholder="Twoje notatki, przemyślenia..."></textarea></div>`,'item');
   window._moTags=[];
+  setTimeout(()=>renderMoTags(),40);
 }
 function openAddMeeting(){
   openMo('Nowe spotkanie',`
@@ -1445,16 +1446,36 @@ function wrapCode(tid){const el=document.getElementById(tid);if(!el)return;el.fo
 function insertLink(tid){const el=document.getElementById(tid);if(!el)return;const url=prompt('URL linku:');if(!url)return;const label=window.getSelection()?.toString()||url;el.focus();document.execCommand('insertHTML',false,`<a href="${url}" target="_blank">${label}</a>`);}
 
 // ───────────────────────── TAG HELPERS ─────────────────────────
-function handleTagInput(e,ctx){
-  if(e.key==='Enter'||e.key===','||e.key===';'){
+// Deterministic color per tag text
+const TAG_PALETTES=[
+  {bg:'#EEEDfe',color:'#534AB7'},{bg:'#E1F5EE',color:'#0F6E56'},
+  {bg:'#FAEEDA',color:'#854F0B'},{bg:'#FCEBEB',color:'#A32D2D'},
+  {bg:'#E6F1FB',color:'#185FA5'},{bg:'#EAF3DE',color:'#3B6D11'},
+  {bg:'#FBEAF0',color:'#993556'},{bg:'#F1EFE8',color:'#5F5E5A'},
+];
+function tagPalette(tag){
+  let h=0;for(let i=0;i<tag.length;i++){h=(h*31+tag.charCodeAt(i))&0xffff;}
+  return TAG_PALETTES[h%TAG_PALETTES.length];
+}
+function tagChipHTML(tag,removable){
+  const p=tagPalette(tag);
+  const del=removable?`<span class="tag-chip-del" onclick="removeMoTag('${tag.replace(/'/g,"\\'")}')">✕</span>`:'';
+  return`<span class="tag-chip" style="background:${p.bg};color:${p.color}">${tag}${del}</span>`;
+}
+function handleTagInput(e){
+  const trigger=e.key==='Enter'||e.key===','||e.key===';';
+  if(trigger){
     e.preventDefault();
-    const val=e.target.value.trim().replace(/,$/,'');
-    if(val&&!(window._moTags||[]).includes(val)){
-      window._moTags=window._moTags||[];
-      window._moTags.push(val);
-      renderMoTags();
-    }
+    const raw=e.target.value;
+    // split by comma to allow pasting "tag1, tag2"
+    raw.split(',').map(s=>s.trim()).filter(Boolean).forEach(val=>{
+      if(val&&!(window._moTags||[]).includes(val)){
+        window._moTags=window._moTags||[];
+        window._moTags.push(val);
+      }
+    });
     e.target.value='';
+    renderMoTags();
   }
   if(e.key==='Backspace'&&e.target.value===''&&window._moTags?.length){
     window._moTags.pop();
@@ -1469,14 +1490,11 @@ function renderMoTags(){
   const wrap=document.getElementById('mo-tags-wrap');
   const input=document.getElementById('mo-tag-input');
   if(!wrap||!input)return;
-  // Remove existing tag chips (not the input)
   wrap.querySelectorAll('.tag-chip').forEach(el=>el.remove());
-  // Prepend chips before input
-  (window._moTags||[]).forEach(tag=>{
-    const chip=document.createElement('span');
-    chip.className='tag-chip';
-    chip.innerHTML=`${tag}<span class="tag-chip-del" onclick="removeMoTag('${tag.replace(/'/g,"\'")}')">✕</span>`;
-    wrap.insertBefore(chip,input);
+  (window._moTags||[]).slice().reverse().forEach(tag=>{
+    const tmp=document.createElement('div');
+    tmp.innerHTML=tagChipHTML(tag,true);
+    wrap.insertBefore(tmp.firstChild,wrap.firstChild);
   });
 }
 
