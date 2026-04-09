@@ -242,7 +242,11 @@ html,body{height:100%;font-family:var(--font);font-size:14px;line-height:1.5;col
 .tfil.act{background:var(--acc);color:#fff;border-color:var(--acc);box-shadow:0 1px 3px rgba(87,70,175,.3)}
 .task-group{margin-bottom:20px}
 .task-group-hd{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;padding-bottom:6px;border-bottom:.5px solid var(--b3);display:flex;align-items:center;justify-content:space-between}
-.task-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--bg0);border:1px solid var(--b2);border-radius:var(--r8);margin-bottom:4px;transition:all .12s;box-shadow:var(--sh1)}
+.task-item{display:flex;flex-direction:column;gap:0;background:var(--bg0);border:1px solid var(--b2);border-radius:var(--r8);margin-bottom:4px;transition:all .12s;box-shadow:var(--sh1)}
+.task-item-row{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;cursor:default}
+.task-item-edit{display:none;flex-direction:column;gap:8px;padding:0 14px 12px;border-top:1px solid var(--b3)}
+.task-item-edit-actions{display:flex;gap:6px;align-items:center;opacity:0;transition:opacity .12s;flex-shrink:0}
+.task-item:hover .task-item-edit-actions{opacity:1}
 .task-item:hover{border-color:var(--b1);box-shadow:var(--sh2)}
 .task-meta{font-size:11px;color:var(--t3);margin-top:2px;display:flex;gap:8px}
 .task-proj-tag{font-size:10px;padding:1px 6px;border-radius:5px}
@@ -1194,7 +1198,24 @@ function rmBodyHTML(item,projColor){
     </div>`:``}
   </div>`;
 }
-function taskRowHTML(t,iid){return`<div class="task-row"><div class="cb ${t.done?'dn':''}" onclick="togTask('${t.id}','${iid}')">${t.done?'✓':''}</div><span style="flex:1;font-size:13px;line-height:1.4;${t.done?'text-decoration:line-through;color:var(--t3)':''}">${t.text}</span><span style="font-size:11px;color:var(--t3)">${t.due||''}</span></div>`;}
+function taskRowHTML(t,iid){
+  return`<div class="task-row" data-tid="${t.id}" data-iid="${iid}" style="display:flex;flex-direction:column;border-bottom:.5px solid var(--b3);padding:0">
+    <div style="display:flex;align-items:center;gap:9px;padding:7px 0;cursor:default" class="task-row-main">
+      <div class="cb ${t.done?'dn':''}" onclick="togTask('${t.id}','${iid}')">${t.done?'✓':''}</div>
+      <span style="flex:1;font-size:13px;line-height:1.4;cursor:pointer;${t.done?'text-decoration:line-through;color:var(--t3)':''}" onclick="taskRowEdit(this)">${t.text}</span>
+      ${t.due?`<span style="font-size:11px;color:var(--t3);background:var(--bg2);padding:1px 6px;border-radius:4px">${t.due}</span>`:''}
+      <button class="btn xs" style="opacity:0;transition:opacity .12s;font-size:11px;padding:2px 7px;margin-left:4px" onclick="taskRowEdit(this)" onmouseenter="this.style.opacity=1" title="Edytuj">✎</button>
+    </div>
+    <div class="task-row-editor" style="display:none;flex-direction:column;gap:6px;padding:4px 0 8px 24px">
+      <div style="display:flex;gap:6px;align-items:center">
+        <input class="fi-sm task-edit-text" value="${t.text.replace(/"/g,'&quot;')}" style="font-size:13px" onkeydown="if(event.key==='Enter')taskRowSave(this);if(event.key==='Escape')taskRowCancel(this)">
+        <input class="fi-due task-edit-due" value="${t.due||''}" placeholder="Termin" style="width:90px">
+        <button class="btn xs pri" onclick="taskRowSave(this)">OK</button>
+        <button class="btn xs" onclick="taskRowCancel(this)">✕</button>
+      </div>
+    </div>
+  </div>`;
+}
 function noteChipHTML(n,iid){
   const preview=(n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,''):(n.body||'')).slice(0,120);
   const eid='nchip-'+n.id;
@@ -1383,12 +1404,7 @@ function renderTaskDetail(c,id){
         <div class="td-sec-title">Notatki (${item.notes.length})</div>
         <button class="btn xs" onclick="openAddNote('${id}')">+ Dodaj</button>
       </div>
-      ${item.notes.map(n=>{const gn=S.allNotes.find(x=>x.id===n.id);const meet=gn?.meetingId?S.meetings.find(m=>m.id===gn.meetingId):null;
-        return`<div style="background:var(--bg0);border:.5px solid var(--b3);border-left:3px solid ${proj?proj.color:'var(--acc)'};border-radius:var(--r12);padding:12px 15px;margin-bottom:8px;cursor:pointer" onclick="goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })">
-          <div style="font-weight:600;font-size:13px;margin-bottom:3px">${n.title}</div>
-          <div style="font-size:12px;color:var(--t2);line-height:1.5">${(n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,''):n.body).slice(0,120)}</div>
-          <div style="font-size:11px;color:var(--t3);margin-top:4px">${n.date}</div>
-        </div>`;}).join('')}
+      ${item.notes.map(n=>noteChipHTML(n,id)).join('')}
       ${!item.notes.length?`<div style="font-size:12px;color:var(--t3)">Brak notatek.</div>`:''}
     </div>
     <div class="td-section">
@@ -1412,7 +1428,24 @@ function saveDesc(id,type){const item=S.items.find(x=>x.id===id);if(!item)return
 function kpiListHTML(item){return`<div style="background:var(--bg0);border:.5px solid var(--b3);border-radius:var(--r12);padding:2px 14px">${item.kpis.map(k=>`<div class="kpi-row"><div style="flex:1"><div style="font-size:13px;font-weight:600">${k.name}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:11px;color:var(--t3)">cel: <strong>${k.target}</strong></div><div style="font-size:14px;font-weight:700;color:#1D9E75">${k.current}</div></div></div>`).join('')}</div>`;}
 function showKPIForm(id){const f=$(`kpi-form-${id}`);if(f){f.style.display='block';$(`kn-${id}`)?.focus();}S.kpiPendingLinks[id]=[];}
 function saveKPI(id){const name=$(`kn-${id}`)?.value.trim(),target=$(`kt-${id}`)?.value.trim(),current=$(`kc-${id}`)?.value.trim();if(!name)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.kpis=item.kpis||[];item.kpis.push({id:uid(),name,target:target||'—',current:current||'—',links:[]});persist();renderTaskDetail($('content'),id);}
-function detTaskRowHTML(t,iid){return`<div style="display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:.5px solid var(--b3)"><div class="cb ${t.done?'dn':''}" onclick="togDetTask('${t.id}','${iid}')">${t.done?'✓':''}</div><span style="flex:1;font-size:13px;${t.done?'text-decoration:line-through;color:var(--t3)':''}">${t.text}</span><span style="font-size:11px;color:var(--t3)">${t.due||''}</span></div>`;}
+function detTaskRowHTML(t,iid){
+  return`<div data-tid="${t.id}" data-iid="${iid}" style="border-bottom:.5px solid var(--b3)">
+    <div style="display:flex;align-items:center;gap:9px;padding:9px 0">
+      <div class="cb ${t.done?'dn':''}" onclick="togDetTask('${t.id}','${iid}')">${t.done?'✓':''}</div>
+      <span style="flex:1;font-size:13px;cursor:pointer;${t.done?'text-decoration:line-through;color:var(--t3)':''}" onclick="taskRowEdit(this)">${t.text}</span>
+      ${t.due?`<span style="font-size:11px;color:var(--t3);background:var(--bg2);padding:1px 6px;border-radius:4px">${t.due}</span>`:''}
+      <button class="btn xs" style="opacity:0;transition:opacity .12s;font-size:11px;padding:2px 7px" onclick="taskRowEdit(this)" onmouseenter="this.style.opacity=1" title="Edytuj">✎</button>
+    </div>
+    <div class="task-row-editor" style="display:none;flex-direction:column;gap:6px;padding:0 0 8px 24px">
+      <div style="display:flex;gap:6px;align-items:center">
+        <input class="fi-sm task-edit-text" value="${t.text.replace(/"/g,'&quot;')}" style="font-size:13px" onkeydown="if(event.key==='Enter')taskRowSave(this);if(event.key==='Escape')taskRowCancel(this)">
+        <input class="fi-due task-edit-due" value="${t.due||''}" placeholder="Termin" style="width:90px">
+        <button class="btn xs pri" onclick="taskRowSave(this)">OK</button>
+        <button class="btn xs" onclick="taskRowCancel(this)">✕</button>
+      </div>
+    </div>
+  </div>`;
+}
 function togDetTask(tid,iid){const item=S.items.find(x=>x.id===iid);if(!item)return;const t=item.tasks.find(x=>x.id===tid);if(t)t.done=!t.done;persist();updateBadges();const list=$(`dtl-${iid}`);if(list)list.innerHTML=item.tasks.map(t=>detTaskRowHTML(t,iid)).join('')||`<div style="font-size:12px;color:var(--t3);padding:12px 0">Brak zadań.</div>`;}
 function showDetTaskForm(id){const f=$(`dtf-${id}`);if(f){f.style.display='block';$(`dti-${id}`)?.focus();}}
 function saveDetTask(id){const txt=$(`dti-${id}`)?.value.trim(),due=$(`dtd-${id}`)?.value.trim();if(!txt)return;const item=S.items.find(x=>x.id===id);if(!item)return;item.tasks.push({id:uid(),text:txt,done:false,due:due||''});persist();updateBadges();renderTaskDetail($('content'),id);}
@@ -1683,6 +1716,92 @@ function renderMoTags(){
     const chip=tmp.firstChild;
     wrap.insertBefore(chip,input);
   });
+}
+
+// ─── TASK INLINE EDIT ───
+function getTaskItem(el){let n=el;while(n&&!n.dataset?.tid)n=n.parentNode;return n;}
+
+// For task-item in renderTasks view
+function taskInlineEdit(el){
+  const item=getTaskItem(el);if(!item)return;
+  const editor=item.querySelector('.task-item-edit');
+  if(!editor)return;
+  const isOpen=editor.style.display==='flex';
+  if(isOpen)return;
+  editor.style.display='flex';editor.style.flexDirection='column';
+  const inp=editor.querySelector('.task-edit-text');
+  if(inp){inp.focus();inp.setSelectionRange(9999,9999);}
+}
+function taskCancelEdit(el){
+  const item=getTaskItem(el);if(!item)return;
+  const editor=item.querySelector('.task-item-edit');
+  if(editor)editor.style.display='none';
+}
+function taskSaveEdit(el){
+  const item=getTaskItem(el);if(!item)return;
+  const tid=item.dataset.tid,iid=item.dataset.iid;
+  const text=item.querySelector('.task-edit-text')?.value.trim();
+  const due=item.querySelector('.task-edit-due')?.value.trim();
+  if(!text)return;
+  const srcItem=S.items.find(x=>x.id===iid);
+  if(!srcItem)return;
+  const t=srcItem.tasks.find(x=>x.id===tid);
+  if(t){t.text=text;t.due=due||'';}
+  persist();
+  // update display in place
+  const row=item.querySelector('.task-item-row');
+  if(row){
+    const span=row.querySelector('div[style*="font-size:13px"]');
+    if(span)span.textContent=text;
+    const dueSpan=row.querySelector('span.task-meta span:last-child');
+  }
+  item.querySelector('.task-item-edit').style.display='none';
+  renderTasks($('content'));
+}
+function taskDelete(el){
+  const item=getTaskItem(el);if(!item)return;
+  const tid=item.dataset.tid,iid=item.dataset.iid;
+  if(!confirm('Usunąć zadanie?'))return;
+  const srcItem=S.items.find(x=>x.id===iid);
+  if(srcItem)srcItem.tasks=srcItem.tasks.filter(t=>t.id!==tid);
+  persist();updateBadges();renderTasks($('content'));
+}
+
+// For task-row inside rm-card and detail view
+function taskRowEdit(el){
+  const row=el.closest('[data-tid]');if(!row)return;
+  const editor=row.querySelector('.task-row-editor');
+  if(!editor)return;
+  const isOpen=editor.style.display==='flex';
+  if(isOpen)return;
+  editor.style.display='flex';editor.style.flexDirection='column';
+  const inp=editor.querySelector('.task-edit-text');
+  if(inp){inp.focus();inp.setSelectionRange(9999,9999);}
+}
+function taskRowCancel(el){
+  const row=el.closest('[data-tid]');if(!row)return;
+  const editor=row.querySelector('.task-row-editor');
+  if(editor)editor.style.display='none';
+}
+function taskRowSave(el){
+  const row=el.closest('[data-tid]');if(!row)return;
+  const tid=row.dataset.tid,iid=row.dataset.iid;
+  const text=row.querySelector('.task-edit-text')?.value.trim();
+  const due=row.querySelector('.task-edit-due')?.value.trim();
+  if(!text)return;
+  const srcItem=S.items.find(x=>x.id===iid);if(!srcItem)return;
+  const t=srcItem.tasks.find(x=>x.id===tid);
+  if(t){t.text=text;t.due=due||'';}
+  persist();updateBadges();
+  // Update in place
+  const mainSpan=row.querySelector('.task-row-main span[style*="font-size:13px"], [style*="cursor:pointer"][style*="font-size:13px"]');
+  if(mainSpan)mainSpan.textContent=text;
+  row.querySelector('.task-row-editor').style.display='none';
+  // If in detail view re-render tasks list
+  const dtl=row.closest('[id^="dtl-"]');
+  if(dtl)dtl.innerHTML=srcItem.tasks.map(t=>detTaskRowHTML(t,iid)).join('')||'<div style="font-size:12px;color:var(--t3);padding:12px 0">Brak zadań.</div>';
+  const tl=row.closest('[id^="tl-"]');
+  if(tl)tl.innerHTML=srcItem.tasks.map(t=>taskRowHTML(t,iid)).join('')||'<div style="font-size:12px;color:var(--t3);padding:4px 0">Brak zadań.</div>';
 }
 
 // ───────────────────────── EXPORT / IMPORT ─────────────────────────
