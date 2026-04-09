@@ -186,10 +186,13 @@ html,body{height:100%;font-family:var(--font);font-size:14px;line-height:1.5;col
 .cb.dn{background:var(--success);border-color:var(--success);color:#fff}
 
 /* NOTES */
-.note-chip{background:var(--bg1);border-radius:var(--r8);padding:10px 13px;margin-bottom:5px;cursor:text;border-left:2px solid var(--acc);transition:all .12s;position:relative}
-.note-chip-edit-hint{position:absolute;top:8px;right:10px;font-size:10px;color:var(--t3);opacity:0;transition:opacity .12s;pointer-events:none}
-.note-chip:hover .note-chip-edit-hint{opacity:1}
-.note-chip-inline-editor{display:none;flex-direction:column;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--b3)}
+.note-chip{background:var(--bg1);border-radius:var(--r8);padding:0;margin-bottom:5px;border-left:2px solid var(--acc);transition:all .12s;overflow:hidden}
+.note-chip:hover{background:var(--acc-l);border-left-color:var(--acc-d)}
+.note-chip-view{display:flex;align-items:flex-start;gap:8px;padding:10px 13px;cursor:pointer}
+.note-chip-actions{display:flex;gap:4px;flex-shrink:0;opacity:0;transition:opacity .12s}
+.note-chip:hover .note-chip-actions{opacity:1}
+.note-chip-action-btn{font-size:12px;padding:2px 7px;border-radius:var(--r6);border:1px solid var(--b2);background:var(--bg0);cursor:pointer;color:var(--t2);transition:all .12s;line-height:1.4}
+.note-chip-action-btn:hover{color:var(--acc);border-color:var(--acc)}
 .note-chip:hover{background:var(--acc-l);border-left-color:var(--acc-d)}
 .note-chip-title{font-weight:600;font-size:13px;margin-bottom:2px}
 .note-chip-body{font-size:12px;color:var(--t2);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
@@ -1193,25 +1196,26 @@ function rmBodyHTML(item,projColor){
 }
 function taskRowHTML(t,iid){return`<div class="task-row"><div class="cb ${t.done?'dn':''}" onclick="togTask('${t.id}','${iid}')">${t.done?'✓':''}</div><span style="flex:1;font-size:13px;line-height:1.4;${t.done?'text-decoration:line-through;color:var(--t3)':''}">${t.text}</span><span style="font-size:11px;color:var(--t3)">${t.due||''}</span></div>`;}
 function noteChipHTML(n,iid){
-  const preview=n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,'').slice(0,120):n.body;
-  return`<div class="note-chip" id="nchip-${n.id}" style="border-left:2px solid var(--acc);border-radius:0 var(--r8) var(--r8) 0;cursor:default">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
-      <div style="flex:1;min-width:0;cursor:pointer" onclick="toggleChipEdit('${n.id}','${iid||''}')">
-        <div class="note-chip-title" style="margin-bottom:2px">${n.title}</div>
-        <div class="note-chip-body" style="color:var(--t3)">${preview||'Kliknij aby edytować…'}</div>
+  const preview=n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,'').slice(0,120):(n.body||'');
+  const safeTitle=n.title.replace(/`/g,"'").replace(/\\/g,'');
+  const safeIid=(iid||'').replace(/`/g,"'");
+  return`<div class="note-chip" id="nchip-${n.id}">
+    <div class="note-chip-view" onclick="toggleChipEdit('${n.id}','${safeIid}')">
+      <div style="flex:1;min-width:0">
+        <div class="note-chip-title">${n.title}</div>
+        <div class="note-chip-body">${preview||'Kliknij aby edytować…'}</div>
         <div style="font-size:10px;color:var(--t3);margin-top:4px">${n.date}</div>
       </div>
-      <div style="display:flex;gap:4px;flex-shrink:0">
-        <button class="btn xs" style="font-size:11px;padding:3px 9px;opacity:0;transition:opacity .12s" id="nchip-btn-${n.id}" onclick="event.stopPropagation();toggleChipEdit('${n.id}','${iid||''}')">✎ Edytuj</button>
-        <button class="btn xs" style="font-size:11px;padding:3px 9px;opacity:0;transition:opacity .12s;color:var(--t3)" id="nchip-open-${n.id}" onclick="event.stopPropagation();goDetail('note-detail',{id:'${n.id}',title:'${n.title.replace(/'/g,"\\'")}' })">↗</button>
+      <div class="note-chip-actions">
+        <span class="note-chip-action-btn" onclick="event.stopPropagation();goDetail('note-detail',{id:'${n.id}',title:'${safeTitle}'})">↗</span>
       </div>
     </div>
-    <div id="nchip-edit-${n.id}" class="note-chip-inline-editor" style="display:none;flex-direction:column;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--b3)">
+    <div id="nchip-edit-${n.id}" style="display:none;flex-direction:column;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--b3)">
       <input class="fi" id="nchip-t-${n.id}" value="${n.title.replace(/"/g,'&quot;')}" style="font-size:13px;font-weight:600" placeholder="Tytuł notatki...">
-      <textarea class="ta" id="nchip-b-${n.id}" rows="4" style="font-size:13px;line-height:1.6" placeholder="Treść...">${n.body||''}</textarea>
+      <textarea class="ta" id="nchip-b-${n.id}" rows="3" style="font-size:13px;line-height:1.6" placeholder="Treść...">${n.body||''}</textarea>
       <div style="display:flex;gap:6px;justify-content:flex-end">
         <button class="btn xs" onclick="event.stopPropagation();cancelChipEdit('${n.id}')">Anuluj</button>
-        <button class="btn xs pri" onclick="event.stopPropagation();saveChipEdit('${n.id}','${iid||''}')">Zapisz</button>
+        <button class="btn xs pri" onclick="event.stopPropagation();saveChipEdit('${n.id}','${safeIid}')">Zapisz</button>
       </div>
     </div>
   </div>`;
@@ -1252,7 +1256,6 @@ function toggleRM(id){
     const chev=document.getElementById('chev-'+id);
     if(chev)chev.classList.add('open');
     card.classList.add('is-open');
-    setTimeout(wireChipHovers,50);
   }
   if(hd){
     const newTop=hd.getBoundingClientRect().top;
@@ -1492,17 +1495,21 @@ function toggleChipEdit(nid, iid){
   if(isOpen){
     editor.style.display='none';
   } else {
-    editor.style.display='flex';
-    editor.style.flexDirection='column';
-    // populate with latest data
+    // Populate with latest data before showing
     const gn=S.allNotes.find(x=>x.id===nid);
     if(gn){
       const ti=document.getElementById('nchip-t-'+nid);
       const bi=document.getElementById('nchip-b-'+nid);
       if(ti)ti.value=gn.title;
       if(bi)bi.value=gn.body||'';
-      setTimeout(()=>{if(bi)bi.focus();},30);
     }
+    editor.style.display='flex';
+    editor.style.flexDirection='column';
+    editor.style.padding='0 13px 13px';
+    setTimeout(()=>{
+      const bi=document.getElementById('nchip-b-'+nid);
+      if(bi){bi.focus();bi.setSelectionRange(bi.value.length,bi.value.length);}
+    },30);
   }
 }
 function cancelChipEdit(nid){
