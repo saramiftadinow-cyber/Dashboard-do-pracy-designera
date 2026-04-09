@@ -37,7 +37,7 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .sb{width:196px;border-right:.5px solid var(--b3);padding:12px 0;display:flex;flex-direction:column;gap:1px;background:var(--bg1);flex-shrink:0;overflow-y:auto}
 .main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;position:relative}
 .tb{display:none}
-.content{flex:1;padding:0;overflow-y:auto}
+.content{flex:1;padding:0;overflow-y:scroll}
 .content-inner{max-width:760px;margin:0 auto;padding:32px 40px}
 
 /* SIDEBAR */
@@ -69,6 +69,12 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 
 /* PILLS */
 .pill{font-size:10px;padding:2px 7px;border-radius:7px;font-weight:500}
+.tag-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;background:var(--bg2);color:var(--t2);border:.5px solid var(--b2);cursor:default}
+.tag-chip-del{font-size:9px;color:var(--t3);cursor:pointer;line-height:1;padding:0 1px}
+.tag-chip-del:hover{color:var(--danger)}
+.tag-input-wrap{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:6px 8px;border:.5px solid var(--b2);border-radius:var(--r8);background:var(--bg1);min-height:36px;cursor:text}
+.tag-input-wrap:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px rgba(91,76,245,.12)}
+.tag-input-inner{border:none;background:transparent;outline:none;font-size:12px;color:var(--t1);font-family:var(--font);min-width:80px;flex:1}
 .sp{background:#EEEDfe;color:#534AB7}
 .sr{background:#FAEEDA;color:#854F0B}
 .sd{background:#EAF3DE;color:#3B6D11}
@@ -122,11 +128,11 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .q-section{margin-bottom:20px}
 .q-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:7px;border-bottom:.5px solid var(--b3)}
 .q-title{font-weight:700;font-size:14px;color:var(--t1);letter-spacing:.02em}
-.rm-card{background:var(--bg0);border:1px solid var(--b3);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.rm-card{background:var(--bg0);border:1px solid var(--b3);border-radius:10px;margin-bottom:8px;overflow:hidden}
 .rm-card:hover{border-color:var(--b2)} .rm-body{border-top:1px solid var(--b3)}
-.rm-card-hd{display:flex;align-items:flex-start;gap:14px;padding:16px 18px;cursor:pointer;user-select:none}
-.rm-icon{width:22px;height:22px;border-radius:6px;flex-shrink:0;margin-top:1px;background:var(--acc-l);display:flex;align-items:center;justify-content:center}
-.rm-name{font-weight:700;font-size:16px;flex:1;min-width:0;line-height:1.35}
+.rm-card-hd{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none}
+.rm-icon{width:20px;height:20px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.rm-name{font-weight:500;font-size:13px;flex:1;min-width:0;line-height:1.4;color:var(--t1)}
 .rm-badges{display:flex;gap:5px;align-items:center;flex-shrink:0}
 .cnt{font-size:10px;padding:1px 6px;border-radius:6px;color:var(--t3)}
 .cnt.has{background:var(--acc-l);color:var(--acc)}
@@ -855,7 +861,7 @@ function saveMo(){
     const id=uid();
     const dlDay=parseInt($('mo-dl-day')?.value)||null;const dlMonth=parseInt($('mo-dl-month')?.value)||null;
     S.items.push({id,pid:$('mo-pid')?.value,q:$('mo-q')?.value,name,status:$('mo-s')?.value||'planning',
-      deadlineDay:dlDay,deadlineMonth:dlMonth,
+      deadlineDay:dlDay,deadlineMonth:dlMonth,tags:[...(window._moTags||[])],
       poDesc:$('mo-po')?.value.trim()||'',myDesc:$('mo-my')?.value.trim()||'',kpis:[],tasks:[],notes:[],atts:[]});
     S.curProj=$('mo-pid')?.value;
     const item=S.items[S.items.length-1];
@@ -873,6 +879,7 @@ function saveMo(){
     item.status=$('mo-s')?.value||item.status;
     item.deadlineDay=parseInt($('mo-dl-day')?.value)||null;
     item.deadlineMonth=parseInt($('mo-dl-month')?.value)||null;
+    item.tags=[...(window._moTags||[])];
     item.poDesc=$('mo-po')?.value.trim()||'';
     item.myDesc=$('mo-my')?.value.trim()||'';
     S.curProj=item.pid;
@@ -1014,7 +1021,7 @@ function renderRoadmap(c){
       ${qItems.map(item=>rmCardHTML(item,p.color)).join('')}
     </div>`;}).join('')
     :`<div style="text-align:center;padding:48px 0;color:var(--t3)">Brak tasków w tym projekcie.<br><br><button class="btn pri xs" onclick="openAddItem()">+ Dodaj task</button></div>`;
-  c.innerHTML=`<div class="page-wrap">`+tabsHTML+`<div style="margin-top:20px">`+engageBar+qHTML+`</div></div>`;
+  c.innerHTML=`<div class="page-wrap"><div class="view-header"><div class="view-title">Roadmapa</div></div>`+tabsHTML+`<div style="margin-top:20px">`+engageBar+qHTML+`</div></div>`;
 }
 function deleteProjectRm(pid){if(!confirm('Usunąć projekt i wszystkie jego taski?'))return;S.projects=S.projects.filter(p=>p.id!==pid);S.items=S.items.filter(i=>i.pid!==pid);if(S.curProj===pid)S.curProj=S.projects[0]?.id||'';persist();renderRoadmap($('content'));}
 function switchProj(pid){S.curProj=pid;persist();renderRoadmap($('content'));}
@@ -1031,6 +1038,7 @@ function rmCardHTML(item,projColor){
           <span class="rm-name" style="flex:1;min-width:180px">${item.name}</span>
           <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
             <span class="pill ${SC[item.status]}">${SL[item.status]}</span>
+            ${(item.tags||[]).map(t=>`<span class="tag-chip" style="font-size:10px">${t}</span>`).join('')}
             ${item.poDesc?`<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:#E1F5EE;color:#0F6E56;font-weight:700">PO</span>`:''}
             ${item.myDesc?`<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:#EEEDfe;color:#534AB7;font-weight:700">Mój</span>`:''}
             ${item.kpis&&item.kpis.length?`<span style="font-size:9px;padding:2px 7px;border-radius:5px;background:#FAEEDA;color:#854F0B;font-weight:700">KPI ${item.kpis.length}</span>`:''}
@@ -1079,8 +1087,16 @@ function openEditItem(id){
         <select class="fs" id="mo-dl-month" style="flex:1"><option value="">Miesiąc</option>${['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'].map((m,i)=>`<option value="${i+1}" ${item.deadlineMonth==i+1?'selected':''}>${m}</option>`).join('')}</select>
       </div>
     </div>
+    <div class="fg"><label class="fl">Tagi (opcjonalnie)</label>
+      <div class="tag-input-wrap" id="mo-tags-wrap" onclick="document.getElementById('mo-tag-input').focus()">
+        ${(item.tags||[]).map(t=>`<span class="tag-chip">${t}<span class="tag-chip-del" onclick="removeMoTag('${t}')">✕</span></span>`).join('')}
+        <input class="tag-input-inner" id="mo-tag-input" placeholder="Dodaj tag..." onkeydown="handleTagInput(event,'mo')">
+      </div>
+    </div>
     <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3">${item.poDesc||''}</textarea></div>
     <div class="fg"><label class="fl">Mój opis (opcjonalnie)</label><textarea class="ta" id="mo-my" rows="3">${item.myDesc||''}</textarea></div>`,'item-edit',{id});
+  window._moTags=[...(item.tags||[])];
+  setTimeout(()=>renderMoTags(),30);
 }
 function rmBodyHTML(item,projColor){
   const tasks=item.tasks,notes=item.notes,atts=item.atts||[];
@@ -1153,6 +1169,9 @@ function toggleRM(id){
   const card=document.getElementById('rmc-'+id);
   const chev=document.getElementById('chev-'+id);
   if(!card)return;
+  // Save scroll position of the card header relative to viewport
+  const hd=card.querySelector('.rm-card-hd');
+  const hdTop=hd?hd.getBoundingClientRect().top:0;
   const existing=card.querySelector('.rm-body');
   if(existing){
     existing.remove();
@@ -1165,6 +1184,15 @@ function toggleRM(id){
     div.innerHTML=rmBodyHTML(item,proj.color);
     card.appendChild(div.firstChild);
     if(chev)chev.classList.add('open');
+  }
+  // Restore card header to same viewport position (prevent visual jump)
+  if(hd){
+    const newTop=hd.getBoundingClientRect().top;
+    const diff=newTop-hdTop;
+    if(Math.abs(diff)>2){
+      const contentEl=document.querySelector('.content');
+      if(contentEl)contentEl.scrollTop+=diff;
+    }
   }
 }
 function showInlineTaskForm(id){const f=$(`tf-${id}`);if(f){f.style.display='block';$(`ti-${id}`)?.focus();}}
@@ -1355,8 +1383,15 @@ function openAddItem(){
         <select class="fs" id="mo-dl-month" style="flex:1"><option value="">Miesiąc</option>${['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'].map((m,i)=>`<option value="${i+1}">${m}</option>`).join('')}</select>
       </div>
     </div>
+    <div class="fg"><label class="fl">Tagi (opcjonalnie)</label>
+      <div class="tag-input-wrap" id="mo-tags-wrap" onclick="document.getElementById('mo-tag-input').focus()">
+        <input class="tag-input-inner" id="mo-tag-input" placeholder="Wpisz tag i Enter..." onkeydown="handleTagInput(event,'mo')">
+      </div>
+      <div style="font-size:11px;color:var(--t3);margin-top:4px">Wpisz tag i naciśnij Enter lub przecinek</div>
+    </div>
     <div class="fg"><label class="fl">Opis PO (opcjonalnie)</label><textarea class="ta" id="mo-po" rows="3" placeholder="Cel, kontekst biznesowy..."></textarea></div>
     <div class="fg"><label class="fl">Mój opis (opcjonalnie)</label><textarea class="ta" id="mo-my" rows="3" placeholder="Twoje notatki, przemyślenia..."></textarea></div>`,'item');
+  window._moTags=[];
 }
 function openAddMeeting(){
   openMo('Nowe spotkanie',`
@@ -1408,6 +1443,42 @@ function execRE(cmd,tid){const el=document.getElementById(tid);if(!el)return;el.
 function execREBlock(tag,tid){const el=document.getElementById(tid);if(!el)return;el.focus();document.execCommand('formatBlock',false,tag);}
 function wrapCode(tid){const el=document.getElementById(tid);if(!el)return;el.focus();const sel=window.getSelection();if(sel&&sel.toString()){document.execCommand('insertHTML',false,`<code>${sel.toString()}</code>`);}else{document.execCommand('insertHTML',false,'<code>kod</code>');}}
 function insertLink(tid){const el=document.getElementById(tid);if(!el)return;const url=prompt('URL linku:');if(!url)return;const label=window.getSelection()?.toString()||url;el.focus();document.execCommand('insertHTML',false,`<a href="${url}" target="_blank">${label}</a>`);}
+
+// ───────────────────────── TAG HELPERS ─────────────────────────
+function handleTagInput(e,ctx){
+  if(e.key==='Enter'||e.key===','||e.key===';'){
+    e.preventDefault();
+    const val=e.target.value.trim().replace(/,$/,'');
+    if(val&&!(window._moTags||[]).includes(val)){
+      window._moTags=window._moTags||[];
+      window._moTags.push(val);
+      renderMoTags();
+    }
+    e.target.value='';
+  }
+  if(e.key==='Backspace'&&e.target.value===''&&window._moTags?.length){
+    window._moTags.pop();
+    renderMoTags();
+  }
+}
+function removeMoTag(tag){
+  window._moTags=(window._moTags||[]).filter(t=>t!==tag);
+  renderMoTags();
+}
+function renderMoTags(){
+  const wrap=document.getElementById('mo-tags-wrap');
+  const input=document.getElementById('mo-tag-input');
+  if(!wrap||!input)return;
+  // Remove existing tag chips (not the input)
+  wrap.querySelectorAll('.tag-chip').forEach(el=>el.remove());
+  // Prepend chips before input
+  (window._moTags||[]).forEach(tag=>{
+    const chip=document.createElement('span');
+    chip.className='tag-chip';
+    chip.innerHTML=`${tag}<span class="tag-chip-del" onclick="removeMoTag('${tag.replace(/'/g,"\'")}')">✕</span>`;
+    wrap.insertBefore(chip,input);
+  });
+}
 
 // ───────────────────────── EXPORT / IMPORT ─────────────────────────
 function exportData(){
