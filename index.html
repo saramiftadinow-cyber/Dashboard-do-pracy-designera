@@ -59,11 +59,11 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .bc-cur{font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* BUTTONS */
-.btn{padding:5px 12px;border-radius:var(--r8);border:.5px solid var(--b2);background:transparent;cursor:pointer;font-size:12px;color:var(--t1);font-family:var(--font);transition:background .1s}
+.btn{padding:7px 14px;border-radius:var(--r8);border:.5px solid var(--b2);background:transparent;cursor:pointer;font-size:13px;color:var(--t1);font-family:var(--font);transition:background .1s}
 .btn:hover{background:var(--bg1)}
 .btn.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
 .btn.pri:hover{background:#4a3dd4}
-.btn.xs{padding:3px 9px;font-size:11px}
+.btn.xs{padding:5px 11px;font-size:12px}
 .btn.danger{color:var(--danger);border-color:transparent}
 .btn.danger:hover{background:#fee2e2}
 
@@ -75,6 +75,10 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .tag-input-wrap{display:flex;flex-wrap:wrap;gap:5px;align-items:center;padding:6px 8px;border:.5px solid var(--b2);border-radius:var(--r8);background:var(--bg1);min-height:38px;cursor:text;transition:border-color .15s}
 .tag-input-wrap:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px rgba(91,76,245,.12)}
 .tag-input-inner{border:none;background:transparent;outline:none;font-size:12px;color:var(--t1);font-family:var(--font);min-width:100px;flex:1;padding:2px 0}
+.tag-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--bg0);border:1px solid var(--b2);border-radius:var(--r8);box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:50;max-height:180px;overflow-y:auto;margin-top:3px}
+.tag-dropdown-item{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;font-size:12px;transition:background .1s}
+.tag-dropdown-item:hover{background:var(--bg1)}
+.tag-field-wrap{position:relative}
 .sp{background:#EEEDfe;color:#534AB7}
 .sr{background:#FAEEDA;color:#854F0B}
 .sd{background:#EAF3DE;color:#3B6D11}
@@ -128,7 +132,9 @@ html,body{height:100%;font-family:var(--font);font-size:13px;color:var(--t1);bac
 .q-section{margin-bottom:20px}
 .q-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:7px;border-bottom:.5px solid var(--b3)}
 .q-title{font-weight:700;font-size:14px;color:var(--t1);letter-spacing:.02em}
-.rm-card{background:var(--bg0);border:1px solid var(--b3);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.rm-card{background:var(--bg0);border:1px solid var(--b3);border-radius:10px;margin-bottom:8px;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.rm-card.is-open{border-color:var(--acc);box-shadow:0 0 0 3px rgba(91,76,245,.08)}
+.rm-card.is-open .rm-card-hd{background:var(--acc-l)}
 .rm-card:hover{border-color:var(--b2)} .rm-body{border-top:1px solid var(--b3)}
 .rm-card-hd{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none}
 .rm-icon{width:20px;height:20px;border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
@@ -1030,7 +1036,7 @@ function rmCardHTML(item,projColor){
   const dn=item.tasks.filter(t=>t.done).length;
   const open=!!S.expanded[item.id];
   const prog=item.tasks.length?Math.round(dn/item.tasks.length*100):null;
-  return`<div class="rm-card" id="rmc-${item.id}">
+  return`<div class="rm-card${open?' is-open':''}" id="rmc-${item.id}">
     <div class="rm-card-hd" onclick="toggleRM('${item.id}')">
       <div class="rm-icon" style="background:${projColor}22"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="${projColor}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg></div>
       <div style="flex:1;min-width:0">
@@ -1169,13 +1175,13 @@ function toggleRM(id){
   const card=document.getElementById('rmc-'+id);
   const chev=document.getElementById('chev-'+id);
   if(!card)return;
-  // Save scroll position of the card header relative to viewport
   const hd=card.querySelector('.rm-card-hd');
   const hdTop=hd?hd.getBoundingClientRect().top:0;
   const existing=card.querySelector('.rm-body');
   if(existing){
     existing.remove();
     if(chev)chev.classList.remove('open');
+    card.classList.remove('is-open');
   } else {
     const item=S.items.find(x=>x.id===id);
     const proj=S.projects.find(p=>p.id===item?.pid);
@@ -1184,8 +1190,8 @@ function toggleRM(id){
     div.innerHTML=rmBodyHTML(item,proj.color);
     card.appendChild(div.firstChild);
     if(chev)chev.classList.add('open');
+    card.classList.add('is-open');
   }
-  // Restore card header to same viewport position (prevent visual jump)
   if(hd){
     const newTop=hd.getBoundingClientRect().top;
     const diff=newTop-hdTop;
@@ -1446,28 +1452,68 @@ function wrapCode(tid){const el=document.getElementById(tid);if(!el)return;el.fo
 function insertLink(tid){const el=document.getElementById(tid);if(!el)return;const url=prompt('URL linku:');if(!url)return;const label=window.getSelection()?.toString()||url;el.focus();document.execCommand('insertHTML',false,`<a href="${url}" target="_blank">${label}</a>`);}
 
 // ───────────────────────── TAG HELPERS ─────────────────────────
-// Deterministic color per tag text
 const TAG_PALETTES=[
   {bg:'#EEEDfe',color:'#534AB7'},{bg:'#E1F5EE',color:'#0F6E56'},
   {bg:'#FAEEDA',color:'#854F0B'},{bg:'#FCEBEB',color:'#A32D2D'},
   {bg:'#E6F1FB',color:'#185FA5'},{bg:'#EAF3DE',color:'#3B6D11'},
-  {bg:'#FBEAF0',color:'#993556'},{bg:'#F1EFE8',color:'#5F5E5A'},
+  {bg:'#FBEAF0',color:'#993556'},{bg:'#FEF9C3',color:'#854D0E'},
 ];
 function tagPalette(tag){
-  let h=0;for(let i=0;i<tag.length;i++){h=(h*31+tag.charCodeAt(i))&0xffff;}
-  return TAG_PALETTES[h%TAG_PALETTES.length];
+  let h=5381;for(let i=0;i<tag.length;i++){h=((h<<5)+h)+tag.charCodeAt(i);}
+  return TAG_PALETTES[Math.abs(h)%TAG_PALETTES.length];
 }
 function tagChipHTML(tag,removable){
   const p=tagPalette(tag);
-  const del=removable?`<span class="tag-chip-del" onclick="removeMoTag('${tag.replace(/'/g,"\\'")}')">✕</span>`:'';
+  const del=removable?`<span class="tag-chip-del" onclick="removeMoTag('${tag.replace(/'/g,"\'")}')">✕</span>`:'';
   return`<span class="tag-chip" style="background:${p.bg};color:${p.color}">${tag}${del}</span>`;
 }
+function getAllUsedTags(){
+  const set=new Set();
+  S.items.forEach(item=>(item.tags||[]).forEach(t=>set.add(t)));
+  return [...set].sort();
+}
+function showTagDropdown(query){
+  const dd=document.getElementById('mo-tag-dropdown');
+  if(!dd)return;
+  const q=(query||'').trim().toLowerCase();
+  const current=window._moTags||[];
+  const all=getAllUsedTags().filter(t=>!current.includes(t));
+  const filtered=q?all.filter(t=>t.toLowerCase().includes(q)):all;
+  // Also show "create new" option if typed text is not in list
+  const showCreate=q&&!all.find(t=>t.toLowerCase()===q)&&!current.includes(q);
+  if(!filtered.length&&!showCreate){dd.style.display='none';return;}
+  dd.style.display='block';
+  dd.innerHTML=[
+    ...filtered.map(t=>{
+      const p=tagPalette(t);
+      return`<div class="tag-dropdown-item" onmousedown="event.preventDefault();addMoTag('${t.replace(/'/g,"\'")}')">
+        <span class="tag-chip" style="background:${p.bg};color:${p.color};pointer-events:none">${t}</span>
+      </div>`;
+    }),
+    ...(showCreate?[`<div class="tag-dropdown-item" onmousedown="event.preventDefault();addMoTag('${q.replace(/'/g,"\'")}')">
+      <span style="color:var(--t3);font-size:11px">+ Utwórz tag</span>
+      <span class="tag-chip" style="background:${tagPalette(q).bg};color:${tagPalette(q).color};pointer-events:none;margin-left:4px">${q}</span>
+    </div>`]:[])
+  ].join('');
+}
+function hideTagDropdown(){
+  const dd=document.getElementById('mo-tag-dropdown');
+  if(dd)dd.style.display='none';
+}
+function addMoTag(tag){
+  if(!tag)return;
+  window._moTags=window._moTags||[];
+  if(!window._moTags.includes(tag))window._moTags.push(tag);
+  const input=document.getElementById('mo-tag-input');
+  if(input){input.value='';input.focus();}
+  hideTagDropdown();
+  renderMoTags();
+}
 function handleTagInput(e){
-  const trigger=e.key==='Enter'||e.key===','||e.key===';';
+  const trigger=e.key==='Enter'||e.key===',';
   if(trigger){
     e.preventDefault();
     const raw=e.target.value;
-    // split by comma to allow pasting "tag1, tag2"
     raw.split(',').map(s=>s.trim()).filter(Boolean).forEach(val=>{
       if(val&&!(window._moTags||[]).includes(val)){
         window._moTags=window._moTags||[];
@@ -1475,12 +1521,14 @@ function handleTagInput(e){
       }
     });
     e.target.value='';
+    hideTagDropdown();
     renderMoTags();
   }
   if(e.key==='Backspace'&&e.target.value===''&&window._moTags?.length){
     window._moTags.pop();
     renderMoTags();
   }
+  if(e.key==='Escape')hideTagDropdown();
 }
 function removeMoTag(tag){
   window._moTags=(window._moTags||[]).filter(t=>t!==tag);
@@ -1491,10 +1539,11 @@ function renderMoTags(){
   const input=document.getElementById('mo-tag-input');
   if(!wrap||!input)return;
   wrap.querySelectorAll('.tag-chip').forEach(el=>el.remove());
-  (window._moTags||[]).slice().reverse().forEach(tag=>{
+  (window._moTags||[]).forEach(tag=>{
     const tmp=document.createElement('div');
     tmp.innerHTML=tagChipHTML(tag,true);
-    wrap.insertBefore(tmp.firstChild,wrap.firstChild);
+    const chip=tmp.firstChild;
+    wrap.insertBefore(chip,input);
   });
 }
 
