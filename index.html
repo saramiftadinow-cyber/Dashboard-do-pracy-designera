@@ -188,7 +188,7 @@ html,body{height:100%;font-family:var(--font);font-size:14px;line-height:1.5;col
 /* NOTES */
 .note-chip{background:var(--bg1);border-radius:var(--r8);padding:0;margin-bottom:5px;border-left:2px solid var(--acc);transition:all .12s;overflow:hidden}
 .note-chip:hover{background:var(--acc-l);border-left-color:var(--acc-d)}
-.note-chip-view{display:flex;align-items:flex-start;gap:8px;padding:10px 13px;cursor:pointer}
+.note-chip-view{display:flex;align-items:flex-start;gap:8px;padding:10px 13px;cursor:pointer;width:100%}
 .note-chip-actions{display:flex;gap:4px;flex-shrink:0;opacity:0;transition:opacity .12s}
 .note-chip:hover .note-chip-actions{opacity:1}
 .note-chip-action-btn{font-size:12px;padding:2px 7px;border-radius:var(--r6);border:1px solid var(--b2);background:var(--bg0);cursor:pointer;color:var(--t2);transition:all .12s;line-height:1.4}
@@ -1218,22 +1218,23 @@ function taskRowHTML(t,iid){
 }
 function noteChipHTML(n,iid){
   const preview=(n.bodyHtml?n.bodyHtml.replace(/<[^>]+>/g,''):(n.body||'')).slice(0,120);
-  const eid='nchip-'+n.id;
-  return`<div class="note-chip" id="${eid}" data-nid="${n.id}" data-iid="${iid||''}">
-    <div class="note-chip-view" onclick="chipClick(this)">
+  return`<div class="note-chip" id="nchip-${n.id}" data-nid="${n.id}" data-iid="${iid||''}">
+    <div class="note-chip-view" onclick="chipClick(this)" style="width:100%">
       <div style="flex:1;min-width:0">
         <div class="note-chip-title">${n.title}</div>
         <div class="note-chip-body">${preview||'Kliknij aby edytować…'}</div>
         <div style="font-size:10px;color:var(--t3);margin-top:4px">${n.date}</div>
       </div>
       <div class="note-chip-actions">
-        <span class="note-chip-action-btn" onclick="event.stopPropagation();chipOpen(this)">↗</span>
+        <span class="note-chip-action-btn" title="Otwórz" onclick="event.stopPropagation();chipOpen(this)">↗</span>
+        <span class="note-chip-action-btn" title="Usuń" style="color:var(--danger)" onclick="event.stopPropagation();chipDelete(this)">✕</span>
       </div>
     </div>
     <div class="nchip-editor" style="display:none;flex-direction:column;gap:8px;padding:0 13px 13px">
-      <input class="fi nchip-t" style="font-size:13px;font-weight:600" placeholder="Tytuł notatki..." value="${n.title.replace(/"/g,'&quot;')}">
-      <textarea class="ta nchip-b" rows="3" style="font-size:13px;line-height:1.6" placeholder="Treść...">${n.body||''}</textarea>
-      <div style="display:flex;gap:6px;justify-content:flex-end">
+      <input class="fi nchip-t" style="font-size:13px;font-weight:600" placeholder="Tytuł notatki...">
+      <textarea class="ta nchip-b" rows="3" style="font-size:13px;line-height:1.6" placeholder="Treść..."></textarea>
+      <div style="display:flex;gap:6px;justify-content:space-between;align-items:center">
+        <button class="btn xs danger" onclick="event.stopPropagation();chipDelete(this)" style="margin-right:auto">🗑 Usuń notatkę</button>
         <button class="btn xs" onclick="event.stopPropagation();chipCancel(this)">Anuluj</button>
         <button class="btn xs pri" onclick="event.stopPropagation();chipSave(this)">Zapisz</button>
       </div>
@@ -1586,6 +1587,22 @@ function chipOpen(btn){
   const nid=chip.dataset.nid;
   const gn=S.allNotes.find(x=>x.id===nid);
   if(gn)goDetail('note-detail',{id:nid,title:gn.title});
+}
+function chipDelete(btn){
+  const chip=getChip(btn);
+  if(!chip)return;
+  const nid=chip.dataset.nid;
+  const iid=chip.dataset.iid;
+  const gn=S.allNotes.find(x=>x.id===nid);
+  const name=gn?gn.title:'notatkę';
+  if(!confirm('Usunąć "'+name+'"?'))return;
+  S.allNotes=S.allNotes.filter(x=>x.id!==nid);
+  if(iid){
+    const item=S.items.find(x=>x.id===iid);
+    if(item)item.notes=item.notes.filter(x=>x.id!==nid);
+  }
+  persist();
+  chip.remove();
 }
 // legacy aliases (keep for backwards compat)
 function toggleChipEdit(nid,iid){const c=document.getElementById('nchip-'+nid);if(c)chipClick(c.querySelector('.note-chip-view'));}
