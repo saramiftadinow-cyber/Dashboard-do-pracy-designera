@@ -186,8 +186,11 @@ html,body{height:100%;font-family:var(--font);font-size:14px;line-height:1.5;col
 .cb.dn{background:var(--success);border-color:var(--success);color:#fff}
 
 /* NOTES */
-.note-chip{background:var(--bg1);border-radius:var(--r8);padding:10px 13px;margin-bottom:5px;cursor:pointer;border-left:2px solid var(--acc);transition:all .12s}
-.note-chip:hover{background:var(--acc-l);border-left-color:var(--acc-d)}
+.note-chip{background:var(--bg1);border-radius:var(--r8);padding:10px 13px;margin-bottom:5px;cursor:text;border-left:2px solid var(--acc);transition:all .12s;position:relative}
+.note-chip-edit-hint{position:absolute;top:8px;right:10px;font-size:10px;color:var(--t3);opacity:0;transition:opacity .12s;pointer-events:none}
+.note-chip:hover .note-chip-edit-hint{opacity:1}
+.note-chip-inline-editor{display:none;flex-direction:column;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--b3)}
+.note-chip:hover{background:var(--acc-l);border-left-color:var(--acc-d)} .note-chip:hover button{opacity:1 !important}
 .note-chip-title{font-weight:600;font-size:13px;margin-bottom:2px}
 .note-chip-body{font-size:12px;color:var(--t2);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .note-tag{font-size:10px;padding:1px 6px;border-radius:5px;background:#E6F1FB;color:#185FA5;margin-top:4px;display:inline-block}
@@ -340,7 +343,7 @@ html,body{height:100%;font-family:var(--font);font-size:14px;line-height:1.5;col
     <div class="ni" id="nav-roadmap" onclick="goView('roadmap')"><span class="nic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="11" width="12" height="4" rx="1"/><rect x="3" y="18" width="7" height="4" rx="1"/></svg></span>Roadmapa</div>
     <div class="ni" id="nav-meetings" onclick="goView('meetings')"><span class="nic">◷</span>Spotkania</div>
     <span class="ns">Wiedza</span>
-    <div class="ni" id="nav-notes" onclick="goView('notes')"><span class="nic">◻</span>Notatki</div>
+    <div class="ni" id="nav-notes" onclick="goView('notes')"><span class="nic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>Notatki</div>
     <div style="flex:1"></div>
     <div style="padding:8px 10px;border-top:.5px solid var(--b3)">
       <div class="ni" onclick="toggleSettings()" id="settings-toggle" style="justify-content:space-between;font-size:12px;color:var(--t3)">
@@ -1090,7 +1093,7 @@ function rmCardHTML(item,projColor){
             </div>
             <span style="font-size:11px;color:var(--t3);flex-shrink:0;font-family:var(--mono)">${dn}/${item.tasks.length} zadań</span>
           </div>`:`<span style="font-size:11px;color:var(--t3)">Brak zadań</span>`}
-          ${item.notes.length?`<span style="font-size:11px;color:var(--t3)">◻ ${item.notes.length} notat${item.notes.length===1?'ka':item.notes.length<5?'ki':'ek'}</span>`:''}
+          ${item.notes.length?`<span style="font-size:11px;color:var(--t3);display:inline-flex;align-items:center;gap:3px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> ${item.notes.length}</span>`:''}
           ${item.deadlineDay&&item.deadlineMonth?`<span style="font-size:11px;color:#A32D2D;font-weight:600;background:#FCEBEB;padding:1px 7px;border-radius:5px;margin-left:auto">⚑ ${item.deadlineDay} ${['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paz','lis','gru'][item.deadlineMonth-1]}</span>`:`<span style="font-size:11px;color:var(--t3);margin-left:auto">${item.q}</span>`}
         </div>
         ${item.poDesc?`<div style="font-size:12px;color:var(--t2);margin-top:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden">${item.poDesc}</div>`:''}
@@ -1450,6 +1453,51 @@ function openAddGlobalTask(){
     </div>`,'task');
 }
 function openEditNote(id){enterNoteEdit(id);}
+
+// ─── QUICK NOTE EDIT ───
+function toggleChipEdit(nid, iid){
+  const editor=document.getElementById('nchip-edit-'+nid);
+  if(!editor)return;
+  const isOpen=editor.style.display==='flex';
+  editor.style.display=isOpen?'none':'flex';
+  if(!isOpen){
+    const t=document.getElementById('nchip-t-'+nid);
+    if(t){t.focus();t.select();}
+  }
+}
+function cancelChipEdit(nid){
+  const editor=document.getElementById('nchip-edit-'+nid);
+  if(editor)editor.style.display='none';
+}
+function saveChipEdit(nid, iid){
+  const title=document.getElementById('nchip-t-'+nid)?.value.trim();
+  const body=document.getElementById('nchip-b-'+nid)?.value.trim();
+  if(!title)return;
+  // Update in allNotes
+  const gn=S.allNotes.find(x=>x.id===nid);
+  if(gn){gn.title=title;gn.body=body||'';gn.bodyHtml='';}
+  // Update in item notes if linked
+  if(iid){
+    const item=S.items.find(x=>x.id===iid);
+    if(item){const n=item.notes.find(x=>x.id===nid);if(n){n.title=title;n.body=body||'';n.bodyHtml='';}}
+  }
+  persist();
+  // Re-render just this chip
+  const chip=document.getElementById('nchip-'+nid);
+  if(chip&&iid){
+    const item=S.items.find(x=>x.id===iid);
+    const proj=S.projects.find(p=>p.id===item?.pid);
+    const n=item?.notes.find(x=>x.id===nid);
+    if(n){
+      const tmp=document.createElement('div');
+      tmp.innerHTML=noteChipHTML(n,iid);
+      chip.replaceWith(tmp.firstChild);
+    }
+  } else if(chip&&!iid){
+    // in notes view — full re-render
+    goView('notes');
+  }
+}
 
 // ─── RICH EDITOR HELPERS ───
 function richToolbarHTML(tid){
